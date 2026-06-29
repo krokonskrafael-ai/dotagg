@@ -14757,33 +14757,16 @@ loadListings();
       function agSkipTutUpdateBtn() {
         var btn2 = $('ag-skip-tutorial-btn');
         if (!btn2) return;
-        // Detectar tutorial ativo: window.kintaraTutorialCtl (se exposto) ou pelo DOM
+        // Detectar tutorial ativo: checar o painel .kintara-tutorial visível no DOM
         var active = false;
         try {
-          if (typeof window.kintaraTutorialCtl !== 'undefined' && window.kintaraTutorialCtl
-              && typeof window.kintaraTutorialCtl.isActive === 'function') {
-            active = window.kintaraTutorialCtl.isActive();
+          // O painel tem classe 'kintara-tutorial' e fica display:flex quando ativo
+          var _tutPanel = document.querySelector('.kintara-tutorial');
+          if (_tutPanel) {
+            var _tutDs = window.getComputedStyle(_tutPanel).display;
+            active = _tutDs === 'flex' || _tutDs === 'block';
           }
         } catch(_) {}
-        // Fallback: checar o DOM do tutorial HUD
-        // O painel do tutorial (yh) é filho de kintara-tutorial-hdock e fica display:flex quando ativo
-        if (!active) {
-          try {
-            var _tutDock = document.getElementById('kintara-tutorial-hdock');
-            if (_tutDock) {
-              // Procurar filho com classe de tutorial que esteja visível
-              for (var _ti = 0; _ti < _tutDock.children.length; _ti++) {
-                var _tutChild = _tutDock.children[_ti];
-                var _tutCs = window.getComputedStyle(_tutChild);
-                if (_tutCs.display !== 'none' && _tutCs.visibility !== 'hidden'
-                    && _tutChild.offsetHeight > 0) {
-                  active = true;
-                  break;
-                }
-              }
-            }
-          } catch(_) {}
-        }
 
         if (!active) {
           // Cinza — desabilitado
@@ -14798,7 +14781,7 @@ loadListings();
           return;
         }
 
-        var step      = (typeof window.kintaraTutorialCtl !== 'undefined' && window.kintaraTutorialCtl && typeof window.kintaraTutorialCtl.getServerStep === 'function') ? (window.kintaraTutorialCtl.getServerStep() | 0) : 0;
+        var step = 0; // step display apenas (não usado no skip flow)
         var remaining = AG_TUT_TOTAL_STEPS - step;
         btn2.disabled      = false;
         btn2.style.opacity = '1';
@@ -14823,147 +14806,92 @@ loadListings();
 
       // ── Runner assíncrono ───────────────────────────────────────────────────
       async function agRunSkipTutorial() {
-        // Tentar obter o controller: window.window.kintaraTutorialCtl ou fallback por DOM check
-        var ctl = typeof window.kintaraTutorialCtl !== 'undefined' ? window.kintaraTutorialCtl : null;
-        // Se ctl não disponível mas tutorial está visível no DOM, não temos como avançar steps
-        if (!ctl || !ctl.isActive || !ctl.isActive()) {
-          // Checar DOM como fallback
-          var _tutEl = document.getElementById('kintara-tutorial-hdock');
-          var _tutVisible = _tutEl && window.getComputedStyle(_tutEl).display !== 'none' && _tutEl.children.length > 0;
-          if (!_tutVisible) {
-            _('Tutorial já concluído — nada a fazer.');
-            return;
-          }
-          _('⚠️ Tutorial ativo mas controlador não acessível — recarregue a página e tente novamente.');
+        // Verificar se tutorial está ativo pelo DOM (.kintara-tutorial fica display:flex quando ativo)
+        var _tutPanel = document.querySelector('.kintara-tutorial');
+        var _tutActive = false;
+        try { _tutActive = !!(_tutPanel && window.getComputedStyle(_tutPanel).display !== 'none'); } catch(_) {}
+        if (!_tutActive) {
+          _('Tutorial já concluído — nada a fazer.');
           return;
         }
+
+        // Endpoint da API: POST /api/auth/tutorial-progress
+        // action: 'advance', fromStep: N -> avança do step N para o próximo
+        // TUTORIAL_LAST_STEP_INDEX = 28 (kintara-tutorial.mjs)
+        var AG_TUT_LAST = 28;
 
         var btn2 = $('ag-skip-tutorial-btn');
         if (btn2) { btn2.disabled = true; btn2.style.opacity = '0.5'; btn2.innerHTML = AG_SKIP_SVG; }
 
-        AG_LOG.info('[SkipTutorial] Iniciando skip a partir do step ' + ctl.getServerStep());
-
-        // Recompensas por step: tool = grant-tool API, sword = addWildSwordToInventory
-        var stepRewards = {
-          1:  { tool: 'tool_axe',        skill: function() { try { hasLoggingSkill       = true; } catch(_){} } },
-          3:  { tool: 'tool_pickaxe',    skill: function() { try { hasMiningSkill         = true; } catch(_){} } },
-          5:  { tool: 'tool_hammer',     skill: function() { try { hasBuildingSkill        = true; } catch(_){} } },
-          10: { tool: 'tool_fishing_rod',skill: function() { try { hasFishingRodTraining   = true; } catch(_){} } },
-          14: { sword: true,             skill: function() { try { hasWildSwordTraining     = true; } catch(_){} } },
-        };
-
-        async function grantStepTool(step) {
-          var reward = stepRewards[step];
-          if (!reward) return;
-          try { reward.skill(); } catch(_) {}
-          if (reward.sword) {
-            try { if (!playerCarriesToolType('wild_sword')) { addWildSwordToInventory(); await new Promise(function(r){ setTimeout(r, 700); }); } } catch(e) { AG_LOG.warn('[SkipTutorial] sword: ' + e.message); }
-            return;
-          }
-          if (reward.tool && !playerCarriesToolType(reward.tool)) {
-            await new Promise(function(resolve) {
-              (async function() {
-                try {
-                  await persistBackpackInventoryNow();
-                  var r = await fetch('/api/auth/grant-tool', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: reward.tool }) });
-                  var d = await r.json().catch(function(){ return {}; });
-                  if (d.backpack) await applyServerAuthoritativeBackpack(d.backpack, { flush: false, stateSeq: d.stateSeq });
-                  AG_LOG.info('[SkipTutorial] Concedido: ' + reward.tool);
-                } catch(e) { AG_LOG.warn('[SkipTutorial] grant ' + reward.tool + ': ' + e.message); }
-                finally { resolve(); }
-              })();
-            });
-          }
+        var statusEl = $('ag-skip-status');
+        function setStatus(msg, color) {
+          if (statusEl) { statusEl.textContent = msg; statusEl.style.color = color || '#fbbf24'; }
+          AG_LOG.info('[SkipTutorial] ' + msg);
         }
 
-        // Steps com STEP_CONTINUES_ONLY=true (20, 27) e o Finish (28) não passam por
-        // advanceIfMatchesStep — usam a API /api/auth/tutorial-progress diretamente,
-        // igual ao que o botão "Continue" / "Finish Tutorial" faria internamente.
-        var STEP_CONTINUES_ONLY = { 20: true, 27: true };
-        var STEP_FINISH = 28;
+        setStatus('Iniciando skip via API...');
 
-        async function forceAdvanceViaApi(step) {
-          // Chama a mesma rota que advanceFrom() usa internamente no kintara-tutorial.mjs
-          try {
+        try {
+          // 1. Buscar step atual
+          var meResp = await fetch('/api/auth/me', { credentials: 'include' });
+          var meData = await meResp.json().catch(function() { return {}; });
+          var currentStep = (meData && typeof meData.tutorialStep === 'number') ? meData.tutorialStep : 0;
+
+          if (currentStep < 0) {
+            setStatus('Tutorial já concluído.', '#6ee7a0');
+            if (btn2) { btn2.disabled = false; btn2.style.opacity = '1'; }
+            return;
+          }
+
+          AG_LOG.info('[SkipTutorial] Step atual: ' + currentStep + ', avançando até ' + AG_TUT_LAST);
+
+          // 2. Avançar step a step até o último
+          var step = currentStep;
+          var maxIter = AG_TUT_LAST + 5;
+          var iter = 0;
+          while (step >= 0 && step <= AG_TUT_LAST && iter < maxIter) {
+            iter++;
+            setStatus('Avançando step ' + step + '/' + AG_TUT_LAST + '...');
             var r = await fetch('/api/auth/tutorial-progress', {
-              method: 'POST', credentials: 'include',
+              method: 'POST',
+              credentials: 'include',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ action: 'advance', fromStep: step }),
+              body: JSON.stringify({ action: 'advance', fromStep: step })
             });
-            var d = await r.json().catch(function(){ return {}; });
-            if (r.ok && d.ok !== false && typeof d.tutorialStep === 'number') {
-              // Sincroniza o serverStep interno do ctl via applyServerTutorialStep
-              // O ctl expõe renderPanel — depois de avançar forçamos um re-render
-              try { await ctl.advanceIfMatchesStep(step, function() { return false; }); } catch(_) {}
-              // Atualiza o step interno usando restartFromSettings como fallback se necessário
-              AG_LOG.info('[SkipTutorial] API advance(' + step + ') → tutorialStep=' + d.tutorialStep);
-            } else {
-              AG_LOG.warn('[SkipTutorial] API advance(' + step + ') falhou: ' + JSON.stringify(d));
+            var d = await r.json().catch(function() { return {}; });
+            if (!r.ok || d.ok === false) {
+              setStatus('Erro no step ' + step + ': ' + (d.error || r.status), '#f87171');
+              break;
             }
-          } catch(e) {
-            AG_LOG.warn('[SkipTutorial] forceAdvanceViaApi(' + step + '): ' + e.message);
-          }
-        }
-
-        async function forceAdvance(step) {
-          if (!ctl || !ctl.isActive || !ctl.isActive()) return;
-          if ((ctl.getServerStep() | 0) !== step) return;
-
-          // Steps CONTINUES_ONLY (20, 27) e Finish (28): vai direto na API
-          if (STEP_CONTINUES_ONLY[step] || step === STEP_FINISH) {
-            await forceAdvanceViaApi(step);
-            return;
+            var nextStep = (d && typeof d.tutorialStep === 'number') ? d.tutorialStep : -1;
+            AG_LOG.info('[SkipTutorial] step ' + step + ' -> ' + nextStep);
+            if (nextStep < 0 || nextStep === step) break; // concluído ou não avançou
+            step = nextStep;
+            await new Promise(function(res) { setTimeout(res, 120); }); // pequena pausa entre chamadas
           }
 
-          // Injeta inventário mínimo temporário para steps de coleta
-          var savedInv = {}, tempKeys = [];
-          try {
-            if      (step === 2)  { if ((Vt.wood|0) < 1)  { savedInv.wood = Vt.wood; Vt.wood = 1; tempKeys.push('wood'); } }
-            else if (step === 4)  { if ((Vt.stone|0) < 10){ savedInv.stone = Vt.stone; Vt.stone = 10; tempKeys.push('stone'); }
-                                    if ((Vt.coal|0)  < 5) { savedInv.coal  = Vt.coal;  Vt.coal  = 5;  tempKeys.push('coal');  } }
-            else if (step === 11) { if ((Vt.fish|0)  < 1) { savedInv.fish = Vt.fish; Vt.fish = 1; tempKeys.push('fish'); } }
-            else if (step === 12) { if ((Vt.cooked_fish_meat|0) < 1) { savedInv.cooked_fish_meat = Vt.cooked_fish_meat; Vt.cooked_fish_meat = 1; tempKeys.push('cooked_fish_meat'); } }
-          } catch(_) {}
-          try { await ctl.advanceIfMatchesStep(step, function() { return true; }); }
-          catch(e) { AG_LOG.warn('[SkipTutorial] advance(' + step + '): ' + e.message); }
-          try { tempKeys.forEach(function(k) { Vt[k] = savedInv[k]; }); } catch(_) {}
-        }
-
-        // Todos os 29 steps (0..28), incluindo os CONTINUES_ONLY (20, 27) e Finish (28)
-        var ALL_STEPS = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28];
-        for (var i = 0; i < ALL_STEPS.length; i++) {
-          if (!ctl || !ctl.isActive || !ctl.isActive()) break;
-          var cur = ctl.getServerStep() | 0;
-          if (cur !== ALL_STEPS[i]) continue;
-
-          var stepLabel = cur === STEP_FINISH ? 'Finish (' + cur + ')' : STEP_CONTINUES_ONLY[cur] ? 'Continue (' + cur + ')' : String(cur);
-          AG_LOG.info('[SkipTutorial] Step ' + stepLabel);
-          _('Tutorial: pulando step ' + stepLabel + '...');
-
-          // 350ms pós-grant + 500ms pós-advance (~850ms por step, ~25s total)
-          await grantStepTool(cur);
-          await new Promise(function(r){ setTimeout(r, 350); });
-          await forceAdvance(cur);
-          await new Promise(function(r){ setTimeout(r, 500); });
-        }
-
-        var finalBtn = $('ag-skip-tutorial-btn');
-        if (!ctl || !ctl.isActive || !ctl.isActive()) {
-          AG_LOG.info('[SkipTutorial] Concluído!');
-          _('✓ Tutorial pulado! Todas as recompensas entregues.');
-          if (finalBtn) {
-            finalBtn.disabled = true; finalBtn.style.opacity = '0.35'; finalBtn.style.cursor = 'not-allowed';
-            finalBtn.style.color = '#8a93a8'; finalBtn.style.borderColor = 'rgba(255,255,255,0.1)'; finalBtn.style.background = 'rgba(255,255,255,0.04)';
-            finalBtn.title = 'Tutorial concluído com sucesso!';
-            finalBtn.innerHTML = AG_SKIP_SVG;
+          // 3. Finalizar o último step
+          if (step === AG_TUT_LAST) {
+            setStatus('Finalizando último step...');
+            var rFin = await fetch('/api/auth/tutorial-progress', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ action: 'advance', fromStep: AG_TUT_LAST })
+            });
+            var dFin = await rFin.json().catch(function() { return {}; });
+            AG_LOG.info('[SkipTutorial] final step result: ' + JSON.stringify(dFin).slice(0, 100));
           }
-        } else {
-          AG_LOG.warn('[SkipTutorial] Ainda ativo após skip — step=' + ctl.getServerStep());
-          _('Alguns steps não avançaram — tente novamente.');
-          if (finalBtn) { finalBtn.disabled = false; finalBtn.style.opacity = '1'; finalBtn.style.cursor = 'pointer'; }
+
+          setStatus('✓ Tutorial concluído! Recarregue a página para aplicar.', '#6ee7a0');
+          _('✓ Tutorial pulado! Recarregue a página para liberar chat e interações.');
+
+        } catch(e) {
+          setStatus('Erro: ' + e.message, '#f87171');
+          AG_LOG.warn('[SkipTutorial] Erro: ' + e.message);
         }
-        agSkipTutUpdateBtn();
-        try { updateHUD(); } catch(_) {}
+
+        if (btn2) { btn2.disabled = false; btn2.style.opacity = '1'; btn2.innerHTML = AG_SKIP_SVG; }
       }
 
       btn.addEventListener('click', function() { agRunSkipTutorial(); });
