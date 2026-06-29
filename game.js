@@ -16749,7 +16749,7 @@ loadListings();
   }
 
   window.addEventListener('keydown', e => {
-    if (e.key === 'F1') { { e.preventDefault(); agReopenPanel(); }
+    if (e.key === 'F1') { e.preventDefault(); agReopenPanel(); }
     if (e.key === 'F2') { e.preventDefault(); agToggleOptMenu(); }
     if (e.key === 'F7') { e.preventDefault(); agHuntToggle(); }
     if (e.key === 'F8') { e.preventDefault(); agToggle(); }
