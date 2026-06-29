@@ -14789,12 +14789,12 @@ loadListings();
       function agSkipTutUpdateBtn() {
         var btn2 = $('ag-skip-tutorial-btn');
         if (!btn2) return;
-        // Detectar tutorial ativo: kintaraTutorialCtl (se exposto) ou pelo DOM
+        // Detectar tutorial ativo: window.kintaraTutorialCtl (se exposto) ou pelo DOM
         var active = false;
         try {
-          if (typeof kintaraTutorialCtl !== 'undefined' && kintaraTutorialCtl
-              && typeof kintaraTutorialCtl.isActive === 'function') {
-            active = kintaraTutorialCtl.isActive();
+          if (typeof window.kintaraTutorialCtl !== 'undefined' && window.kintaraTutorialCtl
+              && typeof window.kintaraTutorialCtl.isActive === 'function') {
+            active = window.kintaraTutorialCtl.isActive();
           }
         } catch(_) {}
         // Fallback: checar o DOM do tutorial HUD
@@ -14830,7 +14830,7 @@ loadListings();
           return;
         }
 
-        var step      = typeof kintaraTutorialCtl.getServerStep === 'function' ? (kintaraTutorialCtl.getServerStep() | 0) : 0;
+        var step      = (typeof window.kintaraTutorialCtl !== 'undefined' && window.kintaraTutorialCtl && typeof window.kintaraTutorialCtl.getServerStep === 'function') ? (window.kintaraTutorialCtl.getServerStep() | 0) : 0;
         var remaining = AG_TUT_TOTAL_STEPS - step;
         btn2.disabled      = false;
         btn2.style.opacity = '1';
@@ -14855,8 +14855,8 @@ loadListings();
 
       // ── Runner assíncrono ───────────────────────────────────────────────────
       async function agRunSkipTutorial() {
-        // Tentar obter o controller: window.kintaraTutorialCtl ou fallback por DOM check
-        var ctl = typeof kintaraTutorialCtl !== 'undefined' ? kintaraTutorialCtl : null;
+        // Tentar obter o controller: window.window.kintaraTutorialCtl ou fallback por DOM check
+        var ctl = typeof window.kintaraTutorialCtl !== 'undefined' ? window.kintaraTutorialCtl : null;
         // Se ctl não disponível mas tutorial está visível no DOM, não temos como avançar steps
         if (!ctl || !ctl.isActive || !ctl.isActive()) {
           // Checar DOM como fallback
