@@ -7268,32 +7268,6 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       }
     } catch (err) { console.warn('[AutoGather] Tick erro:', err); agSetStatus('⚠️ Erro — veja console'); }
 
-    // Health Potion — Farm
-    try {
-      var _farmHpEnabled = (function() {
-        var el = $('ag-farm-hp-potion');
-        return el ? el.checked : false;
-      })();
-      if (_farmHpEnabled) {
-        var _farmHpThr = (function() {
-          var el = $('ag-farm-hp-thresh');
-          return el ? (parseInt(el.value) || 3) : 3;
-        })();
-        var _farmHpSegs = Math.ceil(Jt / 20); // Jt = playerHp, max 100, 5 segs de 20
-        var _hotActive = false;
-        try { _hotActive = typeof vy !== 'undefined' && vy.length > 0; } catch(_) {}
-        var _hpCoolOk = (Date.now() - agPotionHealthAt) >= 10000;
-        if (_farmHpSegs <= _farmHpThr && !_hotActive && _hpCoolOk) {
-          var _hasHpPot = (Vt['potion_health'] || 0) > 0 || Fe.some(function(s){ return s && s.type === 'potion_health' && s.count > 0; });
-          if (_hasHpPot) {
-            kXe('potion_health');
-            agPotionHealthAt = Date.now();
-            AG_LOG.info('[Farm] HP potion usada | hp=' + Jt + ' segs=' + _farmHpSegs + '/' + _farmHpThr);
-          }
-        }
-      }
-    } catch(_e) {}
-
     agSchedule(AG_TICK_MS);
   }
 
@@ -12408,12 +12382,6 @@ loadListings();
               '<option value="ember">Ember</option>',
             '</select>',
           '</div>',
-          '<div class="ag-row" style="margin-top:3px;gap:6px;align-items:center">',
-            '<input type="checkbox" id="ag-farm-hp-potion">',
-            '<span class="ag-lbl" style="flex:none">Poção HP &lt;=</span>',
-            '<input type="number" id="ag-farm-hp-thresh" min="1" max="5" value="3" style="width:38px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2;text-align:center">',
-            '<span class="ag-lbl" style="flex:none;color:#64748b">/5 segs</span>',
-          '</div>',
           '<button id="ag-btn" data-on="false">&#9654; Iniciar (F8)</button>',
           '<div id="ag-status">Desligado</div>',
           '<div id="ag-hint"></div>',
@@ -15343,8 +15311,7 @@ loadListings();
           autogold:   $('ag-startup-autogold') ? $('ag-startup-autogold').checked : false,
           realm:     $('ag-startup-realm') ? $('ag-startup-realm').value : '',
           farmRealm: $('ag-farm-realm') ? $('ag-farm-realm').value : '',
-          farmHpPotion: $('ag-farm-hp-potion') ? $('ag-farm-hp-potion').checked : false,
-          farmHpThresh: $('ag-farm-hp-thresh') ? ($('ag-farm-hp-thresh').value || '3') : '3',
+
         };
         localStorage.setItem('kintara_ag_startup', JSON.stringify(cfg));
         var s = $('ag-startup-status');
@@ -15390,8 +15357,6 @@ loadListings();
     }
     if (sc.realm && $('ag-startup-realm')) $('ag-startup-realm').value = sc.reacm;
     // Sincroniza o select "Mapa:" do painel principal com o realm do startup config
-    if ($('ag-farm-hp-potion')) $('ag-farm-hp-potion').checked = !!sc.farmHpPotion;
-    if ($('ag-farm-hp-thresh') && sc.farmHpThresh) $('ag-farm-hp-thresh').value = sc.farmHpThresh;
     if ((sc.farmRealm || sc.realm) && $('ag-farm-realm')) {
       var _fr = sc.farmRealm || sc.realm || '';
       $('ag-farm-realm').value = _fr;
