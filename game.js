@@ -5728,11 +5728,36 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   pointer-events: none !important;
 }
 `,document.head.appendChild(Q)}try{typeof Kb<"u"&&Kb&&Kb.classList&&Kb.classList.add("kintara-radar-wrap"),typeof $v<"u"&&$v&&$v.classList&&$v.classList.add("kintara-radar-quick-row"),typeof jv<"u"&&jv&&jv.classList&&jv.classList.add("kintara-radar-quick-row"),typeof e2<"u"&&e2&&e2.classList&&e2.classList.add("kintara-topleft-row"),typeof Wv<"u"&&Wv&&Wv.classList&&Wv.classList.add("kintara-radar-compass-mount"),typeof no<"u"&&no&&!no.id&&(no.id="kintara-inv-overlay"),typeof mo<"u"&&mo&&!mo.id&&(mo.id="kintara-build-menu-backdrop")}catch{}try{const Q=c(()=>{if(!(!sf||!sf.cells))for(const de of sf.cells){if(!de)continue;const Te=de.firstElementChild;Te&&!Te.classList.contains("kintara-hotbar-key")&&Te.classList.add("kintara-hotbar-key")}},"tagHotbarKeys");Q(),typeof Nu<"u"&&Nu&&new MutationObserver(Q).observe(Nu,{childList:!0,subtree:!0})}catch{}function a(Q,de){const Te=de||22;return'<svg xmlns="http://www.w3.org/2000/svg" width="'+Te+'" height="'+Te+'" viewBox="0 0 24 24" fill="none" stroke="#1a1410" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="pointer-events:none;display:block;flex-shrink:0;">'+Q+"</svg>"}c(a,"svgMarkup");function o(Q){return'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e8ecf3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="pointer-events:none;display:block;flex-shrink:0;">'+Q+"</svg>"}c(o,"dropdownSvg");const i=document.createElement("button");i.type="button",i.className="kintara-mobile-menu-btn kintara-mobile-only",i.setAttribute("aria-label","Open game menu"),i.title="Menu",i.innerHTML=a('<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>',22);const r=document.createElement("span");r.className="kintara-mobile-menu-btn__badge",i.appendChild(r);const l=document.createElement("div");l.className="kintara-mobile-dropdown kintara-mobile-dropdown--right",l.setAttribute("role","menu");const d=document.createElement("div");d.className="kintara-mobile-dropdown__grid",l.appendChild(d);function u(Q,de,Te,Xe){const vt=document.createElement("button");if(vt.type="button",vt.className="kintara-mobile-dropdown__item",vt.dataset.kintaraMobileItem=Xe&&Xe.id?Xe.id:Q.toLowerCase(),vt.innerHTML=o(de)+"<span>"+Q+"</span>",vt.addEventListener("click",pn=>{pn.preventDefault(),pn.stopPropagation(),O();try{typeof Te=="function"?Te():Te&&typeof Te.click=="function"&&Te.click()}catch{}}),Xe&&Xe.badge){const pn=document.createElement("span");pn.className="kintara-mobile-dropdown__itemBadge",vt.appendChild(pn),vt._kintaraBadge=pn}return vt}c(u,"makeMobileMenuItem");const p=u("Friends",'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',typeof YD<"u"?YD:null,{id:"friends",badge:!0}),f=u("Inventory",'<path d="M4 10a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8z"/><path d="M9 6V5a3 3 0 0 1 6 0v1"/><path d="M8 10h8"/>',typeof VD<"u"?VD:null,{id:"inventory"}),g=u("Build",'<path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/>',typeof PC<"u"?PC:null,{id:"build"}),b=u("Arena",'<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>',typeof KD<"u"?KD:null,{id:"arena"}),y=u("Stats",'<path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16v-9"/><path d="M17 16v-2"/>',typeof XD<"u"?XD:null,{id:"stats"}),x=u("Outfit",'<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>',typeof ZD<"u"?ZD:null,{id:"outfit"}),k=u("Market",'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',typeof qP<"u"?qP:null,{id:"market"}),M=u("Map",'<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21 3 6"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>',()=>{try{if(!(m==="world"||m==="wild"||m==="wild_ext"||m==="wild_exp"||m==="ember"||m==="arena"||m==="pond"||m==="beach"||m==="eldergrove")||vn)return;ao=!ao,ao?(Cr.style.display="block",typeof gt=="function"&&gt(Cr),typeof RK=="function"&&RK()):(Cr.style.display="none",typeof b0=="function"&&b0())}catch{}},{id:"map"});d.append(f,g,x,y,p,b,k,M);const S=document.createElement("button");S.type="button",S.className="kintara-mobile-menu-btn kintara-mobile-menu-btn--settings kintara-mobile-only",S.setAttribute("aria-label","Open settings menu"),S.title="Settings",S.innerHTML=a('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>',22);const v=document.createElement("div");v.className="kintara-mobile-dropdown kintara-mobile-dropdown--left",v.setAttribute("role","menu");const T=document.createElement("div");T.className="kintara-mobile-dropdown__grid",v.appendChild(T);const C=u("Settings",'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>',typeof Su<"u"?Su:null,{id:"settings"}),R=u("Admin",'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',typeof gs<"u"?gs:null,{id:"admin"}),E=u("Logout",'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',typeof fp<"u"?fp:null,{id:"logout"});T.append(C,R,E);const N=typeof ve<"u"&&ve||document.body;N.appendChild(i),N.appendChild(l),N.appendChild(S),N.appendChild(v);function W(){try{if(typeof gs>"u"||!gs){R.hidden=!0;return}const Q=window.getComputedStyle(gs);R.hidden=!(Q&&Q.display!=="none")}catch{R.hidden=!1}}c(W,"syncMobileAdminItem"),W();try{typeof gs<"u"&&gs&&new MutationObserver(W).observe(gs,{attributes:!0,attributeFilter:["style","class"]})}catch{}function H(){try{if(typeof up>"u"||!up)return;const Q=up.style.display!=="none"&&!!(up.textContent||"").trim();r.style.display=Q?"block":"none",r.textContent=(up.textContent||"").trim();const de=p&&p._kintaraBadge;de&&(de.style.display=Q?"block":"none",de.textContent=r.textContent)}catch{}}c(H,"syncMobileFriendBadge"),H();try{typeof up<"u"&&up&&new MutationObserver(H).observe(up,{attributes:!0,attributeFilter:["style"],childList:!0,characterData:!0,subtree:!0})}catch{}function B(Q){O(Q==="right"?"left":"right"),Q==="right"?l.setAttribute("data-open","true"):v.setAttribute("data-open","true")}c(B,"openMobileMenu");function O(Q){(!Q||Q==="right")&&l.removeAttribute("data-open"),(!Q||Q==="left")&&v.removeAttribute("data-open")}c(O,"closeMobileMenu"),i.addEventListener("click",Q=>{Q.preventDefault(),Q.stopPropagation(),l.getAttribute("data-open")==="true"?O("right"):B("right")}),S.addEventListener("click",Q=>{Q.preventDefault(),Q.stopPropagation(),v.getAttribute("data-open")==="true"?O("left"):B("left")}),document.addEventListener("click",Q=>{const de=Q.target;de&&(de===i||i.contains(de)||de===S||S.contains(de)||l.contains(de)||v.contains(de)||O())}),window.addEventListener("keydown",Q=>{Q.key==="Escape"&&O()});const A=document.createElement("div");A.className="kintara-mobile-bottom-dock",A.id="kintara-mobile-bottom-dock";const F=document.createElement("div");F.className="kintara-mobile-bottom-dock__panes";const D=document.createElement("div");D.className="kintara-mobile-bottom-dock__pane",D.dataset.pane="chat";const z=document.createElement("div");z.className="kintara-mobile-bottom-dock__pane",z.dataset.pane="quests",F.append(D,z);const I=document.createElement("button");I.type="button",I.className="kintara-mobile-pane-min",I.title="Minimize chat",I.setAttribute("aria-label","Minimize chat"),I.textContent="\u2212",D.appendChild(I);const q=document.createElement("button");q.type="button",q.className="kintara-mobile-pane-min",q.title="Minimize quests",q.setAttribute("aria-label","Minimize quests"),q.textContent="\u2212",z.appendChild(q);const G=document.createElement("div");G.className="kintara-mobile-bottom-dock__health";const K=document.createElement("div");K.className="kintara-mobile-bottom-dock__hotbar";const J=document.createElement("div");J.className="kintara-mobile-bottom-dock__icons";const ne=document.createElement("button");ne.type="button",ne.className="kintara-mobile-bottom-dock__iconBtn",ne.dataset.tab="chat",ne.setAttribute("aria-label","Toggle chat"),ne.title="Chat",ne.innerHTML='<span class="kintara-mobile-bottom-dock__iconGlyph">\u{1F4AC}</span><span>Chat</span>';const be=document.createElement("button");be.type="button",be.className="kintara-mobile-bottom-dock__iconBtn",be.dataset.tab="quests",be.setAttribute("aria-label","Toggle quests"),be.title="Quests",be.innerHTML='<span class="kintara-mobile-bottom-dock__iconGlyph">\u2726</span><span>Quests</span>',J.append(ne,be),A.append(F,G,K,J),N.appendChild(A);let we=null;function te(Q){we=Q==="chat"||Q==="quests"?Q:null,document.body.classList.toggle("kintara-bottom--chat",we==="chat"),document.body.classList.toggle("kintara-bottom--quests",we==="quests"),ne.dataset.active=we==="chat"?"true":"false",be.dataset.active=we==="quests"?"true":"false"}c(te,"setMobilePane"),te(null),ne.addEventListener("click",Q=>{Q.stopPropagation(),te(we==="chat"?null:"chat")}),be.addEventListener("click",Q=>{Q.stopPropagation(),te(we==="quests"?null:"quests")}),I.addEventListener("click",Q=>{Q.stopPropagation(),te(null)}),q.addEventListener("click",Q=>{Q.stopPropagation(),te(null)});const me=new Map;function ue(Q){!Q||me.has(Q)||me.set(Q,{parent:Q.parentNode,next:Q.nextSibling})}c(ue,"rememberParent");function Ve(Q){const de=me.get(Q);if(!(!de||!de.parent))try{de.next&&de.next.parentNode===de.parent?de.parent.insertBefore(Q,de.next):de.parent.appendChild(Q)}catch{}}c(Ve,"restoreParent");function Ie(){document.body.classList.add("kintara-mobile"),typeof Zr<"u"&&Zr&&Zr.parentNode!==D&&(ue(Zr),D.appendChild(Zr),D.appendChild(I)),typeof Rd<"u"&&Rd&&Rd.parentNode!==z&&(ue(Rd),z.appendChild(Rd),z.appendChild(q)),typeof Nu<"u"&&Nu&&Nu.parentNode!==K&&(ue(Nu),K.appendChild(Nu)),typeof $l<"u"&&$l&&$l.parentNode!==G&&(ue($l),G.appendChild($l));try{typeof m_<"u"&&(m_=!1),typeof XC<"u"&&(XC=!1)}catch{}try{typeof h_=="function"&&h_()}catch{}try{typeof T0=="function"&&T0()}catch{}}c(Ie,"enterMobile");function Se(){document.body.classList.remove("kintara-mobile"),document.body.classList.remove("kintara-bottom--chat"),document.body.classList.remove("kintara-bottom--quests"),typeof Zr<"u"&&Zr&&Ve(Zr),typeof Rd<"u"&&Rd&&Ve(Rd),typeof Nu<"u"&&Nu&&Ve(Nu),typeof $l<"u"&&$l&&Ve($l),O()}c(Se,"leaveMobile");function fe(){const Q=n();Q!==e&&(e=Q,Q?Ie():Se())}c(fe,"applyMobileMode"),fe(),window.addEventListener("resize",fe),window.addEventListener("orientationchange",fe),document.addEventListener("visibilitychange",fe),setTimeout(fe,0),setTimeout(fe,250);try{window.__kintaraMobile={status(){return{isMobile:e,innerWidth:window.innerWidth,innerHeight:window.innerHeight,bodyHasMobileClass:document.body.classList.contains("kintara-mobile"),pointerCoarse:(()=>{try{return window.matchMedia("(pointer: coarse)").matches}catch{return null}})(),maxTouchPoints:navigator.maxTouchPoints||0,ontouchstart:"ontouchstart"in window}},force(Q){e=!Q,fe()},recheck:fe}}catch{}class ie{static{c(this,"FakeDataTransfer")}constructor(){this._data=new Map,this.effectAllowed="move",this.dropEffect="move",this.types=[]}setData(de,Te){const Xe=String(de||"text/plain");this._data.set(Xe,String(Te)),this.types.indexOf(Xe)<0&&(this.types=[...this._data.keys()])}getData(de){const Te=String(de||"text/plain");return this._data.has(Te)?this._data.get(Te):""}clearData(de){if(de==null){this._data.clear(),this.types=[];return}this._data.delete(String(de)),this.types=[...this._data.keys()]}setDragImage(){}}function $e(Q,de,Te,Xe){const vt=new Event(Q,{bubbles:!0,cancelable:!0});try{Object.defineProperty(vt,"dataTransfer",{value:Xe,configurable:!0})}catch{vt.dataTransfer=Xe}try{Object.defineProperty(vt,"clientX",{value:de,configurable:!0}),Object.defineProperty(vt,"clientY",{value:Te,configurable:!0})}catch{vt.clientX=de,vt.clientY=Te}return vt}c($e,"makeDragLikeEvent");let Ye=null,ot=0,mt=0,Ot=!1,It=0,ct=null,ge=null,Ge=null;function dt(){if(It&&(clearTimeout(It),It=0),ct&&ct.parentNode&&ct.parentNode.removeChild(ct),ct=null,Ye)try{Ye.style.opacity=""}catch{}Ye=null,ge=null,Ot=!1,Ge=null}c(dt,"tdCleanup");function Dt(Q,de,Te){const Xe=document.createElement("div");Xe.className="kintara-touch-drag-ghost",Xe.style.left=de+"px",Xe.style.top=Te+"px";try{const vt=Q.cloneNode(!0);vt.style.transform="none",vt.style.opacity="1",vt.removeAttribute("draggable"),Xe.appendChild(vt)}catch{}return Xe}c(Dt,"tdMakeGhost");function Ft(Q){if(!document.body.classList.contains("kintara-mobile"))return;if(Q.touches.length!==1){dt();return}const de=Q.target&&Q.target.closest?Q.target.closest('[draggable="true"]'):null;if(!de)return;dt(),Ye=de;const Te=Q.touches[0];ot=Te.clientX,mt=Te.clientY,Ot=!1,It=setTimeout(()=>{if(!Ye)return;Ot=!0,ge=new ie;const Xe=$e("dragstart",ot,mt,ge);try{Ye.dispatchEvent(Xe)}catch{}ct=Dt(Ye,ot,mt),document.body.appendChild(ct)},180)}c(Ft,"tdOnTouchStart");function Ct(Q){if(!Ye)return;const de=Q.touches[0];if(!de)return;if(!Ot){const Xe=de.clientX-ot,vt=de.clientY-mt;Math.hypot(Xe,vt)>10&&dt();return}Q.cancelable&&Q.preventDefault(),ct&&(ct.style.left=de.clientX+"px",ct.style.top=de.clientY+"px",ct.style.pointerEvents="none");let Te=null;try{Te=document.elementFromPoint(de.clientX,de.clientY)}catch{}if(Te&&Te!==Ge){if(Ge){const vt=$e("dragleave",de.clientX,de.clientY,ge);try{Ge.dispatchEvent(vt)}catch{}}Ge=Te;const Xe=$e("dragenter",de.clientX,de.clientY,ge);try{Te.dispatchEvent(Xe)}catch{}}if(Te){const Xe=$e("dragover",de.clientX,de.clientY,ge);try{Te.dispatchEvent(Xe)}catch{}}}c(Ct,"tdOnTouchMove");let kt=null,zt=0,Mn=0,_e=0,De="";const Pt=600,Ce=28;let Me=0;const ke=450;function Ae(Q){if(!Q||!Q.getAttribute)return"";const de=["data-mount-id","data-pet-id","data-cosmetic-id","data-slot","data-slotkey","data-bagidx","data-mountkey","data-petkey","data-cosmetickey"];for(const Te of de){const Xe=Q.getAttribute(Te);if(Xe)return Te+":"+Xe}return""}c(Ae,"tdStableKeyFor");function Ne(Q,de,Te){if(!Q)return;const Xe=typeof performance<"u"&&performance.now?performance.now():Date.now(),vt=Ae(Q),pn=kt&&kt===Q,Je=!!De&&De===vt,et=Number.isFinite(de)&&Number.isFinite(Te)&&Math.abs(de-Mn)<Ce&&Math.abs(Te-_e)<Ce;if(Xe-zt<Pt&&(pn||Je||et)){Me=Xe;try{const tt=new MouseEvent("dblclick",{bubbles:!0,cancelable:!0,view:window,clientX:de||0,clientY:Te||0});Q.dispatchEvent(tt)}catch{try{const _t=document.createEvent("Event");_t.initEvent("dblclick",!0,!0),Q.dispatchEvent(_t)}catch{}}kt=null,zt=0,De=""}else kt=Q,zt=Xe,De=vt,Number.isFinite(de)&&(Mn=de),Number.isFinite(Te)&&(_e=Te)}c(Ne,"tdMaybeDoubleClick");function Z(Q){if(!Ye)return;const de=Q.changedTouches&&Q.changedTouches[0]||null,Te=de?de.clientX:ot,Xe=de?de.clientY:mt,vt=Math.hypot(Te-ot,Xe-mt);if(!Ot||vt<10){const Je=Ye;if(Ot&&Ye&&ge){const et=$e("dragend",Te,Xe,ge);try{Ye.dispatchEvent(et)}catch{}}dt(),Ne(Je,Te,Xe);return}let pn=null;try{ct&&(ct.style.pointerEvents="none"),pn=document.elementFromPoint(Te,Xe)}catch{}if(pn&&ge){const Je=$e("drop",Te,Xe,ge);try{pn.dispatchEvent(Je)}catch{}}if(Ye&&ge){const Je=$e("dragend",Te,Xe,ge);try{Ye.dispatchEvent(Je)}catch{}}dt()}c(Z,"tdOnTouchEnd"),document.addEventListener("touchstart",Ft,{capture:!0,passive:!0}),document.addEventListener("touchmove",Ct,{capture:!0,passive:!1}),document.addEventListener("touchend",Z,{capture:!0,passive:!0}),document.addEventListener("touchcancel",Z,{capture:!0,passive:!0}),document.addEventListener("dblclick",Q=>{if(!document.body.classList.contains("kintara-mobile")||!Q.isTrusted)return;(typeof performance<"u"&&performance.now?performance.now():Date.now())-Me<ke&&(Q.stopImmediatePropagation(),Q.preventDefault())},{capture:!0});let re=0,se=0,oe=0;function Ke(Q){if(!document.body.classList.contains("kintara-mobile"))return;if(!Q.changedTouches||Q.changedTouches.length!==1){re=0;return}const de=Q.target;if(de&&de.closest&&de.closest('[draggable="true"]'))return;const Te=Q.changedTouches[0],Xe=Te.clientX,vt=Te.clientY,pn=typeof performance<"u"&&performance.now?performance.now():Date.now();if(pn-re<400&&Math.abs(Xe-se)<25&&Math.abs(vt-oe)<25){re=0;try{const Je=new MouseEvent("dblclick",{bubbles:!0,cancelable:!0,view:window,clientX:Xe,clientY:vt});(de||window).dispatchEvent(Je)}catch{try{const et=document.createEvent("Event");et.initEvent("dblclick",!0,!0);try{Object.defineProperty(et,"clientX",{value:Xe,configurable:!0})}catch{et.clientX=Xe}try{Object.defineProperty(et,"clientY",{value:vt,configurable:!0})}catch{et.clientY=vt}(de||window).dispatchEvent(et)}catch{}}return}re=pn,se=Xe,oe=vt}c(Ke,"canvasOnTouchEnd"),document.addEventListener("touchend",Ke,{capture:!1,passive:!0});const it=10;let Zt=null,qt=!1,ht=0,Un=0;function go(Q,de){if(!Q)return null;for(let Te=0;Te<Q.length;Te++)if(Q[Te].identifier===de)return Q[Te];return null}c(go,"mpFindTouch");function Yi(){qt&&(Lp=!1,Bu=0,Hu=0,Po&&(cancelAnimationFrame(Po),Po=0)),qt=!1,Zt=null}c(Yi,"mpReset");function Cs(Q){if(!document.body.classList.contains("kintara-mobile")||typeof ny=="function"&&!ny()||typeof ao<"u"&&ao)return;if(Q.touches.length!==1){Yi();return}const de=Q.touches[0];try{if(B9(de))return}catch{}de.target&&de.target.closest&&de.target.closest('[draggable="true"]')||(Zt=de.identifier,ht=de.clientX,Un=de.clientY,qt=!1)}c(Cs,"mpOnTouchStart");function Rt(Q){if(Zt===null)return;const de=go(Q.touches,Zt);if(de){if(!qt){const Te=de.clientX-ht,Xe=de.clientY-Un;if(Math.hypot(Te,Xe)<it)return;qt=!0,Po&&(cancelAnimationFrame(Po),Po=0),Lp=!0,Lte=ht,Pte=Un,tg=ht,ng=Un,Bu=0,Hu=0}Q.cancelable&&Q.preventDefault(),Bu+=de.clientX-tg,Hu+=de.clientY-ng,tg=de.clientX,ng=de.clientY,!Po&&typeof Ate=="function"&&(Po=requestAnimationFrame(Ate))}}c(Rt,"mpOnTouchMove");function Qt(Q){if(Zt===null)return;const de=go(Q.changedTouches,Zt);if(qt){Po&&(cancelAnimationFrame(Po),Po=0);const Te=de?de.clientX:tg,Xe=de?de.clientY:ng,vt=Bu+(Te-tg),pn=Hu+(Xe-ng);Bu=0,Hu=0,(vt!==0||pn!==0)&&typeof D9=="function"&&D9(vt,pn),CE=!0,Lp=!1}qt=!1,Zt=null}if(c(Qt,"mpOnTouchEnd"),document.addEventListener("touchstart",Cs,{capture:!1,passive:!0}),document.addEventListener("touchmove",Rt,{capture:!1,passive:!1}),document.addEventListener("touchend",Qt,{capture:!1,passive:!0}),document.addEventListener("touchcancel",Qt,{capture:!1,passive:!0}),typeof Yb<"u"&&typeof Ld<"u"){let Q=null,de=0,Te=0,Xe=0,vt=0,pn=!1;const Je=c(()=>{const tt=Ld.style.transform||"",_t=/translate3d\(\s*(-?\d+(?:\.\d+)?)px\s*,\s*(-?\d+(?:\.\d+)?)px/.exec(tt);return _t?{x:parseFloat(_t[1])||0,y:parseFloat(_t[2])||0}:{x:0,y:0}},"fmReadTransform"),et=c((tt,_t)=>{const pa=(Ld.style.transform||"").replace(/translate3d\([^)]+\)/g,"").trim();Ld.style.transform=`translate3d(${tt}px, ${_t}px, 0) ${pa}`.trim()},"fmApply");try{new MutationObserver(()=>{Cr.style.display==="none"&&(Xe=0,vt=0,Ld.style.transform=(Ld.style.transform||"").replace(/translate3d\([^)]+\)/g,"").trim())}).observe(Cr,{attributes:!0,attributeFilter:["style"]})}catch{}Yb.addEventListener("touchstart",tt=>{if(!document.body.classList.contains("kintara-mobile"))return;if(tt.touches.length!==1){pn=!1,Q=null;return}const _t=tt.touches[0];if(_t.target&&_t.target.closest&&_t.target.closest("button"))return;Q=_t.identifier,de=_t.clientX,Te=_t.clientY;const fn=Je();Xe=fn.x,vt=fn.y,pn=!1},{passive:!0}),Yb.addEventListener("touchmove",tt=>{if(Q===null)return;let _t=null;for(let Xa=0;Xa<tt.touches.length;Xa++)if(tt.touches[Xa].identifier===Q){_t=tt.touches[Xa];break}if(!_t)return;const fn=_t.clientX-de,pa=_t.clientY-Te;if(!pn){if(Math.hypot(fn,pa)<10)return;pn=!0}tt.cancelable&&tt.preventDefault(),et(Xe+fn,vt+pa)},{passive:!1});const bt=c(tt=>{if(Q===null)return;let _t=null;if(tt.changedTouches){for(let fn=0;fn<tt.changedTouches.length;fn++)if(tt.changedTouches[fn].identifier===Q){_t=tt.changedTouches[fn];break}}if(pn&&_t){const fn=_t.clientX-de,pa=_t.clientY-Te;Xe+=fn,vt+=pa}pn=!1,Q=null},"fmEnd");Yb.addEventListener("touchend",bt,{passive:!0}),Yb.addEventListener("touchcancel",bt,{passive:!0})}function Wt(Q){const de=document.createElement("div");de.className="kintara-mobile-invbank-tabs";const Te=document.createElement("button");Te.type="button",Te.className="kintara-mobile-invbank-tabs__tab",Te.textContent="Inventory",Te.dataset.tab="inv",Te.dataset.active=Q==="inv"?"true":"false";const Xe=document.createElement("button");return Xe.type="button",Xe.className="kintara-mobile-invbank-tabs__tab",Xe.textContent="Bank",Xe.dataset.tab="bank",Xe.dataset.active=Q==="bank"?"true":"false",Te.addEventListener("click",vt=>{vt.preventDefault(),vt.stopPropagation(),Ut("inv")}),Xe.addEventListener("click",vt=>{vt.preventDefault(),vt.stopPropagation(),Ut("bank")}),de.append(Te,Xe),de}c(Wt,"buildInvBankTabsStrip");function Ut(Q){document.body.classList.toggle("kintara-invbank--inv",Q==="inv"),document.body.classList.toggle("kintara-invbank--bank",Q==="bank"),document.querySelectorAll(".kintara-mobile-invbank-tabs__tab").forEach(de=>{de.dataset.active=de.dataset.tab===Q?"true":"false"})}c(Ut,"setInvBankTab");function wa(Q,de){if(!Q)return;const Te=Wt(de),Xe=Q.querySelector(".kintara-inv__header");Xe&&Xe.parentNode===Q?Xe.insertAdjacentElement("afterend",Te):Q.insertBefore(Te,Q.firstChild)}c(wa,"injectInvBankTabs");try{typeof po<"u"&&po&&wa(po,"inv"),typeof Jm<"u"&&Jm&&wa(Jm,"bank")}catch{}function io(){let Q=!1,de=!1;try{Q=!!(typeof Bi<"u"&&Bi&&Bi.style.display!=="none"&&Bi.style.display!==""),de=!!(typeof no<"u"&&no&&no.style.display!=="none"&&no.style.display!=="")}catch{}document.body.classList.toggle("kintara-invbank-pair",Q&&de),Q?!document.body.classList.contains("kintara-invbank--inv")&&!document.body.classList.contains("kintara-invbank--bank")&&Ut("bank"):(document.body.classList.remove("kintara-invbank--bank"),document.body.classList.contains("kintara-invbank--inv")||document.body.classList.add("kintara-invbank--inv"))}c(io,"syncInvBankBodyClasses");try{typeof Bi<"u"&&Bi&&new MutationObserver(io).observe(Bi,{attributes:!0,attributeFilter:["style"]}),typeof no<"u"&&no&&new MutationObserver(io).observe(no,{attributes:!0,attributeFilter:["style"]}),io()}catch{}const Yo=document.createElement("div");Yo.className="kintara-mobile-player-bubble";const Vi=document.createElement("button");Vi.type="button",Vi.className="kintara-mobile-player-bubble__btn",Vi.textContent="Add Friend";const Ro=document.createElement("button");Ro.type="button",Ro.className="kintara-mobile-player-bubble__btn kintara-mobile-player-bubble__btn--trade",Ro.textContent="Trade",Yo.append(Vi,Ro),N.appendChild(Yo);let Nt=null,en=0;const ua=new s.Vector3;function bo(){Nt=null,Yo.classList.remove("kintara-mobile-player-bubble--open"),en&&(cancelAnimationFrame(en),en=0)}c(bo,"hideMobilePlayerBubble");function ii(){if(!Nt)return;let Q=!1;try{const Te=Nt.remoteId;Te!=null&&Number.isFinite(Number(Te))&&typeof hP<"u"&&(Q=hP.has(Number(Te)))}catch{}Vi.hidden=Q;const de=typeof m<"u"&&(m==="world"||m==="shack"||m==="pond"||m==="beach"||m==="eldergrove"||m==="frostmere");Ro.hidden=!de}c(ii,"refreshMobilePlayerBubbleButtons");function Ir(){if(en=0,!(!Nt||!Yo.classList.contains("kintara-mobile-player-bubble--open"))){try{const de=(typeof nt<"u"&&Nt.remoteId!=null?nt.get(Nt.remoteId):null)||Nt;if(!de||!de.group){bo();return}if(de.group.updateMatrixWorld(!0),typeof xI=="function"?ua.set(0,1.42,0).applyMatrix4(xI(de)):(ua.copy(de.group.position),ua.y+=1.6),ua.project(He),ua.z>1){bo();return}const Te=(ua.x*.5+.5)*window.innerWidth,Xe=(-ua.y*.5+.5)*window.innerHeight;Yo.style.left=`${Te}px`,Yo.style.top=`${Xe-18}px`}catch{}en=requestAnimationFrame(Ir)}}c(Ir,"updateMobilePlayerBubblePosition"),Vi.addEventListener("click",Q=>{if(Q.preventDefault(),Q.stopPropagation(),!!Nt){try{_n=Nt,Es=!1,Wb.click()}catch{}bo()}}),Ro.addEventListener("click",Q=>{if(Q.preventDefault(),Q.stopPropagation(),!!Nt){try{_n=Nt,Es=!1,Gb.click()}catch{}bo()}}),document.addEventListener("pointerdown",Q=>{document.body.classList.contains("kintara-mobile")&&Yo.classList.contains("kintara-mobile-player-bubble--open")&&(Q.target instanceof Node&&Yo.contains(Q.target)||bo())},!0),window.__kintaraShowMobilePlayerBubble=function(Q){!Q||Q.remoteId==null||(Nt=Q,ii(),Yo.classList.add("kintara-mobile-player-bubble--open"),(async()=>{try{const de=await fetch("/api/friends/list",{credentials:"include"}),Te=await de.json().catch(()=>({}));de.ok&&Te.ok&&typeof gP=="function"&&gP(Te.friends),ii()}catch{}})(),en||(en=requestAnimationFrame(Ir)))},window.__kintaraHideMobilePlayerBubble=bo})();
-// AUTO-GATHER v1.05
+// AUTO-GATHER v1.23
 // F8 = ativar/desativar coleta | F9 = abrir mercado
 // ═══════════════════════════════════════════════════════════════════════════════
 {
-  const AG_VERSION          = 'v1.05';
+  // Guard contra múltiplas instâncias do script rodando simultaneamente
+  // (ex: injeção duplicada, script antigo em cache + novo carregado, userscript reinjetando)
+  if (window.__AG_FARMER_ACTIVE__) {
+    console.warn('%c[AutoGather] Instância já ativa (v' + window.__AG_FARMER_ACTIVE__ + ') — abortando esta segunda injeção.', 'color:#f87171;font-weight:bold');
+  } else {
+  window.__AG_FARMER_ACTIVE__ = 'v1.23';
+
+  // Limpeza agressiva de painéis órfãos de versões antigas que não tinham o guard
+  // (procura por qualquer elemento com id começando em 'ag-' que pareça ser o painel principal,
+  // exceto os que vamos criar agora — roda só uma vez, no boot desta instância)
+  try {
+    var _agOrphanIds = ['ag-panel-host', 'ag-mapinfo-host', 'ag-spin-host', 'ag-daily-gold-host',
+      'ag-hunt-host', 'ag-boss-host', 'ag-merchant-host', 'ag-cfg-host', 'ag-reopen-btn'];
+    var _agOrphanCount = 0;
+    _agOrphanIds.forEach(function(_id) {
+      var _els = document.querySelectorAll('#' + _id);
+      if (_els.length > 0) {
+        _els.forEach(function(_el) { _el.remove(); _agOrphanCount++; });
+      }
+    });
+    if (_agOrphanCount > 0) {
+      console.warn('%c[AutoGather] Removidos ' + _agOrphanCount + ' painel(eis) órfão(s) de instância(s) anterior(es).', 'color:#fbbf24;font-weight:bold');
+    }
+  } catch(_e) {}
+
+  const AG_VERSION          = 'v1.23';
   const AG_TICK_MS          = 500;
 
   // ── Logger ─────────────────────────────────────────────────────────────────
@@ -5767,7 +5792,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   // Salva os últimos 300 logs no localStorage a cada entrada
   // Consultar após redirect: JSON.parse(localStorage.getItem('ag_console_log') || '[]')
   const AG_LOG_STORAGE_KEY = 'ag_console_log';
-  const AG_LOG_MAX = 500;
+  const AG_LOG_MUX = 500;
 
   function agPersistLog(level, prefix, args) {
     try {
@@ -5784,7 +5809,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       let logs;
       try { logs = JSON.parse(localStorage.getItem(AG_LOG_STORAGE_KEY) || '[]'); } catch(_) { logs = []; }
       logs.push(entry);
-      if (logs.length > AG_LOG_MAX) logs = logs.slice(-AG_LOG_MAX);
+      if (logs.length > AG_LOG_MUX) logs = logs.slice(-AG_LOG_MUX);
       localStorage.setItem(AG_LOG_STORAGE_KEY, JSON.stringify(logs));
     } catch(_) {}
   }
@@ -5956,6 +5981,28 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   const agFloorCache = {}; // itemType -> { price, seller, ts, qty }
   const AG_FLOOR_TTL = 120000; // 2min TTL por item
 
+  // Itens que respeitam o filtro de quantidade mínima para FLOOR
+  const AG_FLOOR_MINQTY_ITEMS = ['wood', 'coal', 'stone', 'metal'];
+
+  function agGetFloorMinQty(itemType) {
+    if (AG_FLOOR_MINQTY_ITEMS.indexOf(itemType) < 0) return 0;
+    try {
+      var raw = localStorage.getItem('kintara_ag_floor_minqty');
+      var cfg = raw ? JSON.parse(raw) : {};
+      var v = parseInt(cfg[itemType]);
+      return (!isNaN(v) && v > 0) ? v : 0;
+    } catch(_) { return 0; }
+  }
+
+  function agSetFloorMinQty(itemType, value) {
+    try {
+      var raw = localStorage.getItem('kintara_ag_floor_minqty');
+      var cfg = raw ? JSON.parse(raw) : {};
+      cfg[itemType] = parseInt(value) || 0;
+      localStorage.setItem('kintara_ag_floor_minqty', JSON.stringify(cfg));
+    } catch(_) {}
+  }
+
   // ── Poller centralizado de preços ──────────────────────────────────────────
   // Lista mestre de todos os itens que precisamos de preço
   const AG_PRICE_ITEMS = ['wood','stone','coal','metal','gold','fish','cooked_fish_meat'];
@@ -5965,30 +6012,73 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   var AG_PRICE_POLL_INTERVAL = 8000;  // 8s entre cada item = ~56s para ciclo completo (7 itens)
 
   // Buscar preço de UM item e salvar no cache
-  async function agPollOneItem(itemType) {
-    if (agFloorCache[itemType] && Date.now() - agFloorCache[itemType].ts < AG_FLOOR_TTL) {
+  var _agPollInFlight = {}; // itemType -> true enquanto há um fetch em andamento (evita race condition)
+  async function agPollOneItem(itemType, force) {
+    if (!force && agFloorCache[itemType] && Date.now() - agFloorCache[itemType].ts < AG_FLOOR_TTL) {
       return; // ainda válido, pular
     }
+    if (_agPollInFlight[itemType]) return; // já há uma busca em andamento para este item — evita corrida
+    _agPollInFlight[itemType] = true;
     try {
+      const _q = encodeURIComponent(itemType);
       const pages = await Promise.all([
-        fetch('/api/marketplace/listings?sort=cheap&currency=token&category=all&limit=20&offset=0&q='  + encodeURIComponent(itemType), { credentials: 'include' }).then(r => r.json()).catch(() => ({})),
-        fetch('/api/marketplace/listings?sort=cheap&currency=token&category=all&limit=20&offset=20&q=' + encodeURIComponent(itemType), { credentials: 'include' }).then(r => r.json()).catch(() => ({})),
+        fetch('/api/marketplace/listings?sort=cheap&currency=token&category=all&limit=20&offset=0&q='  + _q, { credentials: 'include' }).then(r => r.json()).catch(() => ({})),
+        fetch('/api/marketplace/listings?sort=cheap&currency=token&category=all&limit=20&offset=20&q=' + _q, { credentials: 'include' }).then(r => r.json()).catch(() => ({})),
       ]);
       const all = pages.flatMap(d => (d.ok && Array.isArray(d.listings)) ? d.listings : []);
-      const valid = all.filter(l => String(l.currency||'').toLowerCase() === 'token' && Number(l.priceUsd) > 0 && Number(l.quantity) > 0);
+      // IMPORTANTE: a API não filtra por item específico no servidor (só por categoria ampla),
+      // então o filtro por itemType precisa ser feito aqui no cliente
+      let valid = all.filter(l => String(l.itemType||'') === itemType && String(l.currency||'').toLowerCase() === 'token' && Number(l.priceUsd) > 0 && Number(l.quantity) > 0);
       if (!valid.length) return;
       valid.sort((a, b) => Number(a.priceUsd)/Number(a.quantity) - Number(b.priceUsd)/Number(b.quantity));
+
+      // Filtro de quantidade mínima — ignora anúncios pequenos que distorcem o FLOOR
+      const _minQty = agGetFloorMinQty(itemType);
+      let _ignoredCount = 0;
+      let _ignoredSample = [];
+      if (_minQty > 0) {
+        const _ignored  = valid.filter(l => Number(l.quantity) < _minQty);
+        const _filtered = valid.filter(l => Number(l.quantity) >= _minQty);
+        _ignoredCount  = _ignored.length;
+        _ignoredSample = _ignored.slice(0, 4).map(l => Number(l.quantity) + 'x @ $' + (Number(l.priceUsd)/Number(l.quantity)).toFixed(8));
+        if (_filtered.length > 0) {
+          valid = _filtered; // usa só os que batem o mínimo
+        }
+        // Se nenhum anúncio atinge o mínimo, mantém todos como fallback (evita ficar sem FLOOR)
+      }
+
       const best = valid[0];
       const unitPrice = Number(best.priceUsd) / Number(best.quantity);
+
+      // Sanity check: descarta resultado se o preço mudou de forma absurda vs o cache anterior
+      // (proteção contra listings de outro item vazando pela busca textual da API)
+      const _prevCached = agFloorCache[itemType];
+      if (_prevCached && _prevCached.price > 0) {
+        const _ratio = unitPrice / _prevCached.price;
+        if (_ratio > 50 || _ratio < 0.02) {
+          AG_LOG.warn('[PricePoller] ' + itemType + ': preço suspeito $' + unitPrice.toFixed(8) +
+            ' (anterior $' + _prevCached.price.toFixed(8) + ', ratio=' + _ratio.toFixed(2) + 'x) — ignorando, mantendo cache anterior');
+          return;
+        }
+      }
+
       agFloorCache[itemType] = {
         price:    unitPrice,
         seller:   best.sellerName || best.seller || '?',
         qty:      Number(best.quantity),
         ts:       Date.now(),
         floorIsBlacklisted: false,
+        ignoredCount: _ignoredCount,
+        ignoredSample: _ignoredSample,
       };
-      AG_LOG.debug('[PricePoller] ' + itemType + ': $' + unitPrice.toFixed(8) + '/un');
-    } catch(e) { /* silencioso */ }
+      if (_minQty > 0 && _ignoredCount > 0) {
+        AG_LOG.info('[PricePoller] ' + itemType + ': $' + unitPrice.toFixed(8) + '/un (qty=' + Number(best.quantity) +
+          ') — ignorados ' + _ignoredCount + ' anúncio(s) < ' + _minQty + ': ' + _ignoredSample.join(', '));
+      } else {
+        AG_LOG.debug('[PricePoller] ' + itemType + ': $' + unitPrice.toFixed(8) + '/un');
+      }
+    } catch(e) { AG_LOG.warn('[PricePoller] erro ao buscar ' + itemType + ': ' + e.message); }
+    finally { _agPollInFlight[itemType] = false; }
   }
 
   // Poller round-robin: 1 item a cada 8s
@@ -6070,17 +6160,27 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   async function agFetchFloor(itemType) {
     const cached = agFloorCache[itemType];
     if (cached && Date.now() - cached.ts < AG_FLOOR_TTL) return cached;
+    // Evita corrida com agPollOneItem (poller round-robin) buscando o mesmo item ao mesmo tempo
+    if (_agPollInFlight[itemType]) {
+      // Já tem uma busca em andamento — aguarda um pouco e retorna o cache (mesmo que stale)
+      await new Promise(r => setTimeout(r, 1200));
+      return agFloorCache[itemType] || null;
+    }
+    _agPollInFlight[itemType] = true;
     try {
       // Fetch multiple pages to find true cheapest per unit
       // API sorts by total price — need enough results to catch large-qty cheap listings
+      const _q = encodeURIComponent(itemType);
       const pages = await Promise.all([
-        fetch('/api/marketplace/listings?sort=cheap&currency=token&category=all&limit=20&offset=0&q='  + encodeURIComponent(itemType), {credentials:'include'}).then(r=>r.json()).catch(()=>({})),
-        fetch('/api/marketplace/listings?sort=cheap&currency=token&category=all&limit=20&offset=20&q=' + encodeURIComponent(itemType), {credentials:'include'}).then(r=>r.json()).catch(()=>({})),
+        fetch('/api/marketplace/listings?sort=cheap&currency=token&category=all&limit=20&offset=0&q='  + _q, {credentials:'include'}).then(r=>r.json()).catch(()=>({})),
+        fetch('/api/marketplace/listings?sort=cheap&currency=token&category=all&limit=20&offset=20&q=' + _q, {credentials:'include'}).then(r=>r.json()).catch(()=>({})),
       ]);
       const allListings = pages.flatMap(d => (d.ok && Array.isArray(d.listings)) ? d.listings : []);
       if (!allListings.length) return null;
-      // Filter valid token listings
+      // Filter valid token listings — IMPORTANTE: a API não filtra por item específico no
+      // servidor (só por categoria ampla), então o filtro por itemType precisa ser feito aqui
       const tok = allListings.filter(l =>
+        String(l.itemType||'') === itemType &&
         String(l.currency||'').toLowerCase() === 'token' &&
         Number(l.priceUsd) > 0 &&
         Number(l.quantity) > 0
@@ -6094,19 +6194,53 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         total:     Number(l.priceUsd),
       }));
       withUnit.sort((a, b) => a.unitPrice - b.unitPrice);
-      const best = withUnit[0];
+
+      // Filtro de quantidade mínima — ignora anúncios pequenos que distorcem o FLOOR
+      // (mesma regra usada em agPollOneItem; aplica-se só a wood/coal/stone/metal se configurado)
+      let withUnitFiltered = withUnit;
+      const _minQty = agGetFloorMinQty(itemType);
+      let _ignoredCount = 0, _ignoredSample = [];
+      if (_minQty > 0) {
+        const _ignored  = withUnit.filter(l => l.qty < _minQty);
+        const _filtered = withUnit.filter(l => l.qty >= _minQty);
+        _ignoredCount  = _ignored.length;
+        _ignoredSample = _ignored.slice(0, 4).map(l => l.qty + 'x @ $' + l.unitPrice.toFixed(8));
+        if (_filtered.length > 0) withUnitFiltered = _filtered;
+        // Se nenhum anúncio atinge o mínimo, mantém todos como fallback
+      }
+
+      const best = withUnitFiltered[0];
+
+      // Sanity check: descarta se o preço mudou de forma absurda vs o cache anterior
+      const _prevCached2 = agFloorCache[itemType];
+      if (_prevCached2 && _prevCached2.price > 0) {
+        const _ratio2 = best.unitPrice / _prevCached2.price;
+        if (_ratio2 > 50 || _ratio2 < 0.02) {
+          AG_LOG.warn('agFetchFloor: ' + itemType + ' preço suspeito $' + best.unitPrice.toFixed(8) +
+            ' (anterior $' + _prevCached2.price.toFixed(8) + ') — mantendo cache anterior');
+          return _prevCached2;
+        }
+      }
+
       const floorIsBlacklisted = agIsBlacklisted(best.seller);
       if (floorIsBlacklisted) {
         AG_LOG_SELL.info('Floor de "' + best.seller + '" esta na blacklist — vendendo no mesmo preco (sem undercut)');
       }
-      AG_LOG.debug('Floor ' + itemType + ': $' + best.unitPrice.toFixed(8) + '/un x' + best.qty + ' (' + best.seller + ') blacklisted=' + floorIsBlacklisted + ' [' + tok.length + ' listings]');
-      const result = { price: best.unitPrice, seller: best.seller, qty: best.qty, ts: Date.now(), floorIsBlacklisted };
+      if (_minQty > 0 && _ignoredCount > 0) {
+        AG_LOG.info('Floor ' + itemType + ': $' + best.unitPrice.toFixed(8) + '/un x' + best.qty + ' (' + best.seller +
+          ') — ignorados ' + _ignoredCount + ' anúncio(s) < ' + _minQty + ': ' + _ignoredSample.join(', '));
+      } else {
+        AG_LOG.debug('Floor ' + itemType + ': $' + best.unitPrice.toFixed(8) + '/un x' + best.qty + ' (' + best.seller + ') blacklisted=' + floorIsBlacklisted + ' [' + tok.length + ' listings]');
+      }
+      const result = { price: best.unitPrice, seller: best.seller, qty: best.qty, ts: Date.now(), floorIsBlacklisted, ignoredCount: _ignoredCount, ignoredSample: _ignoredSample };
       agFloorCache[itemType] = result;
       agPriceCache[itemType] = best.unitPrice;
       return result;
     } catch(e) {
       AG_LOG.warn('agFetchFloor erro', itemType, e);
       return null;
+    } finally {
+      _agPollInFlight[itemType] = false;
     }
   }
 
@@ -6163,7 +6297,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
           if (isOurTarget && ourHit && !hasLoot) {
             AG_LOG.warn('🔍 TILE DEBUG: wear sem loot para nós | key=' + agLastKey +
-              ' | h=' + d.h + '/' + d.hm +
+              ' | m=' + d.m + '/' + d.hm +
               ' | by=' + d.by + '(nós=' + localPlayerId + ')' +
               ' | state=' + (Da||io) +
               ' | isso pode indicar tile bugado se repetir');
@@ -6173,19 +6307,19 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
           if (isOurTarget) {
             var ctx3 = iA();
             var rd3  = ctx3 && ctx3.rockMap && ctx3.rockMap.get(agLastKey);
-            if (rd3 && Number(d.h) > Number(d.hm) && d.hm > 0) {
-              AG_LOG.warn('🔍 TILE DEBUG: h > hm — inconsistência servidor/cliente | key=' + agLastKey +
-                ' | servidor diz h=' + d.h + ' hm=' + d.hm +
+            if (rd3 && Number(d.m) > Number(d.hm) && d.hm > 0) {
+              AG_LOG.warn('🔍 TILE DEBUG: m > hm — inconsistência servidor/cliente | key=' + agLastKey +
+                ' | servidor diz m=' + d.m + ' hm=' + d.hm +
                 ' | tile pode estar dessincronizado');
             }
-            // ── Sinal 3: h === hm mas sem clear subsequente (aguarda 3s) ──
-            if (Number(d.h) >= Number(d.hm) && d.hm > 0) {
+            // ── Sinal 3: m === hm mas sem clear subsequente (aguarda 3s) ──
+            if (Number(d.m) >= Number(d.hm) && d.hm > 0) {
               var _k3 = agLastKey;
               setTimeout(function() {
                 if (!agActive || agLastKey !== _k3) return;
-                // Se ainda estamos minerando a mesma key depois do h===hm, é bugado
+                // Se ainda estamos minerando a mesma key depois do m===hm, é bugado
                 if (Da === 'mining' || co === 'chopping') {
-                  AG_LOG.warn('🔍 TILE DEBUG: h===hm mas clear não chegou em 3s | key=' + _k3 +
+                  AG_LOG.warn('🔍 TILE DEBUG: m===hm mas clear não chegou em 3s | key=' + _k3 +
                     ' | Wa=' + Ga + ' co=' + co +
                     ' | possível tile ressincronizado no servidor mas não no cliente');
                 }
@@ -6239,8 +6373,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
   function agInstallResourceCounter() {
     if (_agOrigAddResource) return;
-    _agOrigAddResource = mu;
-    mu = function(type, amt, opts) {
+    _agOrigAddResource = hu;
+    hu = function(type, amt, opts) {
       if (agActive) {
         const n = Number(amt) || 1;
         const tracked =
@@ -6265,7 +6399,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   }
   function agUninstallResourceCounter() {
     if (!_agOrigAddResource) return;
-    mu = _agOrigAddResource;
+    hu = _agOrigAddResource;
     _agOrigAddResource = null;
   }
 
@@ -6318,7 +6452,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     return '$' + s.slice(0, i + 1);
   }
 
-  /** Formata valor $/h — 2 casas decimais significativas, sem notação científica */
+  /** Formata valor $/m — 2 casas decimais significativas, sem notação científica */
   function fmtUsdH(v) {
     if (!v || v === 0) return '$0.00';
     if (v >= 1)     return '$' + v.toFixed(2);
@@ -6345,12 +6479,12 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         const ph = phR(count);
         const pr = agPriceCache[type];
         let row = `<span style="color:#8a93a8">${label}</span> <span style="color:#d4d8e2">${count}`;
-        if (ph != null) row += ` · ${ph}/h`;
+        if (ph != null) row += ` · ${ph}/m`;
         row += '</span>';
-        if (pr != null && ph != null) row += ` <span style="color:#a7f3d0">${fmtUsd(ph * pr)}/h</span>`;
+        if (pr != null && ph != null) row += ` <span style="color:#a7f3d0">${fmtUsd(ph * pr)}/m</span>`;
         return `<div style="display:flex;justify-content:space-between;gap:8px;margin-top:2px">${row}</div>`;
       }
-      let html = '<div style="font-weight:700;margin-bottom:3px">&#128230; ' + agStats.items + ' coletados' + (perHour!=null?' · ' + perHour + '/h':'') + '</div>';
+      let html = '<div style="font-weight:700;margin-bottom:3px">&#128230; ' + agStats.items + ' coletados' + (perHour!=null?' · ' + perHour + '/m':'') + '</div>';
       function resImg(src) { return '<img src="' + src + '" width="14" height="14" style="vertical-align:middle;margin-right:3px;image-rendering:pixelated" draggable="false">'; }
       if (agRockSubStats.wood  > 0) html += priceRow('wood',  resImg('/assets/hud/resources/wood.png')  + 'Wood',  agRockSubStats.wood);
       if (agRockSubStats.stone > 0) html += priceRow('stone', resImg('/assets/hud/resources/stone.png') + 'Stone', agRockSubStats.stone);
@@ -6375,7 +6509,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       if (totalUsd != null) {
         html += `<div style="margin-top:4px;padding-top:3px;border-top:1px solid rgba(255,255,255,0.07);display:flex;justify-content:space-between">
           <span style="color:#7eb8f7;font-weight:700">&#128176; Total</span>
-          <span style="color:#a7f3d0;font-weight:700">${fmtUsd(totalUsd)}/h</span>
+          <span style="color:#a7f3d0;font-weight:700">${fmtUsd(totalUsd)}/m</span>
         </div>`;
       }
       el.innerHTML = html;
@@ -6383,13 +6517,13 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
 
     const itemType = agItemType();
-    let html = '&#128230; ' + agStats.items + ' coletados' + (perHour != null ? ' · ' + perHour + '/h' : '');
+    let html = '&#128230; ' + agStats.items + ' coletados' + (perHour != null ? ' · ' + perHour + '/m' : '');
     if (price === undefined) {
       html += '<br><span style="color:#556">$ buscando preco...</span>';
     } else if (price === null) {
       html += '<br><span style="color:#556">$ sem dados de preco</span>';
     } else if (perHour != null) {
-      html += '<br><span style="color:#a7f3d0">$ ' + fmtUsd(perHour * price) + '/h</span>';
+      html += '<br><span style="color:#a7f3d0">$ ' + fmtUsd(perHour * price) + '/m</span>';
       const _flr = agFloorCache[itemType];
       const sellerInfo = _flr ? ' <span style="color:#334">(' + _flr.seller + ')</span>' : '';
       html += '<br><span style="color:#667">&#128204; ' + agFmtFloor(price) + '/un' + sellerInfo + '</span>';
@@ -6481,7 +6615,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
   function agInventoryFull() {
     try {
-      const max = INVENTORY_MAX_STACK || 999;
+      const max = INVENTORY_MUX_STACK || 999;
       const t   = agMode === 'tree'       ? 'wood'
                 : agMode === 'rock'       ? 'stone'  // misto: checa stone (conservador)
                 : agMode === 'rock_stone' ? 'stone'
@@ -6991,10 +7125,10 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     const blk = Ms();
     let best = null, bestDist = Infinity;
     for (const key of cells) {
-      const [wc, wr] = key.split(',').map(Number);
+      const [wc, Fe] = key.split(',').map(Number);
       for (let dc = -1; dc <= 1; dc++) for (let dr = -1; dr <= 1; dr++) {
         if (!dc && !dr) continue;
-        const lc = wc+dc, lr = wr+dr;
+        const lc = wc+dc, lr = Fe+dr;
         if (blk.has(`${lc},${lr}`)) continue;
         let ok = false;
         for (const wk of cells) {
@@ -7458,8 +7592,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       const [rTok, rGold, rListTok, rListGold] = await Promise.all([
         fetch(`/api/marketplace/stats?currency=token&itemType=${encodeURIComponent(itemType)}`, { credentials: 'include' }),
         fetch(`/api/marketplace/stats?itemType=${encodeURIComponent(itemType)}`, { credentials: 'include' }),
-        fetch(`/api/marketplace/listings?sort=cheap&currency=token&category=all&limit=20&offset=0&q=${encodeURIComponent(itemType)}`, { credentials: 'include' }),
-        fetch(`/api/marketplace/listings?sort=cheap&currency=gold&category=all&limit=20&offset=0&q=${encodeURIComponent(itemType)}`, { credentials: 'include' }),
+        fetch(`/api/marketplace/listings?sort=cheap&currency=token&category=all&limit=20&offset=0&U=${encodeURIComponent(itemType)}`, { credentials: 'include' }),
+        fetch(`/api/marketplace/listings?sort=cheap&currency=gold&category=all&limit=20&offset=0&U=${encodeURIComponent(itemType)}`, { credentials: 'include' }),
       ]);
       const [dTok, dGold, dListTok, dListGold] = await Promise.all([
         rTok.json().catch(() => ({})),
@@ -7732,25 +7866,8 @@ table.tbl.det-tbl th:nth-child(3),table.tbl.det-tbl th:nth-child(4),table.tbl.de
 </head>
 <body>
 <div id="header">
-  <h1>&#127873; Kintara Market</h1>
-  <select id="view-sel">
-    <option value="listings">&#128203; Listings</option>
-    <option value="my-sales">&#128232; Minhas Vendas</option>
-  </select>
-  <div id="search-wrap">
-    <input id="search-input" type="text" placeholder="Buscar item...">
-    <select id="currency-sel">
-      <option value="token">$KINS</option>
-      <option value="gold">Gold</option>
-      <option value="all">Todos</option>
-    </select>
-    <select id="sort-sel">
-      <option value="latest">&#128197; Recentes</option>
-      <option value="price_asc">&#8595; Mais barato</option>
-      <option value="price_desc">&#8593; Mais caro</option>
-    </select>
-    <button class="btn-primary" id="refresh-btn">&#8635;</button>
-  </div>
+  <h1>&#127873; Kintara — Minhas Vendas</h1>
+  <button class="btn-primary" id="refresh-btn">&#8635; Atualizar</button>
 </div>
 <div id="content-wrap">
   <div id="main-content"><div class="loading">&#9203; Carregando&hellip;</div></div>
@@ -7758,13 +7875,6 @@ table.tbl.det-tbl th:nth-child(3),table.tbl.det-tbl th:nth-child(4),table.tbl.de
 
 <script>
 const BASE = location.origin;
-let currentView = 'listings';
-let currentCurrency = 'token';
-let currentSort = 'latest';
-let currentSearch = '';
-let currentOffset = 0;
-const PAGE_SIZE = 20;
-let totalListings = 0;
 
 function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -7774,49 +7884,6 @@ function fmtUsd(v) {
   return n < 0.001 ? n.toFixed(8).replace(/0+$/,'').replace(/[.]$/,'') : n.toFixed(4).replace(/0+$/,'').replace(/[.]$/,'');
 }
 
-// ── Listings ─────────────────────────────────────────────────────────────────
-async function loadListings() {
-  const el = document.getElementById('main-content');
-  el.innerHTML = '<div class="loading">&#9203; Buscando...</div>';
-  try {
-    const cur = currentCurrency === 'all' ? '' : '&currency=' + currentCurrency;
-    const src = currentSearch ? '&itemType=' + encodeURIComponent(currentSearch) : '';
-    const url = BASE + '/api/marketplace/listings?sort=' + currentSort + cur + src + '&limit=' + PAGE_SIZE + '&offset=' + currentOffset;
-    const r = await fetch(url, {credentials:'include'});
-    const d = await r.json().catch(()=>({}));
-    if (!r.ok || !d.ok || !Array.isArray(d.listings)) {
-      el.innerHTML = '<div class="error">Erro ao buscar listings (' + r.status + ')</div>';
-      return;
-    }
-    totalListings = d.total || d.listings.length;
-    if (!d.listings.length) {
-      el.innerHTML = '<div class="loading" style="color:#445">Nenhum listing encontrado.</div>';
-      return;
-    }
-    const rows = d.listings.map(l => {
-      const isTok = String(l.currency||'gold').toLowerCase() === 'token';
-      const qty   = Math.max(1, Number(l.quantity)||1);
-      const unitP = isTok ? '$' + fmtUsd(Number(l.priceUsd||0)/qty) : Math.round(Number(l.priceGold||0)/qty).toLocaleString('pt-BR') + 'g';
-      const totalP = isTok ? '$' + fmtUsd(Number(l.priceUsd||0)) : Number(l.priceGold||0).toLocaleString('pt-BR') + 'g';
-      const badge = isTok ? '<span class="cur-badge cur-tok">TOKEN</span>' : '<span class="cur-badge cur-gold">GOLD</span>';
-      return '<tr><td><div class="item-name">' + escHtml(l.displayName||l.itemType||'?') + '</div><div class="item-type">' + escHtml(l.itemType||'') + '</div></td>' +
-        '<td>' + badge + '</td><td class="qty">' + qty.toLocaleString('pt-BR') + '</td>' +
-        '<td class="' + (isTok?'price-tok':'price-gold') + '">' + unitP + '</td>' +
-        '<td class="' + (isTok?'price-tok':'price-gold') + '">' + totalP + '</td>' +
-        '<td class="seller">' + escHtml(l.sellerDisplayName||l.sellerName||'—') + '</td></tr>';
-    }).join('');
-    const hasPrev = currentOffset > 0;
-    const hasNext = currentOffset + PAGE_SIZE < totalListings;
-    const pag = '<div class="pagination"><button id="btn-prev"' + (hasPrev?'':' disabled') + '>&larr;</button>' +
-      '<span>' + (currentOffset+1) + '&ndash;' + Math.min(currentOffset+PAGE_SIZE, totalListings) + ' de ' + totalListings + '</span>' +
-      '<button id="btn-next"' + (hasNext?'':' disabled') + '>&rarr;</button></div>';
-    el.innerHTML = '<table class="tbl"><thead><tr><th>Item</th><th>Moeda</th><th>Qtd</th><th>Pre&ccedil;o/un</th><th>Total</th><th>Vendedor</th></tr></thead><tbody>' + rows + '</tbody></table>' + pag;
-    el.querySelector('#btn-prev').addEventListener('click', () => { currentOffset = Math.max(0,currentOffset-PAGE_SIZE); loadListings(); });
-    el.querySelector('#btn-next').addEventListener('click', () => { currentOffset += PAGE_SIZE; loadListings(); });
-  } catch(e) { el.innerHTML = '<div class="error">Erro: ' + escHtml(e.message) + '</div>'; }
-}
-
-// ── Minhas Vendas ─────────────────────────────────────────────────────────────
 function loadMySales() {
   const el = document.getElementById('main-content');
   el.innerHTML = '<div id="sales-center"><button class="btn-green" id="btn-load-sales">&#128232; Carregar Minhas Vendas</button><div style="font-size:11px;color:#445;margin-top:8px">Busca no hist&oacute;rico de mensagens do sistema</div></div>';
@@ -7920,23 +7987,9 @@ function loadMySales() {
   });
 }
 
-function refresh() {
-  currentOffset = 0;
-  if (currentView === 'listings') loadListings();
-  else if (currentView === 'my-sales') loadMySales();
-}
+document.getElementById('refresh-btn').addEventListener('click', loadMySales);
 
-document.getElementById('view-sel').addEventListener('change', e => { currentView = e.target.value; refresh(); });
-document.getElementById('currency-sel').addEventListener('change', e => { currentCurrency = e.target.value; refresh(); });
-document.getElementById('sort-sel').addEventListener('change', e => { currentSort = e.target.value; refresh(); });
-document.getElementById('refresh-btn').addEventListener('click', refresh);
-let searchTimer;
-document.getElementById('search-input').addEventListener('input', e => {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => { currentSearch = e.target.value; currentOffset = 0; loadListings(); }, 400);
-});
-
-loadListings();
+loadMySales();
 </script>
 </body></html>`;
 
@@ -7957,7 +8010,7 @@ loadListings();
 
 
   // ── Auto-Caça ─────────────────────────────────────────────────────────────
-  const AG_HUNT_MAX_IDX    = 24;   // varre índices 0..23 (galinhas/lobos)
+  const AG_HUNT_MUX_IDX    = 24;   // varre índices 0..23 (galinhas/lobos)
   const AG_HUNT_TICK_MS    = 200;  // frequência de verificação (baixo para movimento fluido)
   const AG_HUNT_STUCK_MS    = 6000; // tempo máx caminhando sem chegar (path stuck)
   const AG_HUNT_COMBAT_MS   = 10000; // tempo máx combatendo sem matar (sem dano)
@@ -8010,7 +8063,7 @@ loadListings();
     // Determina max índices e offset correto para cada tipo
     const maxIdx = (kind === 'wild')
       ? (m === 'wild_ext' ? nne : TMe)
-      : AG_HUNT_MAX_IDX;
+      : AG_HUNT_MUX_IDX;
     const offX = dn();
     const offZ = un();
     let best = null, bestDist = Infinity;
@@ -8087,8 +8140,8 @@ loadListings();
   function agHuntUsePotion(type) {
     const now = Date.now();
     if (type === 'potion_health') {
-      // Não usar enquanto HoT ativo (vy = array de ticks agendados da poção)
-      try { if (typeof vy !== 'undefined' && vy.length > 0) return false; } catch(_) {}
+      // Não usar enquanto HoT ativo (Cy = array de ticks agendados da poção)
+      try { if (typeof Cy !== 'undefined' && Cy.length > 0) return false; } catch(_) {}
       // Cooldown mínimo de 10s (= intervalo entre ticks do HoT)
       if (now - agPotionHealthAt < 10000) return false;
     }
@@ -8364,7 +8417,7 @@ loadListings();
     agHuntActive = true; agHuntTarget = null; agHuntTargetAt = 0;
     agHuntCombatAt = null;
     agHuntStartTracking();
-    var _hBtn = (function(){ var h=document.getElementById('ag-panel-host'); return h&&h.shadowRoot&&h.shadowRoot.getElementById('ag-hunt-btn'); })();
+    var _hBtn = (function(){ var m=document.getElementById('ag-panel-host'); return m&&m.shadowRoot&&m.shadowRoot.getElementById('ag-hunt-btn'); })();
     if (_hBtn) { _hBtn.textContent = '⏹ Parar Caça'; _hBtn.dataset.on = 'true'; }
     agHuntSetStatus('Iniciando…'); agHuntSchedule(200);
   }
@@ -8375,7 +8428,7 @@ loadListings();
     agHuntStopTracking();
     agHuntTarget = null; agHuntCombatAt = null; agKiteUntil = 0;
     try { if (pendingSwordMelee?.kind === 'chicken' || pendingSwordMelee?.kind === 'wolf') pendingSwordMelee = null; } catch (_) {}
-    var _hBtn2 = (function(){ var h=document.getElementById('ag-panel-host'); return h&&h.shadowRoot&&h.shadowRoot.getElementById('ag-hunt-btn'); })();
+    var _hBtn2 = (function(){ var m=document.getElementById('ag-panel-host'); return m&&m.shadowRoot&&m.shadowRoot.getElementById('ag-hunt-btn'); })();
     if (_hBtn2) { _hBtn2.textContent = '▶ Iniciar Caça (F7)'; _hBtn2.dataset.on = 'false'; }
     agHuntSetStatus('Desligado');
   }
@@ -8522,8 +8575,8 @@ loadListings();
   function agBossSetStatus(msg) {
     try {
       var el = (function(){
-        var h = document.getElementById('ag-panel-host');
-        return h && h.shadowRoot && h.shadowRoot.getElementById('ag-boss-status');
+        var m = document.getElementById('ag-panel-host');
+        return m && m.shadowRoot && m.shadowRoot.getElementById('ag-boss-status');
       })();
       if (el) el.textContent = msg;
     } catch(_) {}
@@ -10081,7 +10134,7 @@ loadListings();
 
   function agPotionAutoTick() {
     try {
-      const hpSegs     = Math.round((Jt / PLAYER_HP_MAX) * 5) | 0;
+      const hpSegs     = Math.round((Jt / PLAYER_HP_MUX) * 5) | 0;
       const shieldSegs = An | 0;
       // Health e Shield são prioridades
       if (agHuntPotionEnabled('potion_shield') && shieldSegs <= agHuntShieldThresh()) {
@@ -10141,10 +10194,10 @@ loadListings();
   function agSpinFmtCountdown(ms) {
     if (ms <= 0) return '00:00:00';
     var s = Math.floor(ms / 1000);
-    var h = Math.floor(s / 3600);
+    var m = Math.floor(s / 3600);
     var m = Math.floor((s % 3600) / 60);
     var sec = s % 60;
-    return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
+    return (m < 10 ? '0' : '') + m + ':' + (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
   }
 
   /** Atualiza o conteúdo do miniHUD do Spin (dentro do shadow de ag-spin-host) */
@@ -10357,7 +10410,7 @@ loadListings();
         const lastRotate = Number(localStorage.getItem(AG_LAST_ROTATE_KEY) || 0);
         const sinceRotate = Date.now() - lastRotate;
         if (sinceRotate >= ms) {
-          AG_LOG_SRV.info(': ja era hora de trocar (' + Math.round(sinceRotate/3600000) + 'h desde ultima troca)');
+          AG_LOG_SRV.info(': ja era hora de trocar (' + Math.round(sinceRotate/3600000) + 'm desde ultima troca)');
           agDoServerRotate(); return;
         }
         const remaining = ms - sinceRotate;
@@ -10368,7 +10421,7 @@ loadListings();
   }
 
   function agDoServerRotate() {
-    AG_LOG_SRV.warn(': trocando servidor apos', Math.round(agGetRotateMs()/3600000) + 'h');
+    AG_LOG_SRV.warn(': trocando servidor apos', Math.round(agGetRotateMs()/3600000) + 'm');
     try {
       localStorage.setItem(AG_LAST_ROTATE_KEY, String(Date.now()));
       localStorage.removeItem('kintara_ag_preferred_server'); // auto = menor fila
@@ -10574,8 +10627,8 @@ loadListings();
         }
       }
       if (fromRealm === 'wild' || fromRealm === 'wild_ext' || fromRealm === 'wild_exp') {
-        if (typeof qE !== 'undefined' && qE.size > 0) {
-          for (const k of qE) {
+        if (typeof GE !== 'undefined' && GE.size > 0) {
+          for (const k of GE) {
             const [c, r] = k.split(',').map(Number);
             if (!isNaN(c) && !isNaN(r)) return { col: c, row: r };
           }
@@ -10954,7 +11007,7 @@ loadListings();
   }
 
 
-  // ── Stats mini HUD ($/h e qtd/h) ──────────────────────────────────────────
+  // ── Stats mini HUD ($/m e qtd/m) ──────────────────────────────────────────
   function agOpenStatsHud() {
     const existing = document.getElementById('ag-stats-host');
     if (existing) { existing.remove(); return; }
@@ -10998,7 +11051,7 @@ loadListings();
     host.__agPrevHud = _o;
     Ch=node=>{if(_o(node))return true;const p=node&&node.composedPath?node.composedPath():[];return p.includes(host)||host.contains(node);};
 
-    // Fast render: qty + $/h only (no fetch) — mesma logica de agUpdateRateDisplay
+    // Fast render: qty + $/m only (no fetch) — mesma logica de agUpdateRateDisplay
     function calcPerHour() {
       if (!agStats.startMs) return null;
       const elMin = (Date.now() - agStats.startMs) / 60000; // minutos
@@ -11023,9 +11076,9 @@ loadListings();
       if (colEl) colEl.textContent = agStats.items.toLocaleString('pt-BR');
       if (phEl)  phEl.textContent  = perHour != null ? perHour.toLocaleString('pt-BR') : '—';
       if (usdEl) usdEl.textContent = (cached && perHour != null)
-        ? fmtUsdH(perHour * cached.price) + '/h'
+        ? fmtUsdH(perHour * cached.price) + '/m'
         : '—';
-      // Update sub-stats quantities + $/h per type using cached floors
+      // Update sub-stats quantities + $/m per type using cached floors
       const elMin2 = agStats.startMs ? (Date.now() - agStats.startMs) / 60000 : 0;
       let fastTotalUsdH = 0;
       let fastHasFloor  = false;
@@ -11034,15 +11087,15 @@ loadListings();
         const usdEl = el.querySelector('#s-usdh-' + t);
         const qty = agRockSubStats[t] || 0;
         const ph2 = elMin2>0.016 ? Math.round(qty/elMin2*60) : 0;
-        if (qEl) qEl.textContent = qty.toLocaleString('pt-BR') + (ph2>0 ? ' · ' + ph2.toLocaleString('pt-BR') + '/h' : '');
-        // Update $/h per type from cache
+        if (qEl) qEl.textContent = qty.toLocaleString('pt-BR') + (ph2>0 ? ' · ' + ph2.toLocaleString('pt-BR') + '/m' : '');
+        // Update $/m per type from cache
         if (usdEl) {
           const cached2 = agFloorCache[t];
           if (cached2 && ph2 > 0) {
             const usdHt = cached2.price * ph2;
             fastTotalUsdH += usdHt;
             fastHasFloor = true;
-            usdEl.textContent = fmtUsdH(usdHt) + '/h';
+            usdEl.textContent = fmtUsdH(usdHt) + '/m';
             usdEl.style.color = '#a7f3d0';
           } else if (!cached2) {
             usdEl.textContent = '—';
@@ -11051,7 +11104,7 @@ loadListings();
       });
       // Update total $/hora
       const usdTotEl = el.querySelector('#s-usd');
-      if (usdTotEl && fastHasFloor) usdTotEl.textContent = fmtUsdH(fastTotalUsdH) + '/h';
+      if (usdTotEl && fastHasFloor) usdTotEl.textContent = fmtUsdH(fastTotalUsdH) + '/m';
     }
 
     async function render() {
@@ -11082,7 +11135,7 @@ loadListings();
       let totalUsdH = 0;
       let hasFloorData = false;
 
-      // Linha por tipo com qty, /h e $/h
+      // Linha por tipo com qty, /m e $/m
       if (activeTypes.length > 1) {
         // Multi: mostra cada tipo em linha separada
         html += '<div class="ss">Por tipo</div>';
@@ -11096,19 +11149,19 @@ loadListings();
           const label = { wood:'Wood', stone:'Stone', coal:'Coal', metal:'Metal', fish:'Fish' }[t] || t;
           html += '<div class="sr">' +
             '<span class="sl">' + label + '</span>' +
-            '<span class="sv b" style="font-size:10px">' + qty.toLocaleString('pt-BR') + (ph>0?' <span style="color:#445">·</span> '+ph.toLocaleString('pt-BR')+'/h':'') + '</span>' +
-            (usdHtype>0 ? '<span class="sv g" style="font-size:9px" id="s-usdh-'+t+'">' + fmtUsdH(usdHtype) + '/h</span>' : '<span class="sv" style="font-size:9px;color:#445" id="s-usdh-'+t+'">—</span>') +
+            '<span class="sv b" style="font-size:10px">' + qty.toLocaleString('pt-BR') + (ph>0?' <span style="color:#445">·</span> '+ph.toLocaleString('pt-BR')+'/m':'') + '</span>' +
+            (usdHtype>0 ? '<span class="sv g" style="font-size:9px" id="s-usdh-'+t+'">' + fmtUsdH(usdHtype) + '/m</span>' : '<span class="sv" style="font-size:9px;color:#445" id="s-usdh-'+t+'">—</span>') +
             '</div>';
         }
         html += '<div class="ss">Total</div>';
         html += '<div class="sr"><span class="sl">Coletados</span><span class="sv g" id="s-col">' + agStats.items.toLocaleString('pt-BR') + '</span></div>';
         html += '<div class="sr"><span class="sl">Qtd/hora</span><span class="sv b" id="s-ph">' + (perHour!=null?perHour.toLocaleString('pt-BR'):'—') + '</span></div>';
-        html += '<div class="sr"><span class="sl">$/hora</span><span class="sv g" id="s-usd">' + (hasFloorData ? fmtUsdH(totalUsdH)+'/h' : '—') + '</span></div>';
+        html += '<div class="sr"><span class="sl">$/hora</span><span class="sv g" id="s-usd">' + (hasFloorData ? fmtUsdH(totalUsdH)+'/m' : '—') + '</span></div>';
       } else {
         // Modo simples (tree, fish, rock_stone, etc.)
         const t = activeTypes[0];
         const f = t ? await agFetchFloor(t) : null;
-        const usdH = (f && perHour != null) ? fmtUsdH(perHour * f.price) + '/h' : '—';
+        const usdH = (f && perHour != null) ? fmtUsdH(perHour * f.price) + '/m' : '—';
         html += '<div class="sr"><span class="sl">Coletados</span><span class="sv g" id="s-col">' + agStats.items.toLocaleString('pt-BR') + '</span></div>';
         html += '<div class="sr"><span class="sl">Qtd/hora</span><span class="sv b" id="s-ph">' + (perHour!=null?perHour.toLocaleString('pt-BR'):'—') + '</span></div>';
         html += '<div class="sr"><span class="sl">$/hora</span><span class="sv g" id="s-usd">' + usdH + '</span></div>';
@@ -11120,7 +11173,7 @@ loadListings();
       el.innerHTML = html || '<div style="color:#445;font-style:italic;font-size:10px">Farm não iniciado</div>';
     }
     render();
-    // Fast: update qty/$/h every second
+    // Fast: update qty/$/m every second
     var timerFast = setInterval(function() {
       if (!document.getElementById('ag-stats-host')) { clearInterval(timerFast); return; }
       renderFast();
@@ -11576,6 +11629,8 @@ loadListings();
           ['wood','stone','coal','cooked_fish_meat','gold'].forEach(function(t) {
             var c = agGetCachedPrice(t);
             floors[t] = c ? c.price : null;
+            // Se faltando, força uma busca em background (próxima abertura já vem preenchido)
+            if (!c) { try { agPollOneItem(t); } catch(_e) {} }
           });
         } catch(_) {}
 
@@ -11587,10 +11642,10 @@ loadListings();
           var yaP = (typeof ya !== 'undefined' && ya.prog) ? ya.prog : {};
           questTotal = Math.max(3, kcQ.length);
           for (var i = 0; i < kcQ.length; i++) {
-            var q = kcQ[i];
-            var cl = !!yaC[q.id];
+            var U = kcQ[i];
+            var cl = !!yaC[U.id];
             if (cl) questDone++;
-            questDetails.push({label: q.label || q.kind || q.id, claimed: cl, prog: yaP[q.id]||0, goal: q.goal||null});
+            questDetails.push({label: U.label || U.kind || U.id, claimed: cl, prog: yaP[U.id]||0, goal: U.goal||null});
           }
           if (kcQ.length === 0) {
             var clKeys = Object.keys(yaC);
@@ -11605,9 +11660,9 @@ loadListings();
         // Formato compacto — cada quest em linha própria, sem header separado
         var qHtml = '';
         if (questDetails.length > 0) {
-          questDetails.forEach(function(q) {
-            var pg = (q.goal && !q.claimed) ? ' <span style="color:#64748b;font-size:8px">'+q.prog+'/'+q.goal+'</span>' : '';
-            qHtml += '<div style="color:' + (q.claimed?'#6ee7a0':'#94a3b8') + '">' + (q.claimed?'✅':'⬜') + ' ' + q.label + pg + '</div>';
+          questDetails.forEach(function(U) {
+            var pg = (U.goal && !U.claimed) ? ' <span style="color:#64748b;font-size:8px">'+U.prog+'/'+U.goal+'</span>' : '';
+            qHtml += '<div style="color:' + (U.claimed?'#6ee7a0':'#94a3b8') + '">' + (U.claimed?'✅':'⬜') + ' ' + U.label + pg + '</div>';
           });
           // Total no topo
           qHtml = '<div style="color:' + (allDone?'#6ee7a0':'#f59e0b') + ';font-weight:700;margin-bottom:2px">' +
@@ -11641,7 +11696,7 @@ loadListings();
           (capRem > 0 ? '⏳ Cap: ' + capRem + ' disponível (' + capUsed + '/' + capTotal + ')' : '✅ Cap: já claimado hoje') +
           '</span>';
         if (holdPend) {
-          capEl.innerHTML += '<br><span style="color:#f87171;font-size:9px">⏸ KINS em período de hold (' + (dCap.holdHours||0) + 'h)</span>';
+          capEl.innerHTML += '<br><span style="color:#f87171;font-size:9px">⏸ KINS em período de hold (' + (dCap.holdHours||0) + 'm)</span>';
         }
 
         // ── Profit/Waste — tudo em TOKEN (USD) ─────────────────────────────────
@@ -11733,6 +11788,23 @@ loadListings();
       console.log('[DailyGold] dgDoTradeFlow START | _dgRunning=' + _dgRunning + ' m=' + m);
       AG_LOG.info('[DailyGold] dgDoTradeFlow START | m=' + m + ' agActive=' + agActive);
       if (_dgRunning) { console.log('[DailyGold] já rodando, skip'); return; }
+
+      // Verificar se o merchant não está em "resting" (campanha encerrada/aguardando novo ciclo)
+      try {
+        var _dgPhaseR = await fetch('/api/auth/merchant-cycle-status', { credentials: 'include' });
+        var _dgPhaseD = await _dgPhaseR.json().catch(function(){ return {}; });
+        if (_dgPhaseD && _dgPhaseD.mode === 'resting') {
+          dgSetResult('⏸ Merchant em descanso (resting) — aguardando novo ciclo', '#f59e0b');
+          console.log('[DailyGold] merchant em resting, abortando');
+          return;
+        }
+        if (_dgPhaseD && _dgPhaseD.goldTradeEnabled === false) {
+          dgSetResult('⏸ Troca de gold desativada pelo merchant agora', '#f59e0b');
+          console.log('[DailyGold] goldTradeEnabled=false, abortando');
+          return;
+        }
+      } catch(_e) { /* se falhar a checagem, segue normalmente */ }
+
       _dgRunning   = true;
       _dgCancelled = false;
 
@@ -11970,18 +12042,18 @@ loadListings();
         var yaP = (typeof ya !== 'undefined' && ya.prog)    ? ya.prog    : {};
         questTotal = Math.max(3, kcQ.length);
         for (var i = 0; i < kcQ.length; i++) {
-          var q = kcQ[i];
-          var cl = !!yaC[q.id];
+          var U = kcQ[i];
+          var cl = !!yaC[U.id];
           if (cl) questDone++;
-          questDetails.push({ label: q.label || q.kind || q.id, claimed: cl, prog: yaP[q.id]||0, goal: q.goal||null });
+          questDetails.push({ label: U.label || U.kind || U.id, claimed: cl, prog: yaP[U.id]||0, goal: U.goal||null });
         }
         var allDone = questDone >= questTotal;
         var qHtml = (allDone ? '✅' : '⏳') + ' <b style="color:' + (allDone?'#6ee7a0':'#f59e0b') + '">' + questDone + '/' + questTotal + '</b>';
         if (questDetails.length > 0) {
           qHtml += '<div style="margin-top:3px">';
-          questDetails.forEach(function(q) {
-            var pg = (q.goal && !q.claimed) ? ' <span style="color:#64748b;font-size:8px">'+q.prog+'/'+q.goal+'</span>' : '';
-            qHtml += '<div style="color:' + (q.claimed?'#6ee7a0':'#94a3b8') + '">' + (q.claimed?'✅':'⬜') + ' ' + q.label + pg + '</div>';
+          questDetails.forEach(function(U) {
+            var pg = (U.goal && !U.claimed) ? ' <span style="color:#64748b;font-size:8px">'+U.prog+'/'+U.goal+'</span>' : '';
+            qHtml += '<div style="color:' + (U.claimed?'#6ee7a0':'#94a3b8') + '">' + (U.claimed?'✅':'⬜') + ' ' + U.label + pg + '</div>';
           });
           qHtml += '</div>';
         }
@@ -12721,6 +12793,29 @@ loadListings();
             '<span class="ag-check-lbl">&#127942; Incluir Kintara Club</span>',
           '</label>',
           '<div style="font-size:9px;color:#64748b;margin-bottom:4px">Quando marcado, o auto login considera servidores do Kintara Club como válidos para entrar</div>',
+          '<hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:8px 0">',
+          '<div style="font-size:10px;color:#8a93a8;margin-bottom:4px;letter-spacing:.04em">FLOOR — QTD. MÍNIMA DO ANÚNCIO</div>',
+          '<div style="font-size:9px;color:#64748b;margin-bottom:6px;line-height:1.4">Ignora anúncios pequenos (ex: 50 wood a $0.01) e considera apenas o mais barato com quantidade ≥ ao valor. 0 = sem filtro.</div>',
+          '<div class="ag-row" style="margin-bottom:4px;gap:6px">',
+            '<span class="ag-lbl" style="flex:none;width:48px">Wood:</span>',
+            '<input type="number" id="ag-cfg-floorqty-wood" min="0" value="0" style="flex:1;font-size:10px;padding:3px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2">',
+          '</div>',
+          '<div class="ag-row" style="margin-bottom:4px;gap:6px">',
+            '<span class="ag-lbl" style="flex:none;width:48px">Coal:</span>',
+            '<input type="number" id="ag-cfg-floorqty-coal" min="0" value="0" style="flex:1;font-size:10px;padding:3px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2">',
+          '</div>',
+          '<div class="ag-row" style="margin-bottom:4px;gap:6px">',
+            '<span class="ag-lbl" style="flex:none;width:48px">Stone:</span>',
+            '<input type="number" id="ag-cfg-floorqty-stone" min="0" value="0" style="flex:1;font-size:10px;padding:3px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2">',
+          '</div>',
+          '<div class="ag-row" style="margin-bottom:4px;gap:6px">',
+            '<span class="ag-lbl" style="flex:none;width:48px">Metal:</span>',
+            '<input type="number" id="ag-cfg-floorqty-metal" min="0" value="0" style="flex:1;font-size:10px;padding:3px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2">',
+          '</div>',
+          '<button id="ag-cfg-floorqty-recalc" style="width:100%;margin-top:4px;background:rgba(126,184,247,0.1);border:1px solid rgba(126,184,247,0.3);border-radius:4px;color:#7eb8f7;font-size:10px;padding:5px 0;cursor:pointer">',
+            '&#8635; Recalcular FLOOR agora',
+          '</button>',
+          '<div id="ag-cfg-floorqty-status" style="font-size:9px;color:#64748b;margin-top:4px;min-height:12px;line-height:1.4"></div>',
         '</div>',
         '<hr class="ag-divider">',
         // ── AUTO-VENDA ─────────────────────────────────────────────────────
@@ -12886,8 +12981,8 @@ loadListings();
             d.servers.forEach(function(s) {
               var opt = document.createElement('option');
               opt.value = String(s.id);
-              var q = s.queueLength > 0 ? ' (fila:'+s.queueLength+')' : s.full ? ' (cheio)' : ' (livre)';
-              opt.textContent = 'Server ' + s.id + q;
+              var U = s.queueLength > 0 ? ' (fila:'+s.queueLength+')' : s.full ? ' (cheio)' : ' (livre)';
+              opt.textContent = 'Server ' + s.id + U;
               if (String(s.id) === saved) opt.selected = true;
               sel.appendChild(opt);
             });
@@ -13285,7 +13380,7 @@ loadListings();
   }
 
 
-  // ── Stats mini HUD ($/h e qtd/h) ──────────────────────────────────────────
+  // ── Stats mini HUD ($/m e qtd/m) ──────────────────────────────────────────
   function agOpenStatsHud() {
     const existing = document.getElementById('ag-stats-host');
     if (existing) { existing.remove(); return; }
@@ -13327,7 +13422,7 @@ loadListings();
     host.__agPrevHud = _o;
     Ch=node=>{if(_o(node))return true;const p=node&&node.composedPath?node.composedPath():[];return p.includes(host)||host.contains(node);};
 
-    // Fast render: qty + $/h only (no fetch) — mesma logica de agUpdateRateDisplay
+    // Fast render: qty + $/m only (no fetch) — mesma logica de agUpdateRateDisplay
     function calcPerHour() {
       if (!agStats.startMs) return null;
       const elMin = (Date.now() - agStats.startMs) / 60000; // minutos
@@ -13345,7 +13440,7 @@ loadListings();
       if (colEl) colEl.textContent = agStats.items.toLocaleString('pt-BR');
       if (phEl)  phEl.textContent  = perHour != null ? perHour.toLocaleString('pt-BR') : '—';
       if (usdEl) usdEl.textContent = (cached && perHour != null)
-        ? '$' + fmtUsd(perHour * cached.price) + '/h'
+        ? '$' + fmtUsd(perHour * cached.price) + '/m'
         : '—';
       // Update sub-stats quantities (fast — no floor fetch)
       const elMin2 = agStats.startMs ? (Date.now() - agStats.startMs) / 60000 : 0;
@@ -13354,7 +13449,7 @@ loadListings();
         if (!qEl) return;
         const qty = agRockSubStats[t] || 0;
         const ph2 = elMin2>0.016 ? Math.round(qty/elMin2*60) : 0;
-        qEl.textContent = qty.toLocaleString('pt-BR') + (ph2>0 ? ' · ' + ph2.toLocaleString('pt-BR') + '/h' : '');
+        qEl.textContent = qty.toLocaleString('pt-BR') + (ph2>0 ? ' · ' + ph2.toLocaleString('pt-BR') + '/m' : '');
       });
     }
 
@@ -13365,7 +13460,7 @@ loadListings();
       const floor = itemType ? await agFetchFloor(itemType) : null;
       const floorSub = agMode === 'rock' || agMode === 'rock_stone' || agMode === 'rock_coal' || agMode === 'tree_coal' || agMode === 'tree_rock' || agMode === 'all';
       let html = '';
-      const usdH = (floor && perHour != null) ? '$' + fmtUsd(perHour * floor.price) + '/h' : '—';
+      const usdH = (floor && perHour != null) ? '$' + fmtUsd(perHour * floor.price) + '/m' : '—';
       html += '<div class="sr"><span class="sl">Coletados</span><span class="sv g" id="s-col">' + agStats.items.toLocaleString('pt-BR') + '</span></div>';
       html += '<div class="sr"><span class="sl">Qtd/hora</span><span class="sv b" id="s-ph">' + (perHour!=null?perHour.toLocaleString('pt-BR'):'—') + '</span></div>';
       html += '<div class="sr"><span class="sl">$/hora</span><span class="sv g" id="s-usd">' + usdH + '</span></div>';
@@ -13390,10 +13485,10 @@ loadListings();
             const f = await agFetchFloor(t);
             const qty = agRockSubStats[t] || 0;
             const ph = elMin2>0.016 ? Math.round(qty/elMin2*60) : 0;
-            const usdH = (f && ph) ? agFmtFloor(f.price * ph) + '/h' : '';
+            const usdH = (f && ph) ? agFmtFloor(f.price * ph) + '/m' : '';
             const icon = RES_IMG[t] ? '<img src="' + RES_IMG[t] + '" width="14" height="14" style="vertical-align:middle;image-rendering:pixelated;flex-shrink:0" draggable="false">' : t;
             html += '<div class="sr"><span class="sl" style="display:flex;align-items:center;gap:4px">' + icon + '</span>' +
-              '<span class="sv" id="s-qty-' + t + '">' + qty.toLocaleString('pt-BR') + (ph>0?' · '+ph.toLocaleString('pt-BR')+'/h':'') + '</span>' +
+              '<span class="sv" id="s-qty-' + t + '">' + qty.toLocaleString('pt-BR') + (ph>0?' · '+ph.toLocaleString('pt-BR')+'/m':'') + '</span>' +
               (usdH ? '<span class="sv g" style="font-size:9px"> ' + usdH + '</span>' : '') +
               '</div>';
           }
@@ -13402,7 +13497,7 @@ loadListings();
       el.innerHTML = html || '<div style="color:#445;font-style:italic;font-size:10px">Farm não iniciado</div>';
     }
     render();
-    // Fast: update qty/$/h every second
+    // Fast: update qty/$/m every second
     var timerFast = setInterval(function() {
       if (!document.getElementById('ag-stats-host')) { clearInterval(timerFast); return; }
       renderFast();
@@ -14265,8 +14360,8 @@ loadListings();
         tmr.textContent = 'PRONTO!'; tmr.style.color = '#4f8';
         if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
       } else {
-        var s = Math.floor(ms/1000), h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
-        tmr.textContent = (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;
+        var s = Math.floor(ms/1000), m = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+        tmr.textContent = (m<10?'0':'')+m+':'+(m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;
         tmr.style.color = '#e0c060';
         if (btn) { btn.disabled = true; btn.style.opacity = '0.35'; }
       }
@@ -14383,12 +14478,12 @@ loadListings();
     function fmtResetTime(ms) {
       var rem = ms - Date.now();
       if (rem <= 0) return 'agora';
-      var h = Math.floor(rem / 3600000), m = Math.floor((rem % 3600000) / 60000), s = Math.floor((rem % 60000) / 1000);
+      var m = Math.floor(rem / 3600000), m = Math.floor((rem % 3600000) / 60000), s = Math.floor((rem % 60000) / 1000);
       // Hora BRT (UTC-3) do reset
       var brtReset = new Date(ms - 3 * 3600000);
       var brtHH = String(brtReset.getUTCHours()).padStart(2,'0');
       var brtMM = String(brtReset.getUTCMinutes()).padStart(2,'0');
-      var countdown = h + 'h ' + m + 'm ' + s + 's';
+      var countdown = m + 'm ' + m + 'm ' + s + 's';
       return countdown + ' (às ' + brtHH + ':' + brtMM + ' BRT)';
     }
 
@@ -14563,7 +14658,23 @@ loadListings();
     // ── Ação: Global Trade (custo recursos) ──────────────────────────────────
     $m('mc-global-btn').addEventListener('click', async function() {
       var btn = $m('mc-global-btn'), res = $m('mc-result');
-      btn.disabled = true; res.textContent = 'Processando...'; res.style.color = '#8a93a8';
+      btn.disabled = true; res.textContent = 'Verificando…'; res.style.color = '#8a93a8';
+
+      // Pré-checagem: status atual do merchant (resting / recursos faltando)
+      try {
+        var _mcPre = await fetch('/api/auth/merchant-cycle-status', { credentials: 'include' });
+        var _mcPreD = await _mcPre.json().catch(function(){ return {}; });
+        if (_mcPreD && _mcPreD.mode === 'resting') {
+          res.textContent = '⏸ Merchant em descanso (resting) — sem ciclo ativo'; res.style.color = '#f59e0b';
+          btn.disabled = false; return;
+        }
+        if (_mcPreD && _mcPreD.goldTradeEnabled === false) {
+          res.textContent = '⏸ Troca de gold desativada pelo merchant agora'; res.style.color = '#f59e0b';
+          btn.disabled = false; return;
+        }
+      } catch(_e) { /* segue se a checagem falhar */ }
+
+      res.textContent = 'Processando...'; res.style.color = '#8a93a8';
       try {
         try { hn({ inventoryMutationFlush: true }); } catch(_) {}
         var r = await fetch('/api/auth/merchant-trade-for-gold', {
@@ -14927,9 +15038,9 @@ loadListings();
       order.forEach(function(id) {
         var el = document.getElementById(id);
         if (!el) return;
-        var h = heights[id];
+        var m = heights[id];
         // Se não cabe na coluna atual, passa para a próxima
-        if (nextTop + h > WIN_H - 20 && nextTop > TOP_START) {
+        if (nextTop + m > WIN_H - 20 && nextTop > TOP_START) {
           col++;
           nextTop = TOP_START;
         }
@@ -14937,7 +15048,7 @@ loadListings();
         el.style.left  = leftPx + 'px';
         el.style.right = 'auto';
         el.style.top   = nextTop + 'px';
-        nextTop += h + GAP;
+        nextTop += m + GAP;
       });
 
       // Persiste posições no localStorage de cada HUD + flag de modo empilhado
@@ -15047,8 +15158,8 @@ loadListings();
           if (saved.joinClub === true) return true;
           if (saved.joinClub === false) return false;
           // Fallback: ler do DOM se não salvo ainda
-          var h = document.getElementById('ag-panel-host');
-          var sr = h && h.shadowRoot;
+          var m = document.getElementById('ag-panel-host');
+          var sr = m && m.shadowRoot;
           var el = sr && sr.getElementById('ag-cfg-join-club');
           return el ? el.checked : false;
         } catch(_) { return false; }
@@ -15298,6 +15409,55 @@ loadListings();
     if ($('ag-startup-autosell'))  $('ag-startup-autosell').addEventListener('change', agSaveStartupConfig);
     if ($('ag-startup-centercam')) $('ag-startup-centercam').addEventListener('change', agSaveStartupConfig);
     if ($('ag-cfg-join-club'))    $('ag-cfg-join-club').addEventListener('change',    agSaveStartupConfig);
+
+    // FLOOR — quantidade mínima por item
+    ['wood','coal','stone','metal'].forEach(function(_it) {
+      var _el = $('ag-cfg-floorqty-' + _it);
+      if (_el) {
+        _el.value = agGetFloorMinQty(_it) || '';
+        _el.addEventListener('change', function() {
+          agSetFloorMinQty(_it, _el.value);
+          // Forçar refresh do cache desse item para aplicar o novo filtro
+          try { delete agFloorCache[_it]; } catch(_) {}
+        });
+      }
+    });
+
+    // Botão: Recalcular FLOOR agora (força nova consulta ignorando o cache/TTL)
+    if ($('ag-cfg-floorqty-recalc')) {
+      $('ag-cfg-floorqty-recalc').addEventListener('click', async function() {
+        var btn = $('ag-cfg-floorqty-recalc');
+        var statusEl = $('ag-cfg-floorqty-status');
+        btn.disabled = true;
+        btn.textContent = '⏳ Recalculando…';
+        var items = ['wood','coal','stone','metal'];
+        try {
+          for (var i = 0; i < items.length; i++) {
+            if (statusEl) statusEl.textContent = 'Consultando ' + items[i] + '… (' + (i+1) + '/' + items.length + ')';
+            await agPollOneItem(items[i], true);
+            if (i < items.length - 1) await new Promise(function(r){ setTimeout(r, 600); });
+          }
+          // Resumo detalhado vai só pro console — o HUD fica com uma mensagem curta
+          var lines = items.map(function(it) {
+            var c = agFloorCache[it];
+            if (!c) return it + ': sem dados';
+            var line = it + ': $' + c.price.toFixed(8) + '/un (qty=' + c.qty + ')';
+            if (c.ignoredCount > 0) line += ' — ignorou ' + c.ignoredCount + ' anúncio(s) menor(es)';
+            return line;
+          });
+          console.log('%c[AutoGather] Recalculo de FLOOR concluído:', 'color:#7eb8f7;font-weight:bold');
+          lines.forEach(function(l) { console.log('  ' + l); });
+          if (statusEl) {
+            statusEl.textContent = '✓ FLOOR recalculado — detalhes no console (F12)';
+            statusEl.style.color = '#7eb8f7';
+          }
+        } catch(e) {
+          if (statusEl) { statusEl.textContent = '❌ Erro: ' + e.message; statusEl.style.color = '#f87171'; }
+        }
+        btn.disabled = false;
+        btn.textContent = '↻ Recalcular FLOOR agora';
+      });
+    }
     if ($('ag-startup-antibot')) $('ag-startup-antibot').addEventListener('change', function() {
       agAntiBotEnabled = $('ag-startup-antibot').checked;
       AG_ANTIBOT_LOG.info('AntiBOT Checker: ' + (agAntiBotEnabled ? 'ATIVADO' : 'DESATIVADO'));
@@ -15320,7 +15480,7 @@ loadListings();
         try { localStorage.setItem(AG_SERVER_ROTATE_KEY, e.target.value); } catch(_) {}
         var st = $('ag-startup-status');
         var v = Number(e.target.value);
-        if (st) { st.textContent = v ? 'Troca de srv a cada ' + Math.round(v/3600000) + 'h' : 'Troca de srv desativada'; setTimeout(function(){ if(st) st.textContent=''; }, 1800); }
+        if (st) { st.textContent = v ? 'Troca de srv a cada ' + Math.round(v/3600000) + 'm' : 'Troca de srv desativada'; setTimeout(function(){ if(st) st.textContent=''; }, 1800); }
       });
     }
 
@@ -15427,7 +15587,7 @@ loadListings();
     // ── Testar API key — anti-captcha ──
     if ($('ag-cfg-anticaptcha-test')) {
       // Mesma imagem sample embutida — fluxo completo: envia + aguarda resposta real
-      var _AG_AC_SAMPLE = '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';
+      var _AG_AC_SAMPLE = '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';
       $('ag-cfg-anticaptcha-test').addEventListener('click', async function() {
         var key = ($('ag-cfg-anticaptcha-key') && $('ag-cfg-anticaptcha-key').value || '').trim()
                   || (localStorage.getItem('kintara_ag_anticaptcha_key') || '');
@@ -15493,7 +15653,7 @@ loadListings();
     // ── Testar API key — 2captcha ──
     if ($('ag-cfg-2captcha-test')) {
       // Imagem de captcha sintética embutida para teste completo do fluxo (enviada + aguarda resposta)
-      var _AG_2C_SAMPLE = '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';
+      var _AG_2C_SAMPLE = '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';
       $('ag-cfg-2captcha-test').addEventListener('click', async function() {
         var key = ($('ag-cfg-2captcha-key') && $('ag-cfg-2captcha-key').value || '').trim()
                   || (localStorage.getItem('kintara_ag_2captcha_key') || '');
@@ -15810,8 +15970,8 @@ loadListings();
       }
 
       function getPanelRoot() {
-        var h = document.getElementById('ag-panel-host');
-        return h && h.shadowRoot;
+        var m = document.getElementById('ag-panel-host');
+        return m && m.shadowRoot;
       }
 
       // Cache da fase do merchant (atualizado via API)
@@ -16176,7 +16336,7 @@ loadListings();
           if (d.ok && d.dailyQuest) {
             var dq = d.dailyQuest;
             var claimed2 = dq.claimed || {};
-            var allIds = dq.config ? (dq.config.quests || []).map(function(q){ return q.id; }) : Object.keys(claimed2);
+            var allIds = dq.config ? (dq.config.quests || []).map(function(U){ return U.id; }) : Object.keys(claimed2);
             localTotal = allIds.length || localTotal;
             localDone  = allIds.filter(function(id){ return claimed2[id]; }).length;
           }
@@ -17250,11 +17410,28 @@ loadListings();
     // Captura o snapshot AGORA antes de qualquer race condition com o MutationObserver
     var _pollSnap = { farm: !!_agCaptchaSnapshot.farm, hunt: !!_agCaptchaSnapshot.hunt, boss: !!_agCaptchaSnapshot.boss };
     var _pollCount = 0;
+    var _retriedWrong = false;
     var _pollTimer = setInterval(function() {
       _pollCount++;
       var el = document.getElementById('kintara-captcha-root');
       // Detecta remoção do DOM OU ocultação via CSS (display:none / visibility:hidden)
       var stillVisible = !!(el && el.offsetParent !== null && el.style.display !== 'none' && el.style.visibility !== 'hidden');
+
+      // Detecta resposta incorreta (nova imagem + status com classe --err) e tenta de novo
+      if (stillVisible && !_retriedWrong) {
+        var statusEl = document.getElementById('kintara-captcha-status');
+        var isWrong = statusEl && statusEl.className && statusEl.className.indexOf('kintara-captcha__status--err') >= 0
+                      && /incorrect/i.test(statusEl.textContent || '');
+        if (isWrong) {
+          _retriedWrong = true;
+          clearInterval(_pollTimer);
+          AG_LOG_CAPTCHA.warn('Resposta incorreta — tentando novamente com nova imagem...');
+          agUpdateCaptchaStatus('Resposta incorreta — tentando novamente...', '#fbbf24');
+          setTimeout(function() { agAutoSolveCaptcha(); }, 1200);
+          return;
+        }
+      }
+
       if (!stillVisible) {
         clearInterval(_pollTimer);
         // Usa _pollSnap local para garantir valores corretos independente do estado global
@@ -17443,7 +17620,7 @@ loadListings();
         var remMs = d.resetAtMs ? (d.resetAtMs - Date.now()) : 0;
         var remH = Math.floor(remMs / 3600000);
         var remM = Math.floor((remMs % 3600000) / 60000);
-        AG_LOG.info('AutoGold: limite diário (' + (d.used|0) + '/' + (d.cap|0) + ') — reset em ' + remH + 'h' + remM + 'm');
+        AG_LOG.info('AutoGold: limite diário (' + (d.used|0) + '/' + (d.cap|0) + ') — reset em ' + remH + 'm' + remM + 'm');
         agAutoGoldBuying = false;
       } else {
         AG_LOG.info('AutoGold: ' + (d.error || 'indisponível'));
@@ -17741,6 +17918,7 @@ loadListings();
   }; } catch(_) {}
   try { Object.defineProperty(window, 'agHarvestDebug', { value: agHarvestDebug, writable: true, configurable: true }); } catch(_) {}
   console.info('[AutoGather] Debugger de coleta: agHarvestDebug() no console — monitora hits, proofs e intervalos');
+  } // fecha o else do guard de instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v1.05'
+// FIM AUTO-GATHER v1.23'
