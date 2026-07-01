@@ -5728,7 +5728,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   pointer-events: none !important;
 }
 `,document.head.appendChild(Q)}try{typeof Kb<"u"&&Kb&&Kb.classList&&Kb.classList.add("kintara-radar-wrap"),typeof $v<"u"&&$v&&$v.classList&&$v.classList.add("kintara-radar-quick-row"),typeof jv<"u"&&jv&&jv.classList&&jv.classList.add("kintara-radar-quick-row"),typeof e2<"u"&&e2&&e2.classList&&e2.classList.add("kintara-topleft-row"),typeof Wv<"u"&&Wv&&Wv.classList&&Wv.classList.add("kintara-radar-compass-mount"),typeof no<"u"&&no&&!no.id&&(no.id="kintara-inv-overlay"),typeof mo<"u"&&mo&&!mo.id&&(mo.id="kintara-build-menu-backdrop")}catch{}try{const Q=c(()=>{if(!(!sf||!sf.cells))for(const de of sf.cells){if(!de)continue;const Te=de.firstElementChild;Te&&!Te.classList.contains("kintara-hotbar-key")&&Te.classList.add("kintara-hotbar-key")}},"tagHotbarKeys");Q(),typeof Nu<"u"&&Nu&&new MutationObserver(Q).observe(Nu,{childList:!0,subtree:!0})}catch{}function a(Q,de){const Te=de||22;return'<svg xmlns="http://www.w3.org/2000/svg" width="'+Te+'" height="'+Te+'" viewBox="0 0 24 24" fill="none" stroke="#1a1410" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="pointer-events:none;display:block;flex-shrink:0;">'+Q+"</svg>"}c(a,"svgMarkup");function o(Q){return'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e8ecf3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="pointer-events:none;display:block;flex-shrink:0;">'+Q+"</svg>"}c(o,"dropdownSvg");const i=document.createElement("button");i.type="button",i.className="kintara-mobile-menu-btn kintara-mobile-only",i.setAttribute("aria-label","Open game menu"),i.title="Menu",i.innerHTML=a('<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>',22);const r=document.createElement("span");r.className="kintara-mobile-menu-btn__badge",i.appendChild(r);const l=document.createElement("div");l.className="kintara-mobile-dropdown kintara-mobile-dropdown--right",l.setAttribute("role","menu");const d=document.createElement("div");d.className="kintara-mobile-dropdown__grid",l.appendChild(d);function u(Q,de,Te,Xe){const vt=document.createElement("button");if(vt.type="button",vt.className="kintara-mobile-dropdown__item",vt.dataset.kintaraMobileItem=Xe&&Xe.id?Xe.id:Q.toLowerCase(),vt.innerHTML=o(de)+"<span>"+Q+"</span>",vt.addEventListener("click",pn=>{pn.preventDefault(),pn.stopPropagation(),O();try{typeof Te=="function"?Te():Te&&typeof Te.click=="function"&&Te.click()}catch{}}),Xe&&Xe.badge){const pn=document.createElement("span");pn.className="kintara-mobile-dropdown__itemBadge",vt.appendChild(pn),vt._kintaraBadge=pn}return vt}c(u,"makeMobileMenuItem");const p=u("Friends",'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',typeof YD<"u"?YD:null,{id:"friends",badge:!0}),f=u("Inventory",'<path d="M4 10a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8z"/><path d="M9 6V5a3 3 0 0 1 6 0v1"/><path d="M8 10h8"/>',typeof VD<"u"?VD:null,{id:"inventory"}),g=u("Build",'<path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/>',typeof PC<"u"?PC:null,{id:"build"}),b=u("Arena",'<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>',typeof KD<"u"?KD:null,{id:"arena"}),y=u("Stats",'<path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16v-9"/><path d="M17 16v-2"/>',typeof XD<"u"?XD:null,{id:"stats"}),x=u("Outfit",'<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>',typeof ZD<"u"?ZD:null,{id:"outfit"}),k=u("Market",'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',typeof qP<"u"?qP:null,{id:"market"}),M=u("Map",'<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21 3 6"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>',()=>{try{if(!(m==="world"||m==="wild"||m==="wild_ext"||m==="wild_exp"||m==="ember"||m==="arena"||m==="pond"||m==="beach"||m==="eldergrove")||vn)return;ao=!ao,ao?(Cr.style.display="block",typeof gt=="function"&&gt(Cr),typeof RK=="function"&&RK()):(Cr.style.display="none",typeof b0=="function"&&b0())}catch{}},{id:"map"});d.append(f,g,x,y,p,b,k,M);const S=document.createElement("button");S.type="button",S.className="kintara-mobile-menu-btn kintara-mobile-menu-btn--settings kintara-mobile-only",S.setAttribute("aria-label","Open settings menu"),S.title="Settings",S.innerHTML=a('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>',22);const v=document.createElement("div");v.className="kintara-mobile-dropdown kintara-mobile-dropdown--left",v.setAttribute("role","menu");const T=document.createElement("div");T.className="kintara-mobile-dropdown__grid",v.appendChild(T);const C=u("Settings",'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>',typeof Su<"u"?Su:null,{id:"settings"}),R=u("Admin",'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',typeof gs<"u"?gs:null,{id:"admin"}),E=u("Logout",'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',typeof fp<"u"?fp:null,{id:"logout"});T.append(C,R,E);const N=typeof ve<"u"&&ve||document.body;N.appendChild(i),N.appendChild(l),N.appendChild(S),N.appendChild(v);function W(){try{if(typeof gs>"u"||!gs){R.hidden=!0;return}const Q=window.getComputedStyle(gs);R.hidden=!(Q&&Q.display!=="none")}catch{R.hidden=!1}}c(W,"syncMobileAdminItem"),W();try{typeof gs<"u"&&gs&&new MutationObserver(W).observe(gs,{attributes:!0,attributeFilter:["style","class"]})}catch{}function H(){try{if(typeof up>"u"||!up)return;const Q=up.style.display!=="none"&&!!(up.textContent||"").trim();r.style.display=Q?"block":"none",r.textContent=(up.textContent||"").trim();const de=p&&p._kintaraBadge;de&&(de.style.display=Q?"block":"none",de.textContent=r.textContent)}catch{}}c(H,"syncMobileFriendBadge"),H();try{typeof up<"u"&&up&&new MutationObserver(H).observe(up,{attributes:!0,attributeFilter:["style"],childList:!0,characterData:!0,subtree:!0})}catch{}function B(Q){O(Q==="right"?"left":"right"),Q==="right"?l.setAttribute("data-open","true"):v.setAttribute("data-open","true")}c(B,"openMobileMenu");function O(Q){(!Q||Q==="right")&&l.removeAttribute("data-open"),(!Q||Q==="left")&&v.removeAttribute("data-open")}c(O,"closeMobileMenu"),i.addEventListener("click",Q=>{Q.preventDefault(),Q.stopPropagation(),l.getAttribute("data-open")==="true"?O("right"):B("right")}),S.addEventListener("click",Q=>{Q.preventDefault(),Q.stopPropagation(),v.getAttribute("data-open")==="true"?O("left"):B("left")}),document.addEventListener("click",Q=>{const de=Q.target;de&&(de===i||i.contains(de)||de===S||S.contains(de)||l.contains(de)||v.contains(de)||O())}),window.addEventListener("keydown",Q=>{Q.key==="Escape"&&O()});const A=document.createElement("div");A.className="kintara-mobile-bottom-dock",A.id="kintara-mobile-bottom-dock";const F=document.createElement("div");F.className="kintara-mobile-bottom-dock__panes";const D=document.createElement("div");D.className="kintara-mobile-bottom-dock__pane",D.dataset.pane="chat";const z=document.createElement("div");z.className="kintara-mobile-bottom-dock__pane",z.dataset.pane="quests",F.append(D,z);const I=document.createElement("button");I.type="button",I.className="kintara-mobile-pane-min",I.title="Minimize chat",I.setAttribute("aria-label","Minimize chat"),I.textContent="\u2212",D.appendChild(I);const q=document.createElement("button");q.type="button",q.className="kintara-mobile-pane-min",q.title="Minimize quests",q.setAttribute("aria-label","Minimize quests"),q.textContent="\u2212",z.appendChild(q);const G=document.createElement("div");G.className="kintara-mobile-bottom-dock__health";const K=document.createElement("div");K.className="kintara-mobile-bottom-dock__hotbar";const J=document.createElement("div");J.className="kintara-mobile-bottom-dock__icons";const ne=document.createElement("button");ne.type="button",ne.className="kintara-mobile-bottom-dock__iconBtn",ne.dataset.tab="chat",ne.setAttribute("aria-label","Toggle chat"),ne.title="Chat",ne.innerHTML='<span class="kintara-mobile-bottom-dock__iconGlyph">\u{1F4AC}</span><span>Chat</span>';const be=document.createElement("button");be.type="button",be.className="kintara-mobile-bottom-dock__iconBtn",be.dataset.tab="quests",be.setAttribute("aria-label","Toggle quests"),be.title="Quests",be.innerHTML='<span class="kintara-mobile-bottom-dock__iconGlyph">\u2726</span><span>Quests</span>',J.append(ne,be),A.append(F,G,K,J),N.appendChild(A);let we=null;function te(Q){we=Q==="chat"||Q==="quests"?Q:null,document.body.classList.toggle("kintara-bottom--chat",we==="chat"),document.body.classList.toggle("kintara-bottom--quests",we==="quests"),ne.dataset.active=we==="chat"?"true":"false",be.dataset.active=we==="quests"?"true":"false"}c(te,"setMobilePane"),te(null),ne.addEventListener("click",Q=>{Q.stopPropagation(),te(we==="chat"?null:"chat")}),be.addEventListener("click",Q=>{Q.stopPropagation(),te(we==="quests"?null:"quests")}),I.addEventListener("click",Q=>{Q.stopPropagation(),te(null)}),q.addEventListener("click",Q=>{Q.stopPropagation(),te(null)});const me=new Map;function ue(Q){!Q||me.has(Q)||me.set(Q,{parent:Q.parentNode,next:Q.nextSibling})}c(ue,"rememberParent");function Ve(Q){const de=me.get(Q);if(!(!de||!de.parent))try{de.next&&de.next.parentNode===de.parent?de.parent.insertBefore(Q,de.next):de.parent.appendChild(Q)}catch{}}c(Ve,"restoreParent");function Ie(){document.body.classList.add("kintara-mobile"),typeof Zr<"u"&&Zr&&Zr.parentNode!==D&&(ue(Zr),D.appendChild(Zr),D.appendChild(I)),typeof Rd<"u"&&Rd&&Rd.parentNode!==z&&(ue(Rd),z.appendChild(Rd),z.appendChild(q)),typeof Nu<"u"&&Nu&&Nu.parentNode!==K&&(ue(Nu),K.appendChild(Nu)),typeof $l<"u"&&$l&&$l.parentNode!==G&&(ue($l),G.appendChild($l));try{typeof m_<"u"&&(m_=!1),typeof XC<"u"&&(XC=!1)}catch{}try{typeof h_=="function"&&h_()}catch{}try{typeof T0=="function"&&T0()}catch{}}c(Ie,"enterMobile");function Se(){document.body.classList.remove("kintara-mobile"),document.body.classList.remove("kintara-bottom--chat"),document.body.classList.remove("kintara-bottom--quests"),typeof Zr<"u"&&Zr&&Ve(Zr),typeof Rd<"u"&&Rd&&Ve(Rd),typeof Nu<"u"&&Nu&&Ve(Nu),typeof $l<"u"&&$l&&Ve($l),O()}c(Se,"leaveMobile");function fe(){const Q=n();Q!==e&&(e=Q,Q?Ie():Se())}c(fe,"applyMobileMode"),fe(),window.addEventListener("resize",fe),window.addEventListener("orientationchange",fe),document.addEventListener("visibilitychange",fe),setTimeout(fe,0),setTimeout(fe,250);try{window.__kintaraMobile={status(){return{isMobile:e,innerWidth:window.innerWidth,innerHeight:window.innerHeight,bodyHasMobileClass:document.body.classList.contains("kintara-mobile"),pointerCoarse:(()=>{try{return window.matchMedia("(pointer: coarse)").matches}catch{return null}})(),maxTouchPoints:navigator.maxTouchPoints||0,ontouchstart:"ontouchstart"in window}},force(Q){e=!Q,fe()},recheck:fe}}catch{}class ie{static{c(this,"FakeDataTransfer")}constructor(){this._data=new Map,this.effectAllowed="move",this.dropEffect="move",this.types=[]}setData(de,Te){const Xe=String(de||"text/plain");this._data.set(Xe,String(Te)),this.types.indexOf(Xe)<0&&(this.types=[...this._data.keys()])}getData(de){const Te=String(de||"text/plain");return this._data.has(Te)?this._data.get(Te):""}clearData(de){if(de==null){this._data.clear(),this.types=[];return}this._data.delete(String(de)),this.types=[...this._data.keys()]}setDragImage(){}}function $e(Q,de,Te,Xe){const vt=new Event(Q,{bubbles:!0,cancelable:!0});try{Object.defineProperty(vt,"dataTransfer",{value:Xe,configurable:!0})}catch{vt.dataTransfer=Xe}try{Object.defineProperty(vt,"clientX",{value:de,configurable:!0}),Object.defineProperty(vt,"clientY",{value:Te,configurable:!0})}catch{vt.clientX=de,vt.clientY=Te}return vt}c($e,"makeDragLikeEvent");let Ye=null,ot=0,mt=0,Ot=!1,It=0,ct=null,ge=null,Ge=null;function dt(){if(It&&(clearTimeout(It),It=0),ct&&ct.parentNode&&ct.parentNode.removeChild(ct),ct=null,Ye)try{Ye.style.opacity=""}catch{}Ye=null,ge=null,Ot=!1,Ge=null}c(dt,"tdCleanup");function Dt(Q,de,Te){const Xe=document.createElement("div");Xe.className="kintara-touch-drag-ghost",Xe.style.left=de+"px",Xe.style.top=Te+"px";try{const vt=Q.cloneNode(!0);vt.style.transform="none",vt.style.opacity="1",vt.removeAttribute("draggable"),Xe.appendChild(vt)}catch{}return Xe}c(Dt,"tdMakeGhost");function Ft(Q){if(!document.body.classList.contains("kintara-mobile"))return;if(Q.touches.length!==1){dt();return}const de=Q.target&&Q.target.closest?Q.target.closest('[draggable="true"]'):null;if(!de)return;dt(),Ye=de;const Te=Q.touches[0];ot=Te.clientX,mt=Te.clientY,Ot=!1,It=setTimeout(()=>{if(!Ye)return;Ot=!0,ge=new ie;const Xe=$e("dragstart",ot,mt,ge);try{Ye.dispatchEvent(Xe)}catch{}ct=Dt(Ye,ot,mt),document.body.appendChild(ct)},180)}c(Ft,"tdOnTouchStart");function Ct(Q){if(!Ye)return;const de=Q.touches[0];if(!de)return;if(!Ot){const Xe=de.clientX-ot,vt=de.clientY-mt;Math.hypot(Xe,vt)>10&&dt();return}Q.cancelable&&Q.preventDefault(),ct&&(ct.style.left=de.clientX+"px",ct.style.top=de.clientY+"px",ct.style.pointerEvents="none");let Te=null;try{Te=document.elementFromPoint(de.clientX,de.clientY)}catch{}if(Te&&Te!==Ge){if(Ge){const vt=$e("dragleave",de.clientX,de.clientY,ge);try{Ge.dispatchEvent(vt)}catch{}}Ge=Te;const Xe=$e("dragenter",de.clientX,de.clientY,ge);try{Te.dispatchEvent(Xe)}catch{}}if(Te){const Xe=$e("dragover",de.clientX,de.clientY,ge);try{Te.dispatchEvent(Xe)}catch{}}}c(Ct,"tdOnTouchMove");let kt=null,zt=0,Mn=0,_e=0,De="";const Pt=600,Ce=28;let Me=0;const ke=450;function Ae(Q){if(!Q||!Q.getAttribute)return"";const de=["data-mount-id","data-pet-id","data-cosmetic-id","data-slot","data-slotkey","data-bagidx","data-mountkey","data-petkey","data-cosmetickey"];for(const Te of de){const Xe=Q.getAttribute(Te);if(Xe)return Te+":"+Xe}return""}c(Ae,"tdStableKeyFor");function Ne(Q,de,Te){if(!Q)return;const Xe=typeof performance<"u"&&performance.now?performance.now():Date.now(),vt=Ae(Q),pn=kt&&kt===Q,Je=!!De&&De===vt,et=Number.isFinite(de)&&Number.isFinite(Te)&&Math.abs(de-Mn)<Ce&&Math.abs(Te-_e)<Ce;if(Xe-zt<Pt&&(pn||Je||et)){Me=Xe;try{const tt=new MouseEvent("dblclick",{bubbles:!0,cancelable:!0,view:window,clientX:de||0,clientY:Te||0});Q.dispatchEvent(tt)}catch{try{const _t=document.createEvent("Event");_t.initEvent("dblclick",!0,!0),Q.dispatchEvent(_t)}catch{}}kt=null,zt=0,De=""}else kt=Q,zt=Xe,De=vt,Number.isFinite(de)&&(Mn=de),Number.isFinite(Te)&&(_e=Te)}c(Ne,"tdMaybeDoubleClick");function Z(Q){if(!Ye)return;const de=Q.changedTouches&&Q.changedTouches[0]||null,Te=de?de.clientX:ot,Xe=de?de.clientY:mt,vt=Math.hypot(Te-ot,Xe-mt);if(!Ot||vt<10){const Je=Ye;if(Ot&&Ye&&ge){const et=$e("dragend",Te,Xe,ge);try{Ye.dispatchEvent(et)}catch{}}dt(),Ne(Je,Te,Xe);return}let pn=null;try{ct&&(ct.style.pointerEvents="none"),pn=document.elementFromPoint(Te,Xe)}catch{}if(pn&&ge){const Je=$e("drop",Te,Xe,ge);try{pn.dispatchEvent(Je)}catch{}}if(Ye&&ge){const Je=$e("dragend",Te,Xe,ge);try{Ye.dispatchEvent(Je)}catch{}}dt()}c(Z,"tdOnTouchEnd"),document.addEventListener("touchstart",Ft,{capture:!0,passive:!0}),document.addEventListener("touchmove",Ct,{capture:!0,passive:!1}),document.addEventListener("touchend",Z,{capture:!0,passive:!0}),document.addEventListener("touchcancel",Z,{capture:!0,passive:!0}),document.addEventListener("dblclick",Q=>{if(!document.body.classList.contains("kintara-mobile")||!Q.isTrusted)return;(typeof performance<"u"&&performance.now?performance.now():Date.now())-Me<ke&&(Q.stopImmediatePropagation(),Q.preventDefault())},{capture:!0});let re=0,se=0,oe=0;function Ke(Q){if(!document.body.classList.contains("kintara-mobile"))return;if(!Q.changedTouches||Q.changedTouches.length!==1){re=0;return}const de=Q.target;if(de&&de.closest&&de.closest('[draggable="true"]'))return;const Te=Q.changedTouches[0],Xe=Te.clientX,vt=Te.clientY,pn=typeof performance<"u"&&performance.now?performance.now():Date.now();if(pn-re<400&&Math.abs(Xe-se)<25&&Math.abs(vt-oe)<25){re=0;try{const Je=new MouseEvent("dblclick",{bubbles:!0,cancelable:!0,view:window,clientX:Xe,clientY:vt});(de||window).dispatchEvent(Je)}catch{try{const et=document.createEvent("Event");et.initEvent("dblclick",!0,!0);try{Object.defineProperty(et,"clientX",{value:Xe,configurable:!0})}catch{et.clientX=Xe}try{Object.defineProperty(et,"clientY",{value:vt,configurable:!0})}catch{et.clientY=vt}(de||window).dispatchEvent(et)}catch{}}return}re=pn,se=Xe,oe=vt}c(Ke,"canvasOnTouchEnd"),document.addEventListener("touchend",Ke,{capture:!1,passive:!0});const it=10;let Zt=null,qt=!1,ht=0,Un=0;function go(Q,de){if(!Q)return null;for(let Te=0;Te<Q.length;Te++)if(Q[Te].identifier===de)return Q[Te];return null}c(go,"mpFindTouch");function Yi(){qt&&(Lp=!1,Bu=0,Hu=0,Po&&(cancelAnimationFrame(Po),Po=0)),qt=!1,Zt=null}c(Yi,"mpReset");function Cs(Q){if(!document.body.classList.contains("kintara-mobile")||typeof ny=="function"&&!ny()||typeof ao<"u"&&ao)return;if(Q.touches.length!==1){Yi();return}const de=Q.touches[0];try{if(B9(de))return}catch{}de.target&&de.target.closest&&de.target.closest('[draggable="true"]')||(Zt=de.identifier,ht=de.clientX,Un=de.clientY,qt=!1)}c(Cs,"mpOnTouchStart");function Rt(Q){if(Zt===null)return;const de=go(Q.touches,Zt);if(de){if(!qt){const Te=de.clientX-ht,Xe=de.clientY-Un;if(Math.hypot(Te,Xe)<it)return;qt=!0,Po&&(cancelAnimationFrame(Po),Po=0),Lp=!0,Lte=ht,Pte=Un,tg=ht,ng=Un,Bu=0,Hu=0}Q.cancelable&&Q.preventDefault(),Bu+=de.clientX-tg,Hu+=de.clientY-ng,tg=de.clientX,ng=de.clientY,!Po&&typeof Ate=="function"&&(Po=requestAnimationFrame(Ate))}}c(Rt,"mpOnTouchMove");function Qt(Q){if(Zt===null)return;const de=go(Q.changedTouches,Zt);if(qt){Po&&(cancelAnimationFrame(Po),Po=0);const Te=de?de.clientX:tg,Xe=de?de.clientY:ng,vt=Bu+(Te-tg),pn=Hu+(Xe-ng);Bu=0,Hu=0,(vt!==0||pn!==0)&&typeof D9=="function"&&D9(vt,pn),CE=!0,Lp=!1}qt=!1,Zt=null}if(c(Qt,"mpOnTouchEnd"),document.addEventListener("touchstart",Cs,{capture:!1,passive:!0}),document.addEventListener("touchmove",Rt,{capture:!1,passive:!1}),document.addEventListener("touchend",Qt,{capture:!1,passive:!0}),document.addEventListener("touchcancel",Qt,{capture:!1,passive:!0}),typeof Yb<"u"&&typeof Ld<"u"){let Q=null,de=0,Te=0,Xe=0,vt=0,pn=!1;const Je=c(()=>{const tt=Ld.style.transform||"",_t=/translate3d\(\s*(-?\d+(?:\.\d+)?)px\s*,\s*(-?\d+(?:\.\d+)?)px/.exec(tt);return _t?{x:parseFloat(_t[1])||0,y:parseFloat(_t[2])||0}:{x:0,y:0}},"fmReadTransform"),et=c((tt,_t)=>{const pa=(Ld.style.transform||"").replace(/translate3d\([^)]+\)/g,"").trim();Ld.style.transform=`translate3d(${tt}px, ${_t}px, 0) ${pa}`.trim()},"fmApply");try{new MutationObserver(()=>{Cr.style.display==="none"&&(Xe=0,vt=0,Ld.style.transform=(Ld.style.transform||"").replace(/translate3d\([^)]+\)/g,"").trim())}).observe(Cr,{attributes:!0,attributeFilter:["style"]})}catch{}Yb.addEventListener("touchstart",tt=>{if(!document.body.classList.contains("kintara-mobile"))return;if(tt.touches.length!==1){pn=!1,Q=null;return}const _t=tt.touches[0];if(_t.target&&_t.target.closest&&_t.target.closest("button"))return;Q=_t.identifier,de=_t.clientX,Te=_t.clientY;const fn=Je();Xe=fn.x,vt=fn.y,pn=!1},{passive:!0}),Yb.addEventListener("touchmove",tt=>{if(Q===null)return;let _t=null;for(let Xa=0;Xa<tt.touches.length;Xa++)if(tt.touches[Xa].identifier===Q){_t=tt.touches[Xa];break}if(!_t)return;const fn=_t.clientX-de,pa=_t.clientY-Te;if(!pn){if(Math.hypot(fn,pa)<10)return;pn=!0}tt.cancelable&&tt.preventDefault(),et(Xe+fn,vt+pa)},{passive:!1});const bt=c(tt=>{if(Q===null)return;let _t=null;if(tt.changedTouches){for(let fn=0;fn<tt.changedTouches.length;fn++)if(tt.changedTouches[fn].identifier===Q){_t=tt.changedTouches[fn];break}}if(pn&&_t){const fn=_t.clientX-de,pa=_t.clientY-Te;Xe+=fn,vt+=pa}pn=!1,Q=null},"fmEnd");Yb.addEventListener("touchend",bt,{passive:!0}),Yb.addEventListener("touchcancel",bt,{passive:!0})}function Wt(Q){const de=document.createElement("div");de.className="kintara-mobile-invbank-tabs";const Te=document.createElement("button");Te.type="button",Te.className="kintara-mobile-invbank-tabs__tab",Te.textContent="Inventory",Te.dataset.tab="inv",Te.dataset.active=Q==="inv"?"true":"false";const Xe=document.createElement("button");return Xe.type="button",Xe.className="kintara-mobile-invbank-tabs__tab",Xe.textContent="Bank",Xe.dataset.tab="bank",Xe.dataset.active=Q==="bank"?"true":"false",Te.addEventListener("click",vt=>{vt.preventDefault(),vt.stopPropagation(),Ut("inv")}),Xe.addEventListener("click",vt=>{vt.preventDefault(),vt.stopPropagation(),Ut("bank")}),de.append(Te,Xe),de}c(Wt,"buildInvBankTabsStrip");function Ut(Q){document.body.classList.toggle("kintara-invbank--inv",Q==="inv"),document.body.classList.toggle("kintara-invbank--bank",Q==="bank"),document.querySelectorAll(".kintara-mobile-invbank-tabs__tab").forEach(de=>{de.dataset.active=de.dataset.tab===Q?"true":"false"})}c(Ut,"setInvBankTab");function wa(Q,de){if(!Q)return;const Te=Wt(de),Xe=Q.querySelector(".kintara-inv__header");Xe&&Xe.parentNode===Q?Xe.insertAdjacentElement("afterend",Te):Q.insertBefore(Te,Q.firstChild)}c(wa,"injectInvBankTabs");try{typeof po<"u"&&po&&wa(po,"inv"),typeof Jm<"u"&&Jm&&wa(Jm,"bank")}catch{}function io(){let Q=!1,de=!1;try{Q=!!(typeof Bi<"u"&&Bi&&Bi.style.display!=="none"&&Bi.style.display!==""),de=!!(typeof no<"u"&&no&&no.style.display!=="none"&&no.style.display!=="")}catch{}document.body.classList.toggle("kintara-invbank-pair",Q&&de),Q?!document.body.classList.contains("kintara-invbank--inv")&&!document.body.classList.contains("kintara-invbank--bank")&&Ut("bank"):(document.body.classList.remove("kintara-invbank--bank"),document.body.classList.contains("kintara-invbank--inv")||document.body.classList.add("kintara-invbank--inv"))}c(io,"syncInvBankBodyClasses");try{typeof Bi<"u"&&Bi&&new MutationObserver(io).observe(Bi,{attributes:!0,attributeFilter:["style"]}),typeof no<"u"&&no&&new MutationObserver(io).observe(no,{attributes:!0,attributeFilter:["style"]}),io()}catch{}const Yo=document.createElement("div");Yo.className="kintara-mobile-player-bubble";const Vi=document.createElement("button");Vi.type="button",Vi.className="kintara-mobile-player-bubble__btn",Vi.textContent="Add Friend";const Ro=document.createElement("button");Ro.type="button",Ro.className="kintara-mobile-player-bubble__btn kintara-mobile-player-bubble__btn--trade",Ro.textContent="Trade",Yo.append(Vi,Ro),N.appendChild(Yo);let Nt=null,en=0;const ua=new s.Vector3;function bo(){Nt=null,Yo.classList.remove("kintara-mobile-player-bubble--open"),en&&(cancelAnimationFrame(en),en=0)}c(bo,"hideMobilePlayerBubble");function ii(){if(!Nt)return;let Q=!1;try{const Te=Nt.remoteId;Te!=null&&Number.isFinite(Number(Te))&&typeof hP<"u"&&(Q=hP.has(Number(Te)))}catch{}Vi.hidden=Q;const de=typeof m<"u"&&(m==="world"||m==="shack"||m==="pond"||m==="beach"||m==="eldergrove"||m==="frostmere");Ro.hidden=!de}c(ii,"refreshMobilePlayerBubbleButtons");function Ir(){if(en=0,!(!Nt||!Yo.classList.contains("kintara-mobile-player-bubble--open"))){try{const de=(typeof nt<"u"&&Nt.remoteId!=null?nt.get(Nt.remoteId):null)||Nt;if(!de||!de.group){bo();return}if(de.group.updateMatrixWorld(!0),typeof xI=="function"?ua.set(0,1.42,0).applyMatrix4(xI(de)):(ua.copy(de.group.position),ua.y+=1.6),ua.project(He),ua.z>1){bo();return}const Te=(ua.x*.5+.5)*window.innerWidth,Xe=(-ua.y*.5+.5)*window.innerHeight;Yo.style.left=`${Te}px`,Yo.style.top=`${Xe-18}px`}catch{}en=requestAnimationFrame(Ir)}}c(Ir,"updateMobilePlayerBubblePosition"),Vi.addEventListener("click",Q=>{if(Q.preventDefault(),Q.stopPropagation(),!!Nt){try{_n=Nt,Es=!1,Wb.click()}catch{}bo()}}),Ro.addEventListener("click",Q=>{if(Q.preventDefault(),Q.stopPropagation(),!!Nt){try{_n=Nt,Es=!1,Gb.click()}catch{}bo()}}),document.addEventListener("pointerdown",Q=>{document.body.classList.contains("kintara-mobile")&&Yo.classList.contains("kintara-mobile-player-bubble--open")&&(Q.target instanceof Node&&Yo.contains(Q.target)||bo())},!0),window.__kintaraShowMobilePlayerBubble=function(Q){!Q||Q.remoteId==null||(Nt=Q,ii(),Yo.classList.add("kintara-mobile-player-bubble--open"),(async()=>{try{const de=await fetch("/api/friends/list",{credentials:"include"}),Te=await de.json().catch(()=>({}));de.ok&&Te.ok&&typeof gP=="function"&&gP(Te.friends),ii()}catch{}})(),en||(en=requestAnimationFrame(Ir)))},window.__kintaraHideMobilePlayerBubble=bo})();
-// AUTO-GATHER v1.41
+// AUTO-GATHER v1.47
 // F8 = ativar/desativar coleta | F9 = abrir mercado
 // ═══════════════════════════════════════════════════════════════════════════════
 {
@@ -5737,7 +5737,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   if (window.__AG_FARMER_ACTIVE__) {
     console.warn('%c[AutoGather] Instância já ativa (v' + window.__AG_FARMER_ACTIVE__ + ') — abortando esta segunda injeção.', 'color:#f87171;font-weight:bold');
   } else {
-  window.__AG_FARMER_ACTIVE__ = 'v1.41';
+  window.__AG_FARMER_ACTIVE__ = 'v1.47';
 
   // Limpeza agressiva de painéis órfãos de versões antigas que não tinham o guard
   // (procura por qualquer elemento com id começando em 'ag-' que pareça ser o painel principal,
@@ -5757,7 +5757,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.41';
+  const AG_VERSION          = 'v1.47';
   const AG_TICK_MS          = 500;
 
   // ── Logger ─────────────────────────────────────────────────────────────────
@@ -12790,6 +12790,15 @@ loadMySales();
           '</div>',
           '<div id="ag-cfg-anticaptcha-status" style="font-size:10px;color:#8a93a8;min-height:12px"></div>',
           '<hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:8px 0">',
+          '<div style="font-size:10px;color:#8a93a8;margin-bottom:4px;letter-spacing:.04em">&#128172; DISCORD ALERT</div>',
+          '<div style="font-size:9px;color:#8a93a8;margin-bottom:3px">Seu Discord User ID (para @ no alerta):</div>',
+          '<input type="text" id="ag-cfg-discord-uid" placeholder="ex: 123456789012345678" style="width:100%;box-sizing:border-box;font-size:9px;padding:4px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2;margin-bottom:6px">',
+          '<div class="ag-row" style="gap:6px;margin-bottom:4px">',
+            '<button id="ag-cfg-discord-save" style="flex:1;background:rgba(110,231,183,0.08);border:1px solid rgba(110,231,183,0.25);border-radius:4px;color:#6ee7a0;font-size:10px;padding:4px 0;cursor:pointer">Salvar</button>',
+            '<button id="ag-cfg-discord-test" style="flex:1;background:rgba(88,101,242,0.12);border:1px solid rgba(88,101,242,0.35);border-radius:4px;color:#7c8ff7;font-size:10px;padding:4px 0;cursor:pointer">&#128062; Testar</button>',
+          '</div>',
+          '<div id="ag-cfg-discord-status" style="font-size:9px;color:#64748b;min-height:12px;margin-bottom:4px"></div>',
+          '<hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:8px 0">',
           '<div style="font-size:10px;color:#8a93a8;margin-bottom:4px;letter-spacing:.04em">SELEÇÃO DE SERVIDOR</div>',
           '<label class="ag-check-row" style="margin-bottom:5px">',
             '<input type="checkbox" id="ag-cfg-join-club">',
@@ -12798,22 +12807,22 @@ loadMySales();
           '<div style="font-size:9px;color:#64748b;margin-bottom:4px">Quando marcado, o auto login considera servidores do Kintara Club como válidos para entrar</div>',
           '<hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:8px 0">',
           '<div style="font-size:10px;color:#8a93a8;margin-bottom:5px;letter-spacing:.04em" title="Ignora anúncios pequenos e considera apenas o mais barato com quantidade ≥ ao valor. 0 = sem filtro.">FLOOR — QTD. MÍNIMA &#9432;</div>',
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">',
-            '<div style="display:flex;align-items:center;gap:4px">',
-              '<span class="ag-lbl" style="flex:none;width:34px;font-size:10px">Wood</span>',
-              '<input type="number" id="ag-cfg-floorqty-wood" min="0" value="0" style="flex:1;min-width:0;font-size:10px;padding:3px 5px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2">',
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px">',
+            '<div style="display:flex;align-items:center;gap:3px;overflow:hidden">',
+              '<span style="flex:none;font-size:9px;color:#8a93a8;width:30px">Wood</span>',
+              '<input type="number" id="ag-cfg-floorqty-wood" min="0" value="0" style="width:0;flex:1;min-width:0;max-width:100%;font-size:9px;padding:2px 3px;border-radius:3px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2;box-sizing:border-box">',
             '</div>',
-            '<div style="display:flex;align-items:center;gap:4px">',
-              '<span class="ag-lbl" style="flex:none;width:34px;font-size:10px">Stone</span>',
-              '<input type="number" id="ag-cfg-floorqty-stone" min="0" value="0" style="flex:1;min-width:0;font-size:10px;padding:3px 5px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2">',
+            '<div style="display:flex;align-items:center;gap:3px;overflow:hidden">',
+              '<span style="flex:none;font-size:9px;color:#8a93a8;width:30px">Stone</span>',
+              '<input type="number" id="ag-cfg-floorqty-stone" min="0" value="0" style="width:0;flex:1;min-width:0;max-width:100%;font-size:9px;padding:2px 3px;border-radius:3px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2;box-sizing:border-box">',
             '</div>',
-            '<div style="display:flex;align-items:center;gap:4px">',
-              '<span class="ag-lbl" style="flex:none;width:34px;font-size:10px">Coal</span>',
-              '<input type="number" id="ag-cfg-floorqty-coal" min="0" value="0" style="flex:1;min-width:0;font-size:10px;padding:3px 5px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2">',
+            '<div style="display:flex;align-items:center;gap:3px;overflow:hidden">',
+              '<span style="flex:none;font-size:9px;color:#8a93a8;width:30px">Coal</span>',
+              '<input type="number" id="ag-cfg-floorqty-coal" min="0" value="0" style="width:0;flex:1;min-width:0;max-width:100%;font-size:9px;padding:2px 3px;border-radius:3px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2;box-sizing:border-box">',
             '</div>',
-            '<div style="display:flex;align-items:center;gap:4px">',
-              '<span class="ag-lbl" style="flex:none;width:34px;font-size:10px">Metal</span>',
-              '<input type="number" id="ag-cfg-floorqty-metal" min="0" value="0" style="flex:1;min-width:0;font-size:10px;padding:3px 5px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2">',
+            '<div style="display:flex;align-items:center;gap:3px;overflow:hidden">',
+              '<span style="flex:none;font-size:9px;color:#8a93a8;width:30px">Metal</span>',
+              '<input type="number" id="ag-cfg-floorqty-metal" min="0" value="0" style="width:0;flex:1;min-width:0;max-width:100%;font-size:9px;padding:2px 3px;border-radius:3px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#d4d8e2;box-sizing:border-box">',
             '</div>',
           '</div>',
           '<button id="ag-cfg-floorqty-recalc" style="width:100%;margin-top:4px;background:rgba(126,184,247,0.1);border:1px solid rgba(126,184,247,0.3);border-radius:4px;color:#7eb8f7;font-size:10px;padding:5px 0;cursor:pointer">',
@@ -15689,11 +15698,23 @@ loadMySales();
         $('ag-cfg-anticaptcha-status').textContent = 'Enviando captcha de teste para anti-captcha.com...';
         $('ag-cfg-anticaptcha-status').style.color = '#fbbf24';
         try {
-          // 1. Criar task com imagem sample
+          // 1. Baixar imagem real do GitHub e converter para base64
+          $('ag-cfg-anticaptcha-status').textContent = 'Baixando imagem de captcha real...';
+          var _realBase64 = await fetch('https://raw.githubusercontent.com/krokonskrafael-ai/dotagg/refs/heads/main/captcha.png', { credentials: 'omit' })
+            .then(function(r) { return r.blob(); })
+            .then(function(b) { return new Promise(function(res) {
+              var reader = new FileReader();
+              reader.onloadend = function() { res(reader.result.split(',')[1]); };
+              reader.readAsDataURL(b);
+            }); })
+            .catch(function() { return _AG_AC_SAMPLE; });
+          $('ag-cfg-anticaptcha-status').textContent = 'Enviando imagem real para anti-captcha.com...';
+          $('ag-cfg-anticaptcha-status').style.color = '#fbbf24';
+          // 1. Criar task com imagem real
           var createText = await agXhr('POST', 'https://api.anti-captcha.com/createTask',
             JSON.stringify({
               clientKey: key,
-              task: { type: 'ImageToTextTask', body: _AG_AC_SAMPLE,
+              task: { type: 'ImageToTextTask', body: _realBase64,
                       phrase: false, case: true, numeric: 0, math: false, minLength: 1, maxLength: 8 }
             }), 'application/json');
           var createData = JSON.parse(createText);
@@ -15755,11 +15776,23 @@ loadMySales();
         $('ag-cfg-anticaptcha-status').textContent = 'Enviando captcha de teste para 2captcha...';
         $('ag-cfg-anticaptcha-status').style.color = '#fbbf24';
         try {
-          // 1. Enviar imagem sample — api.2captcha.com (API v2, aceita CORS)
+          // 1. Baixar imagem real do GitHub e converter para base64
+          $('ag-cfg-anticaptcha-status').textContent = 'Baixando imagem de captcha real...';
+          var _2cRealBase64 = await fetch('https://raw.githubusercontent.com/krokonskrafael-ai/dotagg/refs/heads/main/captcha.png', { credentials: 'omit' })
+            .then(function(r) { return r.blob(); })
+            .then(function(b) { return new Promise(function(res) {
+              var reader = new FileReader();
+              reader.onloadend = function() { res(reader.result.split(',')[1]); };
+              reader.readAsDataURL(b);
+            }); })
+            .catch(function() { return _AG_2C_SAMPLE; });
+          $('ag-cfg-anticaptcha-status').textContent = 'Enviando imagem real para 2captcha...';
+          $('ag-cfg-anticaptcha-status').style.color = '#fbbf24';
+          // 1. Enviar imagem real — api.2captcha.com (API v2, aceita CORS)
           var createText = await agXhr('POST', 'https://api.2captcha.com/createTask',
             JSON.stringify({
               clientKey: key,
-              task: { type: 'ImageToTextTask', body: _AG_2C_SAMPLE,
+              task: { type: 'ImageToTextTask', body: _2cRealBase64,
                       phrase: false, case: true, numeric: 0, math: false, minLength: 1, maxLength: 8 }
             }), 'text/plain');
           var createData = JSON.parse(createText);
@@ -16023,6 +16056,101 @@ loadMySales();
       }
     })();
 
+    // ── Discord Alert ─────────────────────────────────────────────────────────
+    var AG_DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1521708204625760336/u1qnZaanXcIsVyaEshOXouccS5NaNYhr4cWSrLWC84nvhSAuxcUI5G2JlmytBcVTBVW1';
+    var AG_DISCORD_KEY     = 'kintara_ag_discord_uid';
+
+    function agDiscordGetUid() {
+      try { return (localStorage.getItem(AG_DISCORD_KEY) || '').trim(); } catch(_) { return ''; }
+    }
+    function agMaskName(name) {
+      if (!name || name.length < 4) return name || '???';
+      var prefix = name.slice(0, 2);
+      var suffix = name.slice(-2);
+      // Quantidade de * aleatória entre 4 e 12 (não reflete o tamanho real do nome)
+      var stars = '*'.repeat(4 + Math.floor(Math.random() * 9));
+      return prefix + stars + suffix;
+    }
+    async function agSendDiscordCaptchaAlert(isTest) {
+      var uid    = agDiscordGetUid();
+      var char   = (typeof _agMonCharName !== 'undefined' && _agMonCharName) || (window.__agMonGetCharName && window.__agMonGetCharName()) || null;
+      var masked = char ? agMaskName(char) : '???';
+      var mention = uid ? '<@' + uid + '>' : '';
+
+      if (isTest) {
+        var payload = {
+          content: mention || undefined,
+          embeds: [{
+            title: '🧪 TESTE — Discord Alert',
+            description: (mention ? mention + ' ' : '') + 'Este e um envio de **teste** do bot Kintara AutoGather.\nSe voce recebeu esta mensagem, o webhook esta configurado corretamente!',
+            color: 0x5865F2,
+            fields: [
+              { name: '👤 Personagem', value: '`' + masked + '`', inline: true },
+              { name: '📡 Status', value: '✅ Webhook OK', inline: true },
+            ],
+            footer: { text: 'Kintara AutoGather — Alerta de Teste' },
+            timestamp: new Date().toISOString(),
+          }],
+        };
+      } else {
+        var payload = {
+          content: mention || undefined,
+          embeds: [{
+            title: '🚨 CAPTCHA DETECTADO!',
+            description: (mention ? mention + '\n' : '') + 'Um captcha foi detectado na conta **' + masked + '**.\nO bot foi pausado e tentara resolver automaticamente.',
+            color: 0xDC2626,
+            fields: [
+              { name: '👤 Conta', value: '`' + masked + '`', inline: true },
+              { name: '⏱️ Hora', value: '<t:' + Math.floor(Date.now()/1000) + ':T>', inline: true },
+            ],
+            footer: { text: 'Kintara AutoGather — Alerta de Captcha' },
+            timestamp: new Date().toISOString(),
+          }],
+        };
+      }
+
+      try {
+        await fetch(AG_DISCORD_WEBHOOK, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      } catch(e) {
+        AG_LOG_CAPTCHA && AG_LOG_CAPTCHA.warn('Discord webhook falhou: ' + e.message);
+      }
+    }
+    window.__agSendDiscordCaptchaAlert = agSendDiscordCaptchaAlert;
+
+    // Restaurar User ID salvo
+    if ($('ag-cfg-discord-uid')) $('ag-cfg-discord-uid').value = agDiscordGetUid();
+
+    // Botão Salvar
+    if ($('ag-cfg-discord-save')) {
+      $('ag-cfg-discord-save').addEventListener('click', function() {
+        var uid = ($('ag-cfg-discord-uid') ? $('ag-cfg-discord-uid').value.trim() : '');
+        try { localStorage.setItem(AG_DISCORD_KEY, uid); } catch(_) {}
+        var st = $('ag-cfg-discord-status');
+        if (st) { st.textContent = uid ? '✅ User ID salvo: ' + uid : '⚠️ Campo vazio — alertas sem @'; st.style.color = uid ? '#6ee7a0' : '#fbbf24'; }
+      });
+    }
+
+    // Botão Testar
+    if ($('ag-cfg-discord-test')) {
+      $('ag-cfg-discord-test').addEventListener('click', async function() {
+        var btn = $('ag-cfg-discord-test');
+        var st  = $('ag-cfg-discord-status');
+        btn.disabled = true; btn.textContent = '⏳ Enviando...';
+        if (st) { st.textContent = 'Enviando embed de teste...'; st.style.color = '#fbbf24'; }
+        try {
+          await agSendDiscordCaptchaAlert(true);
+          if (st) { st.textContent = '✅ Embed de teste enviado!'; st.style.color = '#6ee7a0'; }
+        } catch(e) {
+          if (st) { st.textContent = '❌ Erro: ' + e.message; st.style.color = '#f87171'; }
+        }
+        btn.disabled = false; btn.textContent = '🐢 Testar';
+      });
+    }
+
     // ── Botão Teste Real ─────────────────────────────────────────────────────
     if ($('ag-cfg-captcha-realtest')) {
       $('ag-cfg-captcha-realtest').addEventListener('click', async function() {
@@ -16038,12 +16166,13 @@ loadMySales();
         btn.textContent = '⏳ Abrindo...';
         statusEl.textContent = '';
 
-        // Determinar imagem: captcha ativo ou sample base64
+        // Determinar imagem: captcha ativo no jogo > imagem real do GitHub > sample base64
         var liveImg = document.getElementById('kintara-captcha-img');
+        var _AG_CAPTCHA_REAL_URL = 'https://raw.githubusercontent.com/krokonskrafael-ai/dotagg/refs/heads/main/captcha.png';
         var imgSrc = (liveImg && liveImg.src && liveImg.src.indexOf('captcha') >= 0)
           ? liveImg.src
-          : 'data:image/png;base64,' + _AG_AC_SAMPLE;
-        var isReal = imgSrc.indexOf('data:') !== 0;
+          : _AG_CAPTCHA_REAL_URL; // usa a imagem real do GitHub quando não há captcha ativo
+        var isReal = true; // sempre é real agora (jogo ou GitHub)
 
         // Criar modal idêntico ao do jogo
         var existing = document.getElementById('ag-captcha-test-overlay');
@@ -17306,6 +17435,7 @@ loadMySales();
     _agCaptchaNotified = false;
     var snap = { farm: !!_agCaptchaSnapshot.farm, hunt: !!_agCaptchaSnapshot.hunt, boss: !!_agCaptchaSnapshot.boss };
     AG_LOG_CAPTCHA.info('Captcha gone (' + source + ') | snap=' + JSON.stringify(snap) + ' — retomando em 2s...');
+    agCaptchaLogAdd('RESOLVIDO', 'Captcha fechado (' + source + ') — retomando bots');
     setTimeout(function() {
       try {
         if (snap.farm && !agActive)     { agStart();     AG_LOG_CAPTCHA.info('Farm retomado (' + source + ')'); }
@@ -17343,6 +17473,9 @@ loadMySales();
             console.error('%c[AutoGather] !! CAPTCHA DETECTADO !! Timer: ' + timerTxt +
               ' | Pausando: ' + (ativos.join(', ') || 'nenhum'),
               'color:#f87171;font-weight:bold;font-size:14px');
+            agCaptchaLogAdd('DETECTADO', 'Timer: ' + timerTxt + ' | Bots: ' + (ativos.join(', ') || 'nenhum'));
+            // Dispara alerta no Discord (fire-and-forget, não bloqueia o fluxo)
+            try { if (typeof window.__agSendDiscordCaptchaAlert === 'function') window.__agSendDiscordCaptchaAlert(false); } catch(_) {}
             // Para todos os bots
             try { if (agActive)     agStop();     } catch(_) {}
             try { if (agHuntActive) agHuntStop(); } catch(_) {}
@@ -17419,6 +17552,30 @@ loadMySales();
   // ── Captcha Solver — resolução automática ──────────────────────────────────
   const AG_LOG_CAPTCHA = agMakeLog('[CaptchaSolver]', '#a78bfa');
 
+  // ── Log persistente de captcha (salvo no localStorage) ────────────────────
+  var AG_CAPTCHA_LOG_KEY = 'kintara_ag_captcha_log';
+  var AG_CAPTCHA_LOG_MAX = 200; // últimas 200 entradas
+
+  function agCaptchaLogAdd(type, msg) {
+    try {
+      var log = JSON.parse(localStorage.getItem(AG_CAPTCHA_LOG_KEY) || '[]');
+      log.push({ ts: new Date().toISOString(), type: type, msg: msg });
+      if (log.length > AG_CAPTCHA_LOG_MAX) log = log.slice(-AG_CAPTCHA_LOG_MAX);
+      localStorage.setItem(AG_CAPTCHA_LOG_KEY, JSON.stringify(log));
+    } catch(_) {}
+  }
+
+  function agCaptchaLogGet() {
+    try { return JSON.parse(localStorage.getItem(AG_CAPTCHA_LOG_KEY) || '[]'); }
+    catch(_) { return []; }
+  }
+
+  // Expor globalmente para o painel poder acessar
+  window.agCaptchaLogGet = agCaptchaLogGet;
+  window.agCaptchaLogClear = function() {
+    try { localStorage.removeItem(AG_CAPTCHA_LOG_KEY); } catch(_) {}
+  };
+
   // ── Helpers de provedor ───────────────────────────────────────────────────
   function agGetCaptchaProvider() {
     try { return (localStorage.getItem('kintara_ag_captcha_provider') || 'anticaptcha'); } catch(_) { return 'anticaptcha'; }
@@ -17479,16 +17636,19 @@ loadMySales();
     }
 
     AG_LOG_CAPTCHA.info('Enviando imagem para anti-captcha.com...');
+    agCaptchaLogAdd('ENVIANDO', 'anti-captcha.com — aguardando solução...');
     agUpdateCaptchaStatus('Enviando captcha para anti-captcha.com...', '#fbbf24');
 
     try {
       // 1. Baixar imagem via XHR ou usar base64 direto
+      // Se a URL for externa (ex: GitHub), usa credentials:omit para evitar erro CORS
+      var _imgIsExternal = imageUrl && imageUrl.indexOf(location.hostname) < 0 && imageUrl.indexOf('data:') < 0;
       var base64 = base64Override || await new Promise(function(resolve, reject) {
         if (!imageUrl) { reject(new Error('Sem URL de imagem')); return; }
         var xhr = new XMLHttpRequest();
         xhr.open('GET', imageUrl, true);
         xhr.responseType = 'blob';
-        xhr.withCredentials = true;
+        xhr.withCredentials = !_imgIsExternal; // externas: sem credentials (evita CORS)
         xhr.timeout = 10000;
         xhr.onload = function() {
           if (xhr.status >= 200 && xhr.status < 300) {
@@ -17546,6 +17706,7 @@ loadMySales();
         if (resultData.status === 'ready') {
           var solution = resultData.solution && resultData.solution.text;
           AG_LOG_CAPTCHA.info('Resolvido: ' + solution);
+        agCaptchaLogAdd('RESOLVIDO', 'anticaptcha → ' + solution);
           agUpdateCaptchaStatus('Resolvido: ' + solution, '#6ee7a0');
           return solution;
         }
@@ -17589,16 +17750,19 @@ loadMySales();
     }
 
     AG_LOG_CAPTCHA.info('Enviando imagem para 2captcha.com...');
+    agCaptchaLogAdd('ENVIANDO', '2captcha — aguardando solução...');
     agUpdateCaptchaStatus('Enviando captcha para 2captcha.com...', '#fbbf24');
 
     try {
       // 1. Baixar imagem via XHR ou usar base64 direto
+      // Se a URL for externa (ex: GitHub), usa credentials:omit para evitar erro CORS
+      var _imgIsExternal = imageUrl && imageUrl.indexOf(location.hostname) < 0 && imageUrl.indexOf('data:') < 0;
       var base64 = base64Override || await new Promise(function(resolve, reject) {
         if (!imageUrl) { reject(new Error('Sem URL de imagem')); return; }
         var xhr = new XMLHttpRequest();
         xhr.open('GET', imageUrl, true);
         xhr.responseType = 'blob';
-        xhr.withCredentials = true;
+        xhr.withCredentials = !_imgIsExternal; // externas: sem credentials (evita CORS)
         xhr.timeout = 10000;
         xhr.onload = function() {
           if (xhr.status >= 200 && xhr.status < 300) {
@@ -17641,7 +17805,9 @@ loadMySales();
 
       var captchaId = createData.taskId;
       AG_LOG_CAPTCHA.info('Task criada: #' + captchaId + ' — aguardando...');
+      agCaptchaLogAdd('TASK', '2captcha Task #' + captchaId + ' criada — iniciando polling');
       agUpdateCaptchaStatus('Aguardando resolucao 2captcha (id #' + captchaId + ')...', '#fbbf24');
+      var _2cStart = Date.now();
 
       // 3. Polling getTaskResult — max 60s (20x a cada 3s)
       for (var attempt = 0; attempt < 20; attempt++) {
@@ -17650,23 +17816,30 @@ loadMySales();
           JSON.stringify({ clientKey: apiKey, taskId: captchaId }), 'text/plain');
         var resData = JSON.parse(resText);
 
+        agCaptchaLogAdd('AGUARDANDO', 'Tentativa ' + (attempt+1) + '/20 | task #' + captchaId + ' | ' + Math.round((Date.now()-_2cStart)/1000) + 's');
+
         if (resData.errorId !== 0) {
+          agCaptchaLogAdd('ERRO', '2captcha erro: ' + (resData.errorDescription || resData.errorCode));
           agUpdateCaptchaStatus('Erro 2captcha: ' + (resData.errorDescription || resData.errorCode), '#f87171');
           return null;
         }
         if (resData.status === 'ready') {
           var solution = resData.solution && resData.solution.text;
+          var elapsed = Math.round((Date.now() - _2cStart) / 1000);
           AG_LOG_CAPTCHA.info('2captcha Resolvido: ' + solution);
+          agCaptchaLogAdd('RESOLVIDO', '2captcha → ' + solution + ' (' + elapsed + 's, ' + (attempt+1) + ' tentativas)');
           agUpdateCaptchaStatus('Resolvido: ' + solution, '#6ee7a0');
           return solution;
         }
         // status === 'processing' — continua aguardando
       }
 
+      agCaptchaLogAdd('TIMEOUT', '2captcha — 60s sem resposta para task #' + captchaId);
       agUpdateCaptchaStatus('Timeout 2captcha — resolva manualmente', '#f87171');
       return null;
 
     } catch(e) {
+      agCaptchaLogAdd('ERRO', '2captcha exception: ' + e.message);
       agUpdateCaptchaStatus('Erro 2captcha: ' + e.message, '#f87171');
       return null;
     }
@@ -17734,6 +17907,7 @@ loadMySales();
           _retriedWrong = true;
           clearInterval(_pollTimer);
           AG_LOG_CAPTCHA.warn('Resposta incorreta — tentando novamente com nova imagem...');
+          agCaptchaLogAdd('ERRO', 'Resposta incorreta — retry');
           agUpdateCaptchaStatus('Resposta incorreta — tentando novamente...', '#fbbf24');
           setTimeout(function() { agAutoSolveCaptcha(); }, 1200);
           return;
@@ -18229,4 +18403,4 @@ loadMySales();
   } // fecha o else do guard de instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v1.41'
+// FIM AUTO-GATHER v1.47'
