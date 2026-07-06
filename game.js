@@ -6170,7 +6170,114 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 }
 `,document.head.appendChild(J)}try{typeof T_<"u"&&T_&&T_.classList&&T_.classList.add("kintara-radar-wrap"),typeof z2<"u"&&z2&&z2.classList&&z2.classList.add("kintara-radar-quick-row"),typeof j2<"u"&&j2&&j2.classList&&j2.classList.add("kintara-radar-quick-row"),typeof J2<"u"&&J2&&J2.classList&&J2.classList.add("kintara-topleft-row"),typeof H2<"u"&&H2&&H2.classList&&H2.classList.add("kintara-radar-compass-mount"),typeof co<"u"&&co&&!co.id&&(co.id="kintara-inv-overlay"),typeof yo<"u"&&yo&&!yo.id&&(yo.id="kintara-build-menu-backdrop")}catch{}try{const J=c(()=>{if(!(!Cf||!Cf.cells))for(const ie of Cf.cells){if(!ie)continue;const Be=ie.firstElementChild;Be&&!Be.classList.contains("kintara-hotbar-key")&&Be.classList.add("kintara-hotbar-key")}},"tagHotbarKeys");J(),typeof $u<"u"&&$u&&new MutationObserver(J).observe($u,{childList:!0,subtree:!0})}catch{}function a(J,ie){const Be=ie||22;return'<svg xmlns="http://www.w3.org/2000/svg" width="'+Be+'" height="'+Be+'" viewBox="0 0 24 24" fill="none" stroke="#1a1410" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="pointer-events:none;display:block;flex-shrink:0;">'+J+"</svg>"}c(a,"svgMarkup");function o(J){return'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e8ecf3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="pointer-events:none;display:block;flex-shrink:0;">'+J+"</svg>"}c(o,"dropdownSvg");const i=document.createElement("button");i.type="button",i.className="kintara-mobile-menu-btn kintara-mobile-only",i.setAttribute("aria-label","Open game menu"),i.title="Menu",i.innerHTML=a('<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>',22);const r=document.createElement("span");r.className="kintara-mobile-menu-btn__badge",i.appendChild(r);const l=document.createElement("div");l.className="kintara-mobile-dropdown kintara-mobile-dropdown--right",l.setAttribute("role","menu");const d=document.createElement("div");d.className="kintara-mobile-dropdown__grid",l.appendChild(d);function u(J,ie,Be,nt){const gt=document.createElement("button");if(gt.type="button",gt.className="kintara-mobile-dropdown__item",gt.dataset.kintaraMobileItem=nt&&nt.id?nt.id:J.toLowerCase(),gt.innerHTML=o(ie)+"<span>"+J+"</span>",gt.addEventListener("click",je=>{je.preventDefault(),je.stopPropagation(),B();try{typeof Be=="function"?Be():Be&&typeof Be.click=="function"&&Be.click()}catch{}}),nt&&nt.badge){const je=document.createElement("span");je.className="kintara-mobile-dropdown__itemBadge",gt.appendChild(je),gt._kintaraBadge=je}return gt}c(u,"makeMobileMenuItem");const p=u("Friends",'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',typeof PH<"u"?PH:null,{id:"friends",badge:!0}),f=u("Inventory",'<path d="M4 10a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8z"/><path d="M9 6V5a3 3 0 0 1 6 0v1"/><path d="M8 10h8"/>',typeof NH<"u"?NH:null,{id:"inventory"}),g=u("Build",'<path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/>',typeof OT<"u"?OT:null,{id:"build"}),b=u("Arena",'<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>',typeof IH<"u"?IH:null,{id:"arena"}),y=u("Stats",'<path d="M3 3v18h18"/><path d="M7 16v-5"/><path d="M12 16v-9"/><path d="M17 16v-2"/>',typeof FH<"u"?FH:null,{id:"stats"}),x=u("Outfit",'<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>',typeof OH<"u"?OH:null,{id:"outfit"}),k=u("Market",'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',typeof cP<"u"?cP:null,{id:"market"}),M=u("Map",'<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21 3 6"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>',()=>{try{if(!(h==="world"||h==="wild"||h==="wild_ext"||h==="wild_exp"||h==="ember"||h==="arena"||h==="pond"||h==="beach"||h==="eldergrove")||xn)return;uo=!uo,uo?(Nr.style.display="block",typeof ut=="function"&&ut(Nr),typeof qZ=="function"&&qZ()):(Nr.style.display="none",typeof D0=="function"&&D0())}catch{}},{id:"map"});d.append(f,g,x,y,p,b,k,M);const C=document.createElement("button");C.type="button",C.className="kintara-mobile-menu-btn kintara-mobile-menu-btn--settings kintara-mobile-only",C.setAttribute("aria-label","Open settings menu"),C.title="Settings",C.innerHTML=a('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>',22);const v=document.createElement("div");v.className="kintara-mobile-dropdown kintara-mobile-dropdown--left",v.setAttribute("role","menu");const T=document.createElement("div");T.className="kintara-mobile-dropdown__grid",v.appendChild(T);const S=u("Settings",'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>',typeof Ou<"u"?Ou:null,{id:"settings"}),A=u("Admin",'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',typeof Es<"u"?Es:null,{id:"admin"}),R=u("Logout",'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',typeof Tp<"u"?Tp:null,{id:"logout"});T.append(S,A,R);const N=typeof Se<"u"&&Se||document.body;N.appendChild(i),N.appendChild(l),N.appendChild(C),N.appendChild(v);function W(){try{if(typeof Es>"u"||!Es){A.hidden=!0;return}const J=window.getComputedStyle(Es);A.hidden=!(J&&J.display!=="none")}catch{A.hidden=!1}}c(W,"syncMobileAdminItem"),W();try{typeof Es<"u"&&Es&&new MutationObserver(W).observe(Es,{attributes:!0,attributeFilter:["style","class"]})}catch{}function H(){try{if(typeof Sp>"u"||!Sp)return;const J=Sp.style.display!=="none"&&!!(Sp.textContent||"").trim();r.style.display=J?"block":"none",r.textContent=(Sp.textContent||"").trim();const ie=p&&p._kintaraBadge;ie&&(ie.style.display=J?"block":"none",ie.textContent=r.textContent)}catch{}}c(H,"syncMobileFriendBadge"),H();try{typeof Sp<"u"&&Sp&&new MutationObserver(H).observe(Sp,{attributes:!0,attributeFilter:["style"],childList:!0,characterData:!0,subtree:!0})}catch{}function F(J){B(J==="right"?"left":"right"),J==="right"?l.setAttribute("data-open","true"):v.setAttribute("data-open","true")}c(F,"openMobileMenu");function B(J){(!J||J==="right")&&l.removeAttribute("data-open"),(!J||J==="left")&&v.removeAttribute("data-open")}c(B,"closeMobileMenu"),i.addEventListener("click",J=>{J.preventDefault(),J.stopPropagation(),l.getAttribute("data-open")==="true"?B("right"):F("right")}),C.addEventListener("click",J=>{J.preventDefault(),J.stopPropagation(),v.getAttribute("data-open")==="true"?B("left"):F("left")}),document.addEventListener("click",J=>{const ie=J.target;ie&&(ie===i||i.contains(ie)||ie===C||C.contains(ie)||l.contains(ie)||v.contains(ie)||B())}),window.addEventListener("keydown",J=>{J.key==="Escape"&&(B(),Fw())});const P=document.createElement("div");P.className="kintara-mobile-bottom-dock",P.id="kintara-mobile-bottom-dock";const I=document.createElement("div");I.className="kintara-mobile-bottom-dock__panes";const D=document.createElement("div");D.className="kintara-mobile-bottom-dock__pane",D.dataset.pane="chat";const q=document.createElement("div");q.className="kintara-mobile-bottom-dock__pane",q.dataset.pane="quests",I.append(D,q);const O=document.createElement("button");O.type="button",O.className="kintara-mobile-pane-min",O.title="Minimize chat",O.setAttribute("aria-label","Minimize chat"),O.textContent="\u2212",D.appendChild(O);const z=document.createElement("button");z.type="button",z.className="kintara-mobile-pane-min",z.title="Minimize quests",z.setAttribute("aria-label","Minimize quests"),z.textContent="\u2212",q.appendChild(z);const G=document.createElement("div");G.className="kintara-mobile-bottom-dock__health";const Z=document.createElement("div");Z.className="kintara-mobile-bottom-dock__hotbar";const ee=document.createElement("div");ee.className="kintara-mobile-bottom-dock__icons";const ae=document.createElement("button");ae.type="button",ae.className="kintara-mobile-bottom-dock__iconBtn",ae.dataset.tab="chat",ae.setAttribute("aria-label","Toggle chat"),ae.title="Chat",ae.innerHTML='<span class="kintara-mobile-bottom-dock__iconGlyph">\u{1F4AC}</span><span>Chat</span>';const _e=document.createElement("button");_e.type="button",_e.className="kintara-mobile-bottom-dock__iconBtn",_e.dataset.tab="quests",_e.setAttribute("aria-label","Toggle quests"),_e.title="Quests",_e.innerHTML='<span class="kintara-mobile-bottom-dock__iconGlyph">\u2726</span><span>Quests</span>';const ke=document.createElement("button");ke.type="button",ke.id="kintara-mobile-rewards-btn",ke.className="kintara-mobile-bottom-dock__iconBtn kintara-mobile-bottom-dock__iconBtn--rewards",ke.dataset.tab="rewards",ke.setAttribute("aria-label","Kintara Club rewards"),ke.title="Rewards",ke.hidden=!0,ke.innerHTML='<span class="kintara-mobile-bottom-dock__iconGlyph kintara-mobile-bottom-dock__iconGlyph--rewards">'+(typeof Zbe=="string"?Zbe:"\u{1F381}")+"</span><span>Rewards</span>",ee.append(ae,_e,ke),P.append(I,G,Z,ee),N.appendChild(P);let te=null;function fe(J){te=J==="chat"||J==="quests"?J:null,document.body.classList.toggle("kintara-bottom--chat",te==="chat"),document.body.classList.toggle("kintara-bottom--quests",te==="quests"),ae.dataset.active=te==="chat"?"true":"false",_e.dataset.active=te==="quests"?"true":"false"}c(fe,"setMobilePane"),fe(null),_e.addEventListener("click",J=>{J.stopPropagation(),Fw(),fe(te==="quests"?null:"quests")}),ae.addEventListener("click",J=>{J.stopPropagation(),Fw(),fe(te==="chat"?null:"chat")}),ke.addEventListener("click",J=>{J.stopPropagation(),fe(null),cc&&cc.dataset.open==="true"?Fw():mze()}),O.addEventListener("click",J=>{J.stopPropagation(),fe(null)}),z.addEventListener("click",J=>{J.stopPropagation(),fe(null)});const me=new Map;function Ze(J){!J||me.has(J)||me.set(J,{parent:J.parentNode,next:J.nextSibling})}c(Ze,"rememberParent");function Fe(J){const ie=me.get(J);if(!(!ie||!ie.parent))try{ie.next&&ie.next.parentNode===ie.parent?ie.parent.insertBefore(J,ie.next):ie.parent.appendChild(J)}catch{}}c(Fe,"restoreParent");function Le(){document.body.classList.add("kintara-mobile"),typeof os<"u"&&os&&os.parentNode!==D&&(Ze(os),D.appendChild(os),D.appendChild(O)),typeof Gd<"u"&&Gd&&Gd.parentNode!==q&&(Ze(Gd),q.appendChild(Gd),q.appendChild(z)),typeof $u<"u"&&$u&&$u.parentNode!==Z&&(Ze($u),Z.appendChild($u)),typeof Ql<"u"&&Ql&&Ql.parentNode!==G&&(Ze(Ql),G.appendChild(Ql));try{typeof X_<"u"&&(X_=!1),typeof i4<"u"&&(i4=!1)}catch{}try{typeof Z_=="function"&&Z_()}catch{}try{typeof K0=="function"&&K0()}catch{}try{typeof Ff=="function"&&Ff()}catch{}}c(Le,"enterMobile");function ge(){document.body.classList.remove("kintara-mobile"),document.body.classList.remove("kintara-bottom--chat"),document.body.classList.remove("kintara-bottom--quests"),Fw(),typeof os<"u"&&os&&Fe(os),typeof Gd<"u"&&Gd&&Fe(Gd),typeof $u<"u"&&$u&&Fe($u),typeof Ql<"u"&&Ql&&Fe(Ql),B();try{typeof Ff=="function"&&Ff()}catch{}}c(ge,"leaveMobile");function oe(){const J=n();J!==e&&(e=J,J?Le():ge())}c(oe,"applyMobileMode"),oe(),window.addEventListener("resize",oe),window.addEventListener("orientationchange",oe),document.addEventListener("visibilitychange",oe),setTimeout(oe,0),setTimeout(oe,250);try{window.__kintaraMobile={status(){return{isMobile:e,innerWidth:window.innerWidth,innerHeight:window.innerHeight,bodyHasMobileClass:document.body.classList.contains("kintara-mobile"),pointerCoarse:(()=>{try{return window.matchMedia("(pointer: coarse)").matches}catch{return null}})(),maxTouchPoints:navigator.maxTouchPoints||0,ontouchstart:"ontouchstart"in window}},force(J){e=!J,oe()},recheck:oe}}catch{}class qe{static{c(this,"FakeDataTransfer")}constructor(){this._data=new Map,this.effectAllowed="move",this.dropEffect="move",this.types=[]}setData(ie,Be){const nt=String(ie||"text/plain");this._data.set(nt,String(Be)),this.types.indexOf(nt)<0&&(this.types=[...this._data.keys()])}getData(ie){const Be=String(ie||"text/plain");return this._data.has(Be)?this._data.get(Be):""}clearData(ie){if(ie==null){this._data.clear(),this.types=[];return}this._data.delete(String(ie)),this.types=[...this._data.keys()]}setDragImage(){}}function Je(J,ie,Be,nt){const gt=new Event(J,{bubbles:!0,cancelable:!0});try{Object.defineProperty(gt,"dataTransfer",{value:nt,configurable:!0})}catch{gt.dataTransfer=nt}try{Object.defineProperty(gt,"clientX",{value:ie,configurable:!0}),Object.defineProperty(gt,"clientY",{value:Be,configurable:!0})}catch{gt.clientX=ie,gt.clientY=Be}return gt}c(Je,"makeDragLikeEvent");let Xe=null,pt=0,It=0,Rt=!1,_t=0,ne=null,Ee=null,tt=null;function xt(){if(_t&&(clearTimeout(_t),_t=0),ne&&ne.parentNode&&ne.parentNode.removeChild(ne),ne=null,Xe)try{Xe.style.opacity=""}catch{}Xe=null,Ee=null,Rt=!1,tt=null}c(xt,"tdCleanup");function yt(J,ie,Be){const nt=document.createElement("div");nt.className="kintara-touch-drag-ghost",nt.style.left=ie+"px",nt.style.top=Be+"px";try{const gt=J.cloneNode(!0);gt.style.transform="none",gt.style.opacity="1",gt.removeAttribute("draggable"),nt.appendChild(gt)}catch{}return nt}c(yt,"tdMakeGhost");function vt(J){if(!document.body.classList.contains("kintara-mobile"))return;if(J.touches.length!==1){xt();return}const ie=J.target&&J.target.closest?J.target.closest('[draggable="true"]'):null;if(!ie)return;xt(),Xe=ie;const Be=J.touches[0];pt=Be.clientX,It=Be.clientY,Rt=!1,_t=setTimeout(()=>{if(!Xe)return;Rt=!0,Ee=new qe;const nt=Je("dragstart",pt,It,Ee);try{Xe.dispatchEvent(nt)}catch{}ne=yt(Xe,pt,It),document.body.appendChild(ne)},180)}c(vt,"tdOnTouchStart");function Mt(J){if(!Xe)return;const ie=J.touches[0];if(!ie)return;if(!Rt){const nt=ie.clientX-pt,gt=ie.clientY-It;Math.hypot(nt,gt)>10&&xt();return}J.cancelable&&J.preventDefault(),ne&&(ne.style.left=ie.clientX+"px",ne.style.top=ie.clientY+"px",ne.style.pointerEvents="none");let Be=null;try{Be=document.elementFromPoint(ie.clientX,ie.clientY)}catch{}if(Be&&Be!==tt){if(tt){const gt=Je("dragleave",ie.clientX,ie.clientY,Ee);try{tt.dispatchEvent(gt)}catch{}}tt=Be;const nt=Je("dragenter",ie.clientX,ie.clientY,Ee);try{Be.dispatchEvent(nt)}catch{}}if(Be){const nt=Je("dragover",ie.clientX,ie.clientY,Ee);try{Be.dispatchEvent(nt)}catch{}}}c(Mt,"tdOnTouchMove");let Ht=null,_n=0,he=0,Oe=0,St="";const Ce=600,Me=28;let ve=0;const Pe=450;function Te(J){if(!J||!J.getAttribute)return"";const ie=["data-mount-id","data-pet-id","data-cosmetic-id","data-slot","data-slotkey","data-bagidx","data-mountkey","data-petkey","data-cosmetickey"];for(const Be of ie){const nt=J.getAttribute(Be);if(nt)return Be+":"+nt}return""}c(Te,"tdStableKeyFor");function Q(J,ie,Be){if(!J)return;const nt=typeof performance<"u"&&performance.now?performance.now():Date.now(),gt=Te(J),je=Ht&&Ht===J,rt=!!St&&St===gt,ct=Number.isFinite(ie)&&Number.isFinite(Be)&&Math.abs(ie-he)<Me&&Math.abs(Be-Oe)<Me;if(nt-_n<Ce&&(je||rt||ct)){ve=nt;try{const Lt=new MouseEvent("dblclick",{bubbles:!0,cancelable:!0,view:window,clientX:ie||0,clientY:Be||0});J.dispatchEvent(Lt)}catch{try{const Qt=document.createEvent("Event");Qt.initEvent("dblclick",!0,!0),J.dispatchEvent(Qt)}catch{}}Ht=null,_n=0,St=""}else Ht=J,_n=nt,St=gt,Number.isFinite(ie)&&(he=ie),Number.isFinite(Be)&&(Oe=Be)}c(Q,"tdMaybeDoubleClick");function le(J){if(!Xe)return;const ie=J.changedTouches&&J.changedTouches[0]||null,Be=ie?ie.clientX:pt,nt=ie?ie.clientY:It,gt=Math.hypot(Be-pt,nt-It);if(!Rt||gt<10){const rt=Xe;if(Rt&&Xe&&Ee){const ct=Je("dragend",Be,nt,Ee);try{Xe.dispatchEvent(ct)}catch{}}xt(),Q(rt,Be,nt);return}let je=null;try{ne&&(ne.style.pointerEvents="none"),je=document.elementFromPoint(Be,nt)}catch{}if(je&&Ee){const rt=Je("drop",Be,nt,Ee);try{je.dispatchEvent(rt)}catch{}}if(Xe&&Ee){const rt=Je("dragend",Be,nt,Ee);try{Xe.dispatchEvent(rt)}catch{}}xt()}c(le,"tdOnTouchEnd"),document.addEventListener("touchstart",vt,{capture:!0,passive:!0}),document.addEventListener("touchmove",Mt,{capture:!0,passive:!1}),document.addEventListener("touchend",le,{capture:!0,passive:!0}),document.addEventListener("touchcancel",le,{capture:!0,passive:!0}),document.addEventListener("dblclick",J=>{if(!document.body.classList.contains("kintara-mobile")||!J.isTrusted)return;(typeof performance<"u"&&performance.now?performance.now():Date.now())-ve<Pe&&(J.stopImmediatePropagation(),J.preventDefault())},{capture:!0});let ce=0,se=0,Ve=0;function Ke(J){if(!document.body.classList.contains("kintara-mobile"))return;if(!J.changedTouches||J.changedTouches.length!==1){ce=0;return}const ie=J.target;if(ie&&ie.closest&&ie.closest('[draggable="true"]'))return;const Be=J.changedTouches[0],nt=Be.clientX,gt=Be.clientY,je=typeof performance<"u"&&performance.now?performance.now():Date.now();if(je-ce<400&&Math.abs(nt-se)<25&&Math.abs(gt-Ve)<25){ce=0;try{const rt=new MouseEvent("dblclick",{bubbles:!0,cancelable:!0,view:window,clientX:nt,clientY:gt});(ie||window).dispatchEvent(rt)}catch{try{const ct=document.createEvent("Event");ct.initEvent("dblclick",!0,!0);try{Object.defineProperty(ct,"clientX",{value:nt,configurable:!0})}catch{ct.clientX=nt}try{Object.defineProperty(ct,"clientY",{value:gt,configurable:!0})}catch{ct.clientY=gt}(ie||window).dispatchEvent(ct)}catch{}}return}ce=je,se=nt,Ve=gt}c(Ke,"canvasOnTouchEnd"),document.addEventListener("touchend",Ke,{capture:!1,passive:!0});const tn=10;let $t=null,it=!1,Hn=0,Ta=0;function Uo(J,ie){if(!J)return null;for(let Be=0;Be<J.length;Be++)if(J[Be].identifier===ie)return J[Be];return null}c(Uo,"mpFindTouch");function Ds(){it&&(Up=!1,Ku=0,Xu=0,Io&&(cancelAnimationFrame(Io),Io=0)),it=!1,$t=null}c(Ds,"mpReset");function Ft(J){if(!document.body.classList.contains("kintara-mobile")||typeof Gy=="function"&&!Gy()||typeof uo<"u"&&uo)return;if(J.touches.length!==1){Ds();return}const ie=J.touches[0];try{if(Oz(ie))return}catch{}ie.target&&ie.target.closest&&ie.target.closest('[draggable="true"]')||($t=ie.identifier,Hn=ie.clientX,Ta=ie.clientY,it=!1)}c(Ft,"mpOnTouchStart");function qt(J){if($t===null)return;const ie=Uo(J.touches,$t);if(ie){if(!it){const Be=ie.clientX-Hn,nt=ie.clientY-Ta;if(Math.hypot(Be,nt)<tn)return;it=!0,Io&&(cancelAnimationFrame(Io),Io=0),Up=!0,coe=Hn,doe=Ta,Eg=Hn,Lg=Ta,Ku=0,Xu=0}J.cancelable&&J.preventDefault(),Ku+=ie.clientX-Eg,Xu+=ie.clientY-Lg,Eg=ie.clientX,Lg=ie.clientY,!Io&&typeof poe=="function"&&(Io=requestAnimationFrame(poe))}}c(qt,"mpOnTouchMove");function Bt(J){if($t===null)return;const ie=Uo(J.changedTouches,$t);if(it){Io&&(cancelAnimationFrame(Io),Io=0);const Be=ie?ie.clientX:Eg,nt=ie?ie.clientY:Lg,gt=Ku+(Be-Eg),je=Xu+(nt-Lg);Ku=0,Xu=0,(gt!==0||je!==0)&&typeof Fz=="function"&&Fz(gt,je),OE=!0,Up=!1}it=!1,$t=null}if(c(Bt,"mpOnTouchEnd"),document.addEventListener("touchstart",Ft,{capture:!1,passive:!0}),document.addEventListener("touchmove",qt,{capture:!1,passive:!1}),document.addEventListener("touchend",Bt,{capture:!1,passive:!0}),document.addEventListener("touchcancel",Bt,{capture:!1,passive:!0}),typeof S_<"u"&&typeof Dd<"u"){let J=null,ie=0,Be=0,nt=0,gt=0,je=!1;const rt=c(()=>{const Lt=Dd.style.transform||"",Qt=/translate3d\(\s*(-?\d+(?:\.\d+)?)px\s*,\s*(-?\d+(?:\.\d+)?)px/.exec(Lt);return Qt?{x:parseFloat(Qt[1])||0,y:parseFloat(Qt[2])||0}:{x:0,y:0}},"fmReadTransform"),ct=c((Lt,Qt)=>{const qa=(Dd.style.transform||"").replace(/translate3d\([^)]+\)/g,"").trim();Dd.style.transform=`translate3d(${Lt}px, ${Qt}px, 0) ${qa}`.trim()},"fmApply");try{new MutationObserver(()=>{Nr.style.display==="none"&&(nt=0,gt=0,Dd.style.transform=(Dd.style.transform||"").replace(/translate3d\([^)]+\)/g,"").trim())}).observe(Nr,{attributes:!0,attributeFilter:["style"]})}catch{}S_.addEventListener("touchstart",Lt=>{if(!document.body.classList.contains("kintara-mobile"))return;if(Lt.touches.length!==1){je=!1,J=null;return}const Qt=Lt.touches[0];if(Qt.target&&Qt.target.closest&&Qt.target.closest("button"))return;J=Qt.identifier,ie=Qt.clientX,Be=Qt.clientY;const Gn=rt();nt=Gn.x,gt=Gn.y,je=!1},{passive:!0}),S_.addEventListener("touchmove",Lt=>{if(J===null)return;let Qt=null;for(let Jo=0;Jo<Lt.touches.length;Jo++)if(Lt.touches[Jo].identifier===J){Qt=Lt.touches[Jo];break}if(!Qt)return;const Gn=Qt.clientX-ie,qa=Qt.clientY-Be;if(!je){if(Math.hypot(Gn,qa)<10)return;je=!0}Lt.cancelable&&Lt.preventDefault(),ct(nt+Gn,gt+qa)},{passive:!1});const Et=c(Lt=>{if(J===null)return;let Qt=null;if(Lt.changedTouches){for(let Gn=0;Gn<Lt.changedTouches.length;Gn++)if(Lt.changedTouches[Gn].identifier===J){Qt=Lt.changedTouches[Gn];break}}if(je&&Qt){const Gn=Qt.clientX-ie,qa=Qt.clientY-Be;nt+=Gn,gt+=qa}je=!1,J=null},"fmEnd");S_.addEventListener("touchend",Et,{passive:!0}),S_.addEventListener("touchcancel",Et,{passive:!0})}function Wt(J){const ie=document.createElement("div");ie.className="kintara-mobile-invbank-tabs";const Be=document.createElement("button");Be.type="button",Be.className="kintara-mobile-invbank-tabs__tab",Be.textContent="Inventory",Be.dataset.tab="inv",Be.dataset.active=J==="inv"?"true":"false";const nt=document.createElement("button");return nt.type="button",nt.className="kintara-mobile-invbank-tabs__tab",nt.textContent="Bank",nt.dataset.tab="bank",nt.dataset.active=J==="bank"?"true":"false",Be.addEventListener("click",gt=>{gt.preventDefault(),gt.stopPropagation(),aa("inv")}),nt.addEventListener("click",gt=>{gt.preventDefault(),gt.stopPropagation(),aa("bank")}),ie.append(Be,nt),ie}c(Wt,"buildInvBankTabsStrip");function aa(J){document.body.classList.toggle("kintara-invbank--inv",J==="inv"),document.body.classList.toggle("kintara-invbank--bank",J==="bank"),document.querySelectorAll(".kintara-mobile-invbank-tabs__tab").forEach(ie=>{ie.dataset.active=ie.dataset.tab===J?"true":"false"})}c(aa,"setInvBankTab");function oo(J,ie){if(!J)return;const Be=Wt(ie),nt=J.querySelector(".kintara-inv__header");nt&&nt.parentNode===J?nt.insertAdjacentElement("afterend",Be):J.insertBefore(Be,J.firstChild)}c(oo,"injectInvBankTabs");try{typeof bo<"u"&&bo&&oo(bo,"inv"),typeof Mh<"u"&&Mh&&oo(Mh,"bank")}catch{}function vi(){let J=!1,ie=!1;try{J=!!(typeof Vi<"u"&&Vi&&Vi.style.display!=="none"&&Vi.style.display!==""),ie=!!(typeof co<"u"&&co&&co.style.display!=="none"&&co.style.display!=="")}catch{}document.body.classList.toggle("kintara-invbank-pair",J&&ie),J?!document.body.classList.contains("kintara-invbank--inv")&&!document.body.classList.contains("kintara-invbank--bank")&&aa("bank"):(document.body.classList.remove("kintara-invbank--bank"),document.body.classList.contains("kintara-invbank--inv")||document.body.classList.add("kintara-invbank--inv"))}c(vi,"syncInvBankBodyClasses");try{typeof Vi<"u"&&Vi&&new MutationObserver(vi).observe(Vi,{attributes:!0,attributeFilter:["style"]}),typeof co<"u"&&co&&new MutationObserver(vi).observe(co,{attributes:!0,attributeFilter:["style"]}),vi()}catch{}const po=document.createElement("div");po.className="kintara-mobile-player-bubble";const fo=document.createElement("button");fo.type="button",fo.className="kintara-mobile-player-bubble__btn",fo.textContent="Add Friend";const Gt=document.createElement("button");Gt.type="button",Gt.className="kintara-mobile-player-bubble__btn kintara-mobile-player-bubble__btn--trade",Gt.textContent="Trade",po.append(fo,Gt),N.appendChild(po);let zt=null,ra=0;const ga=new s.Vector3;function ua(){zt=null,po.classList.remove("kintara-mobile-player-bubble--open"),ra&&(cancelAnimationFrame(ra),ra=0)}c(ua,"hideMobilePlayerBubble");function Hi(){if(!zt)return;let J=!1;try{const Be=zt.remoteId;Be!=null&&Number.isFinite(Number(Be))&&typeof NA<"u"&&(J=NA.has(Number(Be)))}catch{}fo.hidden=J;const ie=typeof h<"u"&&(h==="world"||h==="shack"||h==="pond"||h==="beach"||h==="eldergrove"||h==="frostmere");Gt.hidden=!ie}c(Hi,"refreshMobilePlayerBubbleButtons");function Gr(){if(ra=0,!(!zt||!po.classList.contains("kintara-mobile-player-bubble--open"))){try{const ie=(typeof ot<"u"&&zt.remoteId!=null?ot.get(zt.remoteId):null)||zt;if(!ie||!ie.group){ua();return}if(ie.group.updateMatrixWorld(!0),typeof eO=="function"?ga.set(0,1.42,0).applyMatrix4(eO(ie)):(ga.copy(ie.group.position),ga.y+=1.6),ga.project(He),ga.z>1){ua();return}const Be=(ga.x*.5+.5)*window.innerWidth,nt=(-ga.y*.5+.5)*window.innerHeight;po.style.left=`${Be}px`,po.style.top=`${nt-18}px`}catch{}ra=requestAnimationFrame(Gr)}}c(Gr,"updateMobilePlayerBubblePosition"),fo.addEventListener("click",J=>{if(J.preventDefault(),J.stopPropagation(),!!zt){try{Mn=zt,Hs=!1,__.click()}catch{}ua()}}),Gt.addEventListener("click",J=>{if(J.preventDefault(),J.stopPropagation(),!!zt){try{Mn=zt,Hs=!1,y_.click()}catch{}ua()}}),document.addEventListener("pointerdown",J=>{document.body.classList.contains("kintara-mobile")&&po.classList.contains("kintara-mobile-player-bubble--open")&&(J.target instanceof Node&&po.contains(J.target)||ua())},!0),window.__kintaraShowMobilePlayerBubble=function(J){!J||J.remoteId==null||(zt=J,Hi(),po.classList.add("kintara-mobile-player-bubble--open"),(async()=>{try{const ie=await fetch("/api/friends/list",{credentials:"include"}),Be=await ie.json().catch(()=>({}));ie.ok&&Be.ok&&typeof IA=="function"&&IA(Be.friends),Hi()}catch{}})(),ra||(ra=requestAnimationFrame(Gr)))},window.__kintaraHideMobilePlayerBubble=ua})();
 
-// AUTO-GATHER v1.63
+// AUTO-GATHER v1.64
+
+  // ── Performance Boost ─────────────────────────────────────────────────────
+  const AG_PERF_KEY = 'kintara_ag_perf';
+  var agPerfCfg = (function() {
+    var def = { fps: 0, bgFps: 5, bgThrottle: true, quality: 'normal', dpr: 0, antialias: null };
+    try { return Object.assign({}, def, JSON.parse(localStorage.getItem(AG_PERF_KEY) || '{}')); } catch(_) { return def; }
+  })();
+  var _agOrigRAF    = window.requestAnimationFrame;
+  var _agOrigCAF    = window.cancelAnimationFrame;
+  var _agRafLast    = 0;
+  var _agRafPending = new Map();
+  var _agRafSeq     = 700000;
+  var _agBgMode     = false;
+  var _agPerfOn     = false;
+
+  function _agFrameMs() {
+    if (_agBgMode && agPerfCfg.bgThrottle) return agPerfCfg.bgFps > 0 ? 1000 / agPerfCfg.bgFps : 200;
+    return agPerfCfg.fps > 0 ? 1000 / agPerfCfg.fps : 0;
+  }
+  function agPerfApply() {
+    if (_agPerfOn) return; _agPerfOn = true;
+    window.requestAnimationFrame = function(cb) {
+      var efms = _agFrameMs();
+      if (efms <= 0) return _agOrigRAF.call(window, cb);
+      var id = ++_agRafSeq, now = performance.now();
+      var wait = Math.max(0, efms - (now - _agRafLast) - 1);
+      var tid = setTimeout(function() {
+        if (!_agRafPending.has(id)) return;
+        _agRafPending.delete(id);
+        _agOrigRAF.call(window, function(ts) { _agRafLast = ts; cb(ts); });
+      }, wait);
+      _agRafPending.set(id, tid); return id;
+    };
+    window.cancelAnimationFrame = function(id) {
+      var tid = _agRafPending.get(id);
+      if (tid != null) { clearTimeout(tid); _agRafPending.delete(id); }
+      else _agOrigCAF.call(window, id);
+    };
+  }
+  function agPerfRemove() {
+    if (!_agPerfOn) return; _agPerfOn = false;
+    window.requestAnimationFrame = _agOrigRAF;
+    window.cancelAnimationFrame  = _agOrigCAF;
+    _agRafPending.forEach(function(t) { clearTimeout(t); }); _agRafPending.clear();
+  }
+  // Background throttle
+  document.addEventListener('visibilitychange', function() {
+    _agBgMode = document.hidden;
+  });
+  _agBgMode = document.hidden;
+  // DPR lock (aplica imediatamente — Three.js lê ao criar renderer)
+  (function() {
+    if (!agPerfCfg.dpr || agPerfCfg.dpr <= 0) return;
+    try { Object.defineProperty(window, 'devicePixelRatio', { get: function() { return agPerfCfg.dpr; }, configurable: true }); } catch(_) {}
+  })();
+  // Antialias off (antes de getContext)
+  (function() {
+    if (agPerfCfg.antialias !== false) return;
+    var _o = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function(type, opts) {
+      if (opts && (type === 'webgl' || type === 'webgl2')) opts = Object.assign({}, opts, { antialias: false });
+      return _o.call(this, type, opts);
+    };
+  })();
+  // Aplicar rAF cap se configurado
+  if (agPerfCfg.fps > 0 || agPerfCfg.bgThrottle) agPerfApply();
+
+  function agPerfSave() { try { localStorage.setItem(AG_PERF_KEY, JSON.stringify(agPerfCfg)); } catch(_) {} }
+  function agPerfSetFps(fps) {
+    agPerfCfg.fps = fps; agPerfSave();
+    if (fps > 0 || agPerfCfg.bgThrottle) agPerfApply(); else agPerfRemove();
+    agPerfUpdateUI();
+  }
+  function agPerfSetQuality(q) {
+    var dprMap = { potato: 0.5, low: 0.75, normal: 1.0, high: 0 };
+    agPerfCfg.quality = q;
+    agPerfCfg.dpr = dprMap[q] !== undefined ? dprMap[q] : 1.0;
+    agPerfCfg.antialias = (q === 'normal' || q === 'high') ? null : false;
+    agPerfSave(); agPerfUpdateUI();
+    try {
+      var _sh = document.getElementById('ag-panel-host').shadowRoot;
+      var n = _sh && _sh.getElementById('ag-perf-notice');
+      if (n) n.style.display = (q !== 'normal' && q !== 'high') ? '' : 'none';
+    } catch(_) {}
+  }
+  function agPerfSetBg(val) {
+    agPerfCfg.bgThrottle = val; agPerfSave();
+    _agBgMode = val ? document.hidden : false;
+    if (val || agPerfCfg.fps > 0) agPerfApply(); else agPerfRemove();
+    agPerfUpdateUI();
+  }
+  function agPerfUpdateUI() {
+    try {
+      var _sh = document.getElementById('ag-panel-host').shadowRoot;
+      if (!_sh) return;
+      _sh.querySelectorAll('.ag-pfps').forEach(function(b) {
+        b.classList.toggle('ag-pact', parseInt(b.dataset.fps || 0) === agPerfCfg.fps);
+      });
+      _sh.querySelectorAll('.ag-pqual').forEach(function(b) {
+        b.classList.toggle('ag-pact', b.dataset.quality === agPerfCfg.quality);
+      });
+      var bgEl = _sh.getElementById('ag-perf-bg');
+      if (bgEl) bgEl.checked = !!agPerfCfg.bgThrottle;
+    } catch(_) {}
+  }
+  // ── fim Performance Boost ────────────────────────────────────────────────
+
   var _agCh; // renomeado de Ch para evitar conflito com bundle
 // F8 = ativar/desativar coleta | F9 = abrir mercado
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -6200,7 +6307,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.63';
+  const AG_VERSION          = 'v1.64';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -13025,6 +13132,15 @@ loadMySales();
       .ag-check-row{display:flex;align-items:center;gap:7px;margin-bottom:8px;cursor:pointer}
       .ag-check-row inpat[type=checkbox]{width:14px;height:14px;accent-color:#7eb8f7;cursor:pointer;flex-shrink:0}
       .ag-check-lbl{font-size:11px;color:#a0aab8}
+      .ag-pfps,.ag-pqual{
+        padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,0.1);
+        background:rgba(255,255,255,0.05);color:#8a93a8;font-size:9px;cursor:pointer;
+        transition:all .12s
+      }
+      .ag-pfps:hover,.ag-pqual:hover{background:rgba(255,255,255,0.1);color:#d4d8e2}
+      .ag-pfps.ag-pact,.ag-pqual.ag-pact{
+        background:rgba(96,165,250,0.2);border-color:rgba(96,165,250,0.4);color:#60a5fa;font-weight:700
+      }
       #ag-btn{width:100%;padding:6px 0;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:8px;transition:background .15s}
       #ag-btn[data-on="false"]{background:#27ae60;color:#fff}
       #ag-btn[data-on="true"]{background:#c0392b;color:#fff}
@@ -13141,6 +13257,39 @@ loadMySales();
           '<div id="ag-status">Desligado</div>',
           '<div id="ag-hint"></div>',
         '</div>',
+
+        '<!-- ── Performance ───────────────────────────────────────────── -->',
+        '<div style="margin-top:6px;border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:6px 8px;background:rgba(0,0,0,0.18)">',
+          '<div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#64748b;margin-bottom:5px">PERFORMANCE</div>',
+
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">',
+            '<span style="font-size:10px;color:#8a93a8">FPS Cap</span>',
+            '<div style="display:flex;gap:3px">',
+              '<button class="ag-pfps" data-fps="30" title="30fps">30</button>',
+              '<button class="ag-pfps" data-fps="45" title="45fps">45</button>',
+              '<button class="ag-pfps" data-fps="60" title="60fps">60</button>',
+              '<button class="ag-pfps" data-fps="0"  title="Sem limite">∞</button>',
+            '</div>',
+          '</div>',
+
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">',
+            '<span style="font-size:10px;color:#8a93a8">Qualidade</span>',
+            '<div style="display:flex;gap:3px">',
+              '<button class="ag-pqual" data-quality="potato" title="DPR 0.5× — Mais leve">Potato</button>',
+              '<button class="ag-pqual" data-quality="low"    title="DPR 0.75×">Low</button>',
+              '<button class="ag-pqual" data-quality="normal" title="DPR 1× — Padrão">Normal</button>',
+              '<button class="ag-pqual" data-quality="high"   title="DPR nativo — Máximo">High</button>',
+            '</div>',
+          '</div>',
+
+          '<div style="display:flex;align-items:center;justify-content:space-between">',
+            '<span style="font-size:10px;color:#8a93a8">BG Throttle <span style="font-size:9px;opacity:.6">(aba oculta → 5fps)</span></span>',
+            '<input type="checkbox" id="ag-perf-bg" style="cursor:pointer">',
+          '</div>',
+
+          '<div id="ag-perf-notice" style="display:none;font-size:9px;color:#fbbf24;margin-top:4px">&#9888; Recarregar o jogo para aplicar DPR/AA</div>',
+        '</div>',
+
         '<!-- Mercado movido para Mini HUDs -->',
         '<hr class="ag-divider">',
 
@@ -13760,6 +13909,18 @@ loadMySales();
     });
 
     // ── Farm realm ────────────────────────────────────────────────────────────
+    // ── Performance handlers ─────────────────────────────────────────────
+    shadow.querySelectorAll('.ag-pfps').forEach(function(btn) {
+      btn.addEventListener('click', function() { agPerfSetFps(parseInt(btn.dataset.fps || 0)); });
+    });
+    shadow.querySelectorAll('.ag-pqual').forEach(function(btn) {
+      btn.addEventListener('click', function() { agPerfSetQuality(btn.dataset.quality); });
+    });
+    var bgEl = $('ag-perf-bg');
+    if (bgEl) bgEl.addEventListener('change', function(e) { agPerfSetBg(e.target.checked); });
+    // Inicializar UI de performance
+    agPerfUpdateUI();
+
     var frEl = $('ag-farm-realm');
     if (frEl) frEl.addEventListener('change', function(e) {
       agFarmRealm = e.target.value;
