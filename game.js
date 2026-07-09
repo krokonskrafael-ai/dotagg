@@ -6623,7 +6623,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.73';
+  const AG_VERSION          = 'v1.74';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -19991,5 +19991,5 @@ loadMySales();
   } // fecha o else do guard de instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v1.63'
+// FIM AUTO-GATHER v1.74'
 
