@@ -8009,7 +8009,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   }
 
   // ── Fishing ────────────────────────────────────────────────────────────────
-  function agFishingAllowed() { return AG_FISHING_REALMS.has(h); }
+  function agFishingAllowed() { return AG_FISHING_REALMS.has(D); }
 
   function agFindFishTile() {
     const cells = vhe();
@@ -8017,7 +8017,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     // uHe = distância máxima (Chebyshev) para pescar — mesmo critério do bundle (bHe)
     var _maxDist = 2; // distância máxima Chebyshev para pesca (configurado)
     // Log de diagnóstico para beach
-    AG_LOG.debug('[Fish] vhe cells=' + cells.size + ' playerPos=' + ce + ',' + de + ' maxDist=' + _maxDist + ' realm=' + h);
+    AG_LOG.debug('[Fish] vhe cells=' + cells.size + ' playerPos=' + ce + ',' + de + ' maxDist=' + _maxDist + ' realm=' + D);
     let best = null, bestDist = Infinity;
     for (const key of cells) {
       const [c, r] = key.split(',').map(Number);
@@ -8032,7 +8032,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   function agFindFishingSpot() {
     const cells = vhe();
     if (!cells || cells.size === 0) {
-      AG_LOG.debug('[Fish] agFindFishingSpot: vhe vazio para realm=' + h);
+      AG_LOG.debug('[Fish] agFindFishingSpot: vhe vazio para realm=' + D);
       return null;
     }
     const blk = d();
@@ -8068,7 +8068,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   // ── Auto Cook Fish ─────────────────────────────────────────────────────────
   function agCanAutoCook() {
     if (!agAutoCookFish) return false;
-    if (h !== 'pond' && h !== 'eldergrove') return false;
+    if (D !== 'pond' && D !== 'eldergrove') return false;
     try {
       // Verifica se tem fish e wood no inventário/banco
       if (typeof N !== 'function' || typeof H !== 'function') return false;
@@ -8113,7 +8113,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     if (!agActive) return;
     if (!agFishingAllowed()) {
       // Navega automaticamente para Pond se estiver no World
-      if (h==='world' && !agNavTarget) {
+      if (D==='world' && !agNavTarget) {
         // Navegar para o realm de pesca configurado, ou pond por padrão
         var _fishTarget = (agFarmRealm && AG_FISHING_REALMS.has(agFarmRealm)) ? agFarmRealm : 'pond';
         agSetStatus('🚶 Indo para ' + (AG_REALM_LABELS[_fishTarget]||_fishTarget) + ' pescar…');
@@ -8126,7 +8126,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       agSchedule(AG_RETRY_MS); return;
     }
     // Chegou no realm certo — cancela navegação pendente se havia
-    if (agNavTarget && AG_FISHING_REALMS.has(h)) {
+    if (agNavTarget && AG_FISHING_REALMS.has(D)) {
       agNavCancel();
     }
     if (agIsBusy())          { agSetStatus('⏸ Aguardando…');             agSchedule(AG_TICK_MS);  return; }
@@ -8176,7 +8176,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
           var _uHe = (function(){ try { return uHe || 1; } catch(_){ return 1; } })();
           console.warn('[AG Fish Beach] vhe cells=' + (cells ? cells.size : 0) +
             ' | playerPos=' + ce + ',' + de +
-            ' | realm=' + h +
+            ' | realm=' + D +
             ' | uHe=' + _uHe +
             ' | first5=' + (cells ? [...cells].slice(0,5).join(' ') : 'empty'));
           if (cells && cells.size > 0) {
@@ -8269,8 +8269,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         ' | Nt=' + Nt +
         ' | JY=' + JY() +
         ' | mode=' + agMode +
-        ' | m=' + h +
-        ' | fishOk=' + AG_FISHING_REALMS.has(h));
+        ' | m=' + D +
+        ' | fishOk=' + AG_FISHING_REALMS.has(D));
       // Auto-join: se a tela de seleção de servidor está visível, clicar automaticamente
       if (agServerScreenVisible()) {
         try { agAutoJoinServer(); } catch(_) {}
@@ -8282,7 +8282,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     try {
       // Se entrou em shack acidentalmente, move diretamente para tile de saída [0,4]
       // O jogo chama Ane() automaticamente ao chegar lá (linha 98206 do game.js)
-      if (h==='shack') {
+      if (D==='shack') {
         (function(){try{qe=[],$e = !1,Ne=0}catch(_){}})(); (function(){try{Pt()}catch(_){};try{Nt()}catch(_){}})();
         agLastKey = null; agLastApKey = null; agLastApKeyAt = 0; agApproachAt = null;
         agSetStatus('⏸ Saindo da casinha...');
@@ -8322,7 +8322,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       }
 
       if (!JY()) { agSetStatus('⏸ Realm não suporta coleta'); agSchedule(AG_RETRY_MS); return; }
-      if (agFarmRealm && h!==agFarmRealm) { agSetStatus('⏸ Aguardando mapa ' + (AG_REALM_LABELS[agFarmRealm]||agFarmRealm) + '…'); agSchedule(1500); return; }
+      if (agFarmRealm && D!==agFarmRealm) { agSetStatus('⏸ Aguardando mapa ' + (AG_REALM_LABELS[agFarmRealm]||agFarmRealm) + '…'); agSchedule(1500); return; }
       if (agIsBusy())        { agSetStatus('⏸ Aguardando…');               agSchedule(AG_TICK_MS); return; }
       if (agInventoryFull()) { agSetStatus('🎒 Inventário cheio — pausado'); agSchedule(2000);      return; }
       // 'all' / tree_coal / tree_rock gerenciam ferramenta dinamicamente no agApproach
@@ -8600,7 +8600,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     var _mb = _sh3 && _sh3.getElementById('ag-mini-btn');
     if (_mb) { _mb.dataset.on='true'; _mb.innerHTML='&#9646;&#9646; Parar'; }
     // Se modo pesca e mapa não suporta, navega automaticamente para Pond
-    if (agMode === 'fish' && !AG_FISHING_REALMS.has(h)) {
+    if (agMode === 'fish' && !AG_FISHING_REALMS.has(D)) {
       var _fishDest = (agFarmRealm && AG_FISHING_REALMS.has(agFarmRealm)) ? agFarmRealm : 'pond';
       agSetStatus('🚶 Indo para ' + (AG_REALM_LABELS[_fishDest]||_fishDest) + ' pescar…');
       agNavTo(_fishDest);
@@ -9123,17 +9123,17 @@ loadMySales();
   let An = 0; // escudo wild (espelha Pk do bundle)
 
   function agHuntAllowed() {
-    return h==='eldergrove' ||
-           h==='wild_exp'   ||
-           h==='wild'       ||
-           h==='wild_ext'   ||
-           h==='ember';
+    return D==='eldergrove' ||
+           D==='wild_exp'   ||
+           D==='wild'       ||
+           D==='wild_ext'   ||
+           D==='ember';
   }
 
   function agHuntMobKind() {
-    if (h==='eldergrove') return 'chicken';
-    if (h==='wild_exp')   return 'wolf';
-    if (h==='wild' || h==='wild_ext' || h==='ember') return 'wild';
+    if (D==='eldergrove') return 'chicken';
+    if (D==='wild_exp')   return 'wolf';
+    if (D==='wild' || D==='wild_ext' || D==='ember') return 'wild';
     return null;
   }
 
@@ -9178,7 +9178,7 @@ loadMySales();
       if (d < bestDist) { bestDist = d; best = { kind, idx: i, col: tc, row: tr, dist: d }; }
     }
     // Log diagnóstico para wild_ext — ajuda a detectar problemas de offset/sistema
-    if (h==='wild_ext') {
+    if (D==='wild_ext') {
       AG_LOG.debug('agHuntFindNearest wild_ext | kind=' + kind +
         ' | maxIdx=' + maxIdx + ' | alive=' + aliveCount + ' null=' + nullCount +
         ' | offX=' + offX.toFixed(1) + ' offZ=' + offZ.toFixed(1) +
@@ -9803,7 +9803,7 @@ loadMySales();
   /** True se o tile atual recebe dano do ripple (vermelho no chão) */
   function agBossOnDangerTile() {
     try {
-      if (h!=='wild_ext_cave') return false;
+      if (D!=='wild_ext_cave') return false;
       // gladeCaveRippleRingFront > 0 significa onda ativa no renderer
       if (typeof gladeCaveRippleRingFront === 'undefined' || gladeCaveRippleRingFront < 0) return false;
       // Verifica se nosso tile atual está na frente da onda (distância chebyshev ≤ ringFront + 1)
@@ -9953,19 +9953,19 @@ loadMySales();
       var _caveState = typeof wildExtCaveServerState !== 'undefined' ? wildExtCaveServerState : 'none';
 
       // Já está na cave ce com slot ativo → combate
-      if (h==='wild_ext_cave' && _caveState === 'active') {
+      if (D==='wild_ext_cave' && _caveState === 'active') {
         agBossState = AG_BOSS_STATE.ENTER;
         agBossSchedule(AG_BOSS_TICK_MS); return;
       }
       // Na fila (queued) — m pode ser wild_ext_cave ou wild_ext
-      if (_caveState === 'queued' || (h==='wild_ext_cave' && _caveState !== 'active')) {
+      if (_caveState === 'queued' || (D==='wild_ext_cave' && _caveState !== 'active')) {
         agBossState = AG_BOSS_STATE.QUEUING;
         agBossSetStatus('⌛ Na fila da cave... (wildExtCaveServerState=' + _caveState + ')');
         agBossSchedule(500); return;
       }
       // Navegar para wild_ext — trata multi-hop (wild/world → wild_ext)
-      if (h!=='wild_ext') {
-        if (h==='wild') {
+      if (D!=='wild_ext') {
+        if (D==='wild') {
           // Já está no wild — precisa achar o portal para wild_ext (norte do mapa wild)
           agBossSetStatus('🗺 Wild → procurando portal para Wild Extension...');
           try {
@@ -9986,13 +9986,13 @@ loadMySales();
             if (_path && _path.length) { qe = _path; if (!$e) Ll(); }
             AG_BOSS_LOG.info('Boss nav: indo para portal wild_ext em ' + wildExtPortal.col + ',' + wildExtPortal.row);
           } catch(e) { AG_BOSS_LOG.warn('Boss nav wild erro: ' + e.message); }
-        } else if (h==='world') {
+        } else if (D==='world') {
           // No world — usa agNavTo para wild_ext
           agBossSetStatus('🗺 World → indo para Wild Extension...');
           if (typeof agNavTo === 'function') agNavTo('wild_ext');
         } else {
           // Em outro mapa (pond, eldergrove, etc) — vai para o world primeiro
-          agBossSetStatus('🗺 ' + h + ' → indo para o World primeiro...');
+          agBossSetStatus('🗺 ' + D + ' → indo para o World primeiro...');
           if (typeof agNavTo === 'function') agNavTo('world');
         }
         agBossSchedule(1000); return;
@@ -10019,7 +10019,7 @@ loadMySales();
     // ── Estado: QUEUING ──────────────────────────────────────────────────────
     if (agBossState === AG_BOSS_STATE.QUEUING) {
       var _qs = typeof wildExtCaveServerState !== 'undefined' ? wildExtCaveServerState : 'none';
-      AG_BOSS_LOG.debug('QUEUING | m=' + h + ' wildExtCaveServerState=' + _qs);
+      AG_BOSS_LOG.debug('QUEUING | m=' + D + ' wildExtCaveServerState=' + _qs);
 
       if (_qs === 'active') {
         // Slot ativo — pode entrar no combate
@@ -10041,7 +10041,7 @@ loadMySales();
 
     // ── Estado: ENTER ────────────────────────────────────────────────────────
     if (agBossState === AG_BOSS_STATE.ENTER) {
-      if (h!=='wild_ext_cave') {
+      if (D!=='wild_ext_cave') {
         agBossState = AG_BOSS_STATE.DEAD; agBossSchedule(1000); return;
       }
       // Se smash incoming, vai ao safe tile; senão vai direto para o anel de ataque
@@ -10071,7 +10071,7 @@ loadMySales();
 
     // ── Estado: DEAD / VICTORY ────────────────────────────────────────────────
     if (agBossState === AG_BOSS_STATE.DEAD || agBossState === AG_BOSS_STATE.VICTORY) {
-      if (h==='wild_ext_cave') {
+      if (D==='wild_ext_cave') {
         agBossSchedule(1000); return; // aguarda saída automática
       }
       // Saiu da cave — parar
@@ -10086,7 +10086,7 @@ loadMySales();
                          agBossState === AG_BOSS_STATE.WEB_FLEE ||
                          agBossState === AG_BOSS_STATE.KILL_MINI ||
                          agBossState === AG_BOSS_STATE.ENTER;
-    if (_inCombatState && h!=='wild_ext_cave') {
+    if (_inCombatState && D!=='wild_ext_cave') {
       agBossSetStatus('💀 Morreu ou saiu da cave');
       agBossState = AG_BOSS_STATE.DEAD;
       agBossSchedule(1000); return;
@@ -10984,8 +10984,8 @@ loadMySales();
       }
 
       // Auto-navegar para o mapa certo
-      if (shouldAutonav && h==='world') {
-        const needsFish = agMode === 'fish' && !AG_FISHING_REALMS.has(h);
+      if (shouldAutonav && D==='world') {
+        const needsFish = agMode === 'fish' && !AG_FISHING_REALMS.has(D);
         if (needsFish) {
           agNavSetStatus('🔄 Indo para Pond…');
           agNavTo('pond');
@@ -11080,7 +11080,7 @@ loadMySales();
 
   /** Retorna true se o m atual não permite farm (cave, shack, etc.) */
   function agGameStateBlocksFarm() {
-    return h==='wild_ext_cave'; // Glade Cave — sem recursos coletáveis
+    return D==='wild_ext_cave'; // Glade Cave — sem recursos coletáveis
   }
 
   function agIsInGame() {
@@ -11089,11 +11089,11 @@ loadMySales();
     if (!(Nt != null)) return false;
     if (agGameStateBlocksFarm()) return false;
     if (agMode === 'fish') {
-      if (!AG_FISHING_REALMS.has(h)) return false;
+      if (!AG_FISHING_REALMS.has(D)) return false;
     } else {
       if (!JY()) return false;
     }
-    if (h === 'shack') return false;
+    if (D === 'shack') return false;
     return true;
   }
 
@@ -11104,9 +11104,9 @@ loadMySales();
     if (agGameStateBlocksFarm()) return false;
     // Em modo pesca, verificar se o realm suporta pesca em vez de JY()
     if (agMode === 'fish') {
-      if (!AG_FISHING_REALMS.has(h) && h !== 'shack') return false;
+      if (!AG_FISHING_REALMS.has(D) && D !== 'shack') return false;
     } else {
-      if (!JY() && h !== 'shack') return false;
+      if (!JY() && D !== 'shack') return false;
     }
     return true;
   }
@@ -11119,7 +11119,7 @@ loadMySales();
       ' | serverScreen=' + serverScreen +
       ' | queueBtns=' + queueBtns.length +
       ' | (Nt != null)=' + (Nt != null) +
-      ' | m=' + h +
+      ' | m=' + D +
       ' | gatherAllowed=' + JY()
     );
   }
@@ -11177,7 +11177,7 @@ loadMySales();
       if (!agActive) return;
       if (!started) {
         if (!agIsInGame()) {
-          AG_LOG_WD.debug(' aguardando entrar em jogo | queueBtns=' + document.querySelectorAll('.kintara-server-select-btn').length + ' | m=' + h);
+          AG_LOG_WD.debug(' aguardando entrar em jogo | queueBtns=' + document.querySelectorAll('.kintara-server-select-btn').length + ' | m=' + D);
           return;
         }
         agWatchdogLastItems = agStats.items;
@@ -11188,7 +11188,7 @@ loadMySales();
       }
       // Verifica a cada 15s
       if (Date.now() - agWatchdogLastAt < 15000) return;
-      AG_LOG_WD.debug(' check | itens=' + agStats.items + ' lastItems=' + agWatchdogLastItems + ' | realm=' + h);
+      AG_LOG_WD.debug(' check | itens=' + agStats.items + ' lastItems=' + agWatchdogLastItems + ' | realm=' + D);
       if (agStats.items !== agWatchdogLastItems) {
         AG_LOG_WD.debug(' progresso detectado (' + agWatchdogLastItems + ' → ' + agStats.items + ') | reset');
         agWatchdogLastItems = agStats.items;
@@ -11199,7 +11199,7 @@ loadMySales();
       // Sem progresso nesse minuto
       attempts++;
       agWatchdogLastAt = Date.now();
-      AG_LOG_WD.warn(': sem progresso [' + attempts + (reloadEnabled ? '/' + maxAttempts : '') + '] | itens=' + agStats.items + ' | realm=' + h);
+      AG_LOG_WD.warn(': sem progresso [' + attempts + (reloadEnabled ? '/' + maxAttempts : '') + '] | itens=' + agStats.items + ' | realm=' + D);
       if (reloadEnabled && attempts >= maxAttempts) {
         AG_LOG_WD.warn(' TIMEOUT: esgotou ' + maxAttempts + ' tentativas — recarregando');
         try { localStorage.removeItem('kintara_ag_preferred_server'); } catch(_) {}
@@ -11315,7 +11315,7 @@ loadMySales();
     var m = Math.floor(s / 3600);
     var m = Math.floor((s % 3600) / 60);
     var sec = s % 60;
-    return (m < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + h + ':' + (sec < 10 ? '0' : '') + sec;
+    return (m < 10 ? '0' : '') + D + ':' + (m < 10 ? '0' : '') + D + ':' + (sec < 10 ? '0' : '') + sec;
   }
 
   /** Atualiza o conteúdo do miniHUD do Spin (dentro do shadow de ag-spin-host) */
@@ -11559,13 +11559,13 @@ loadMySales();
 
   function agRealmCheckTick() {
     if (!agActive || agMode === 'fish') return;
-    if (!agFarmRealm || h===agFarmRealm) return;
+    if (!agFarmRealm || D===agFarmRealm) return;
     // Não tentar navegar enquanto estiver na tela de fila/seleção de servidor
     if (agServerScreenVisible()) return;
     (function(){try{qe=[],$e = !1,Ne=0}catch(_){}})(); (function(){try{Pt()}catch(_){};try{Nt()}catch(_){}})();
     agApproachAt = null; agLastKey = null; agLastApKey = null;
     // Shack: precisa sair primeiro antes de navegar
-    if (h==='shack') {
+    if (D==='shack') {
       agSetStatus('⏸ Saindo da casinha...');
       if (ce === 7 && de === 4) {
         AG_LOG.warn('Shack: na tile de saida — Ane()');
@@ -11595,7 +11595,7 @@ loadMySales();
       return; // nao tenta navegar enquanto ainda esta na shack
     }
     const label = AG_REALM_LABELS[agFarmRealm] || agFarmRealm;
-    AG_LOG.warn('Realm errado:', h, '→ indo para:', agFarmRealm);
+    AG_LOG.warn('Realm errado:', D, '→ indo para:', agFarmRealm);
     agSetStatus('⏸ Mapa errado — indo para ' + label);
     if (!agNavTarget) agNavTo(agFarmRealm);
   }
@@ -11711,7 +11711,7 @@ loadMySales();
     try { console.log('VE (wild portal):', VE ? [...VE].slice(0,3) : 'undefined'); } catch(e) { console.log('VE erro:', e.message); }
     try { console.log('NS (eldr portal cols):', NS, 'zk (row):', zk); } catch(e) { console.log('eldergrove cols/row erro:', e.message); }
     try { console.log('Ag (wild mid):', Ag, '$w (row):', $w); } catch(e) { console.log('wild mid/row erro:', e.message); }
-    try { console.log('E:', ce, 'de:', de, 'gameState:', h); } catch(e) {}
+    try { console.log('E:', ce, 'de:', de, 'gameState:', D); } catch(e) {}
     console.groupEnd();
   }
   window.__agNavDebug = agNavDebug;
@@ -11785,7 +11785,7 @@ loadMySales();
     if (!agNavTarget) return;
 
     // Já chegou no destino
-    if (h===agNavTarget) {
+    if (D===agNavTarget) {
       agNavTarget = null;
       clearTimeout(agNavTimer);
       agNavSetStatus('');
@@ -11796,13 +11796,13 @@ loadMySales();
     }
 
     // Se destino é o realm atual mas via world — já está no destino
-    if (h==='world' && agNavTarget === 'world') {
+    if (D==='world' && agNavTarget === 'world') {
       agNavTarget = null; agNavSetStatus(''); return;
     }
 
     // Rotas diretas de um realm intermediário (sem passar pelo world)
     // eldergrove → frostmere (portal dentro do eldergrove)
-    if (h === 'eldergrove' && agNavTarget === 'frostmere') {
+    if (D === 'eldergrove' && agNavTarget === 'frostmere') {
       const portal = agNavGetPortalTile('frostmere');
       if (portal) {
         if (ce === portal.col && de === portal.row) {
@@ -11821,7 +11821,7 @@ loadMySales();
       }
     }
     // pond → beach (portal dentro do pond)
-    if (h === 'pond' && (agNavTarget === 'beach' || agNavTarget === 'ember')) {
+    if (D === 'pond' && (agNavTarget === 'beach' || agNavTarget === 'ember')) {
       const portal = agNavGetPortalTile('beach');
       if (portal) {
         if (ce === portal.col && de === portal.row) {
@@ -11836,35 +11836,35 @@ loadMySales();
     }
 
     // Se não está no world, precisa sair primeiro pelo portal de retorno
-    if (h!=='world') {
-      const exit = agNavGetExitTile(h);
+    if (D!=='world') {
+      const exit = agNavGetExitTile(D);
       if (!exit) {
-        agNavSetStatus('⚠️ Sem saída conhecida de ' + (AG_REALM_LABELS[h] || h));
+        agNavSetStatus('⚠️ Sem saída conhecida de ' + (AG_REALM_LABELS[D] || D));
         agNavTimer = setTimeout(agNavTick, 2000);
         return;
       }
       // Já está no tile de saída — aguarda transição
       if (ce === exit.col && de === exit.row) {
-        agNavSetStatus('🌀 Saindo de ' + (AG_REALM_LABELS[h] || h) + '…');
+        agNavSetStatus('🌀 Saindo de ' + (AG_REALM_LABELS[D] || D) + '…');
         agNavTimer = setTimeout(agNavTick, 500);
         return;
       }
       // Caminha até o tile de saída
       const distToExit = Math.abs(ce - exit.col) + Math.abs(de - exit.row);
       if (distToExit <= 1) {
-        agNavSetStatus('🌀 Saindo de ' + (AG_REALM_LABELS[h] || h) + '…');
+        agNavSetStatus('🌀 Saindo de ' + (AG_REALM_LABELS[D] || D) + '…');
         agNavTimer = setTimeout(agNavTick, 500);
         return;
       }
       const path = r(ce, de, exit.col, exit.row);
       if (!path || !path.length) {
-        agNavSetStatus('❌ Sem caminho para saída de ' + (AG_REALM_LABELS[h] || h));
+        agNavSetStatus('❌ Sem caminho para saída de ' + (AG_REALM_LABELS[D] || D));
         agNavTimer = setTimeout(agNavTick, 2000);
         return;
       }
       qe = path;
       if (!$e) Ll();
-      agNavSetStatus('🚶 Saindo de ' + (AG_REALM_LABELS[h] || h) + ' → ' + (AG_REALM_LABELS[agNavTarget] || agNavTarget) + '…');
+      agNavSetStatus('🚶 Saindo de ' + (AG_REALM_LABELS[D] || D) + ' → ' + (AG_REALM_LABELS[agNavTarget] || agNavTarget) + '…');
       agNavTimer = setTimeout(agNavTick, 500);
       return;
     }
@@ -11888,7 +11888,7 @@ loadMySales();
     }
 
     // Pond->beach multi-hop: se destino é ember e estamos no pond, ir para beach
-    if (h==='pond' && agNavTarget === 'ember') {
+    if (D==='pond' && agNavTarget === 'ember') {
       _effectiveTarget = 'beach';
       const beachPortal = agNavGetPortalTile('beach');
       if (beachPortal) {
@@ -11923,7 +11923,7 @@ loadMySales();
   }
 
   function agNavTo(realm) {
-    if (h === realm) {
+    if (D === realm) {
       agNavSetStatus('✓ Já estás em ' + (AG_REALM_LABELS[realm] || realm));
       return;
     }
@@ -11943,13 +11943,13 @@ loadMySales();
     const host = document.getElementById('ag-panel-host');
     const el = host?.shadowRoot?.getElementById('ag-realm');
     if (!el) return;
-    const label = AG_REALM_LABELS[h] || h;
-    const iconSrc = AG_REALM_ICONS[h];
+    const label = AG_REALM_LABELS[D] || D;
+    const iconSrc = AG_REALM_ICONS[D];
     const iconHtml = iconSrc ? '<img src="' + iconSrc + '" width="13" height="13" style="vertical-align:middle;margin-right:4px;image-rendering:pixelated" draggable="false">' : '';
     // Indica se o mapa atual suporta a feature ativa
     let indicator = '';
     if (agMode === 'fish') {
-      indicator = AG_FISHING_REALMS.has(h)
+      indicator = AG_FISHING_REALMS.has(D)
         ? ' <span style="color:#3d9">✓ pesca OK</span>'
         : ' <span style="color:#e05">✗ sem pesca</span>';
     } else if (agMode === 'tree' || agIsRockMode()) {
@@ -12109,7 +12109,7 @@ loadMySales();
         // Mobs
         var mobHtml = '';
         // Chickens (eldergrove)
-        if (h==='eldergrove' && typeof lr !== 'undefined') {
+        if (D==='eldergrove' && typeof lr !== 'undefined') {
           try {
             var chickenAlive = 0, chickenTotal = 0;
             for (var ci = 0; ci < 30; ci++) {
@@ -12120,7 +12120,7 @@ loadMySales();
           } catch(_) {}
         }
         // Wild zombies
-        if ((h==='wild' || h==='wild_exp' || h==='wild_ext' || h==='ember') && typeof _agChopState !== 'undefined') {
+        if ((D==='wild' || D==='wild_exp' || D==='wild_ext' || D==='ember') && typeof _agChopState !== 'undefined') {
           try {
             const sys = hr();
             if (sys) {
@@ -12940,8 +12940,8 @@ loadMySales();
     }
 
     async function dgDoTradeFlow() {
-      console.log('[DailyGold] dgDoTradeFlow START | _dgRunning=' + _dgRunning + ' m=' + h);
-      AG_LOG.info('[DailyGold] dgDoTradeFlow START | m=' + h + ' agActive=' + agActive);
+      console.log('[DailyGold] dgDoTradeFlow START | _dgRunning=' + _dgRunning + ' m=' + D);
+      AG_LOG.info('[DailyGold] dgDoTradeFlow START | m=' + D + ' agActive=' + agActive);
       if (_dgRunning) { console.log('[DailyGold] já rodando, skip'); return; }
 
       // Pré-checagem usando a fonte CERTA do Personal Gold: /api/auth/merchant-cap-status
@@ -12977,13 +12977,13 @@ loadMySales();
       try { if (wasActive) agStop(); } catch(e) { console.log('[DailyGold] agStop err:', e.message); }
       console.log('[DailyGold] farm parado, aguardando 300ms...');
       await new Promise(function(r){ setTimeout(r, 300); });
-      console.log('[DailyGold] após await 300ms | _dgCancelled=' + _dgCancelled + ' m=' + h);
+      console.log('[DailyGold] após await 300ms | _dgCancelled=' + _dgCancelled + ' m=' + D);
       if (_dgCancelled) { dgSetResult('🛑 Cancelado', '#f87171'); dgCleanup(wasActive, savedRealm); return; }
 
       // 2. Ir ao world — navegação própria com loop de retry
-      console.log('[DailyGold] passo 2 | m=' + h);
-      if (h!=='world') {
-        dgSetResult('🚶 Voltando ao World (' + h + ')…', '#8a93a8');
+      console.log('[DailyGold] passo 2 | m=' + D);
+      if (D!=='world') {
+        dgSetResult('🚶 Voltando ao World (' + D + ')…', '#8a93a8');
         console.log('[DailyGold] iniciando nav para world...');
 
         // Navegar para tile de saída do realm atual via interval próprio
@@ -12993,7 +12993,7 @@ loadMySales();
         await new Promise(function(resolve) {
           var attempts = 0;
           var _navIv = setInterval(function() {
-            console.log('[DailyGold] navIv | attempts=' + attempts + ' m=' + h + ' ce=' + ce + ' de=' + de + ' U=' + U + ' Y.len=' + qe.length);
+            console.log('[DailyGold] navIv | attempts=' + attempts + ' m=' + D + ' ce=' + ce + ' de=' + de + ' U=' + U + ' Y.len=' + qe.length);
             if (_dgCancelled || attempts > 120) {
               clearInterval(_navIv);
               _navResolved = true;
@@ -13003,7 +13003,7 @@ loadMySales();
             attempts++;
 
             // Chegou ao world
-            if (h==='world') {
+            if (D==='world') {
               clearInterval(_navIv);
               _navResult = true;
               resolve();
@@ -13012,8 +13012,8 @@ loadMySales();
 
             // Obter tile de saída do realm atual
             try {
-              var exit = agNavGetExitTile(h);
-              console.log('[DailyGold] exit=' + JSON.stringify(exit) + ' m=' + h + ' PS.size=' + (typeof PS !== 'undefined' ? PS.size : 'undef'));
+              var exit = agNavGetExitTile(D);
+              console.log('[DailyGold] exit=' + JSON.stringify(exit) + ' m=' + D + ' PS.size=' + (typeof PS !== 'undefined' ? PS.size : 'undef'));
               if (!exit) { return; }
 
               var distExit = Math.abs(ce - exit.col) + Math.abs(de - exit.row);
@@ -13036,7 +13036,7 @@ loadMySales();
         });
 
         if (_dgCancelled) { dgSetResult('🛑 Cancelado', '#f87171'); dgCleanup(wasActive, savedRealm); return; }
-        if (!_navResult && h!=='world') { dgSetResult('✗ Não cheguei ao World (realm: ' + h + ')', '#f87171'); dgCleanup(wasActive, savedRealm); return; }
+        if (!_navResult && D!=='world') { dgSetResult('✗ Não cheguei ao World (realm: ' + D + ')', '#f87171'); dgCleanup(wasActive, savedRealm); return; }
       }
 
       // 3. Aguardar o world carregar e caminhar até o merchant
@@ -14525,7 +14525,7 @@ loadMySales();
         // Mobs
         var mobHtml = '';
         // Chickens (eldergrove)
-        if (h==='eldergrove' && typeof lr !== 'undefined') {
+        if (D==='eldergrove' && typeof lr !== 'undefined') {
           try {
             var chickenAlive = 0, chickenTotal = 0;
             for (var ci = 0; ci < 30; ci++) {
@@ -14536,7 +14536,7 @@ loadMySales();
           } catch(_) {}
         }
         // Wild zombies
-        if ((h==='wild' || h==='wild_exp' || h==='wild_ext' || h==='ember') && typeof _agChopState !== 'undefined') {
+        if ((D==='wild' || D==='wild_exp' || D==='wild_ext' || D==='ember') && typeof _agChopState !== 'undefined') {
           try {
             const sys = hr();
             if (sys) {
@@ -15734,7 +15734,7 @@ loadMySales();
       var brtReset = new Date(ms - 3 * 3600000);
       var brtHH = String(brtReset.getUTCHours()).padStart(2,'0');
       var brtMM = String(brtReset.getUTCMinutes()).padStart(2,'0');
-      var countdown = m + 'm ' + h + 'm ' + s + 's';
+      var countdown = m + 'm ' + D + 'm ' + s + 's';
       return countdown + ' (às ' + brtHH + ':' + brtMM + ' BRT)';
     }
 
@@ -16173,7 +16173,7 @@ loadMySales();
 
         if (step === 15) {
           // Acertar o dummy — precisa estar no world e ter espada
-          if (h !== 'world') { canAdvance = false; }
+          if (D !== 'world') { canAdvance = false; }
           // Tentar acertar o dummy via vm()
           if (canAdvance) {
             try { vm('dummy', null, -1, null); } catch(_) {}
@@ -18109,17 +18109,17 @@ loadMySales();
         if (wasActive) agStop();
 
         // 2. Se não estiver no world, voltar ao world primeiro
-        if (h!=='world') {
+        if (D!=='world') {
           if (resEl) resEl.textContent = '🚶 Voltando ao World…';
           agNavTo('world');
           // Aguardar chegada ao world (max 30s)
           var _navWait = 0;
-          while (h!=='world' && _navWait < 60 && !_agCancelDonate) {
+          while (D!=='world' && _navWait < 60 && !_agCancelDonate) {
             await new Promise(function(r){ setTimeout(r, 500); });
             _navWait++;
           }
           agNavCancel();
-          if (h!=='world') {
+          if (D!=='world') {
             if (resEl) { resEl.textContent = '✗ Não consegui chegar ao World'; resEl.style.color = '#f87171'; }
             _donateCleanup(btn, resEl, wasActive, savedRealm);
             return;
@@ -18222,7 +18222,7 @@ loadMySales();
               _retryCount++;
               if (m === savedRealm || _retryCount > 60) {
                 clearInterval(_retryTimer);
-                if (!agActive) { agStart(); AG_LOG.info('[Donate] Farm retomado em ' + h); }
+                if (!agActive) { agStart(); AG_LOG.info('[Donate] Farm retomado em ' + D); }
               }
             }, 500);
           }
@@ -18857,7 +18857,7 @@ loadMySales();
   var _agDiagCheckpoints = {};
 
   function agDiagTick() {
-    if (!_agDiagActive || h!=='wild_ext_cave') return;
+    if (!_agDiagActive || D!=='wild_ext_cave') return;
     if (agBossActive || agHuntActive || agActive) return;
 
     var hpNow  = typeof Jt !== 'undefined' ? Jt : 100;
