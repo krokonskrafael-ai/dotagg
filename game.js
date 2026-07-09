@@ -6623,7 +6623,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.76';
+  const AG_VERSION          = 'v1.77';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -9158,8 +9158,8 @@ loadMySales();
     const maxIdx = (kind === 'wild')
       ? (function(){ try { return ZCe || 24; } catch(_){ return 24; } })()
       : AG_HUNT_MUX_IDX;
-    const offX = rn;  // wildOffX — offset correto para mobs de hunt
-    const offZ = sn;  // wildOffZ
+    const offX = Qn();  // wildOffX — offset correto para mobs de hunt
+    const offZ = Jn();  // wildOffZ
     let best = null, bestDist = Infinity;
     let aliveCount = 0, nullCount = 0;
     for (let i = 0; i < maxIdx; i++) {
@@ -9231,6 +9231,28 @@ loadMySales();
   }
   const AG_POTION_STRENGTH_GRACE_MS = 5000;  // 5s de grace após usar strength (cobre delay do servidor)
 
+  // Consome uma poção por tipo: acha na hotbar (movendo do inventário se preciso),
+  // equipa temporariamente, chama PSe() (consumeEquippedConsumableNow) e restaura o slot.
+  function agUsePotionByType(type) {
+    let hi = vt.findIndex(s => s && s.type === type && s.count > 0);
+    if (hi < 0) {
+      const ii = qt.findIndex(s => s && s.type === type && s.count > 0);
+      if (ii < 0) throw new Error('sem ' + type);
+      hi = vt.findIndex(s => !s || s.count <= 0);
+      if (hi < 0) hi = vt.length - 1;
+      const tmp = vt[hi] || null;
+      vt[hi] = qt[ii];
+      qt[ii] = tmp;
+      try { yn(); } catch(_) {}
+    }
+    const prev = Hn;
+    W5(hi);
+    const ok = PSe();
+    if (prev !== hi) { try { W5(prev); } catch(_) {} }
+    if (!ok) throw new Error('consumo bloqueado (' + type + ')');
+    return true;
+  }
+
   function agHuntUsePotion(type) {
     const now = Date.now();
     if (type === 'potion_health') {
@@ -9251,7 +9273,7 @@ loadMySales();
     const inHotbar = vt.some(s => s && s.type === type && s.count > 0);
     if (!inInv && !inHotbar) return false;
     try {
-      N(type);
+      agUsePotionByType(type);
       if (type === 'potion_health')   agPotionHealthAt   = now;
       if (type === 'potion_shield')   agPotionShieldAt   = now;
       if (type === 'potion_strength') agPotionStrengthAt = now;
@@ -9364,7 +9386,7 @@ loadMySales();
     const foot = agHuntGetFoot(kind, agHuntTarget.idx);
     if (!foot) { agHuntSchedule(AG_HUNT_TICK_MS); return; }
 
-    const offX = rn, offZ = sn;
+    const offX = Qn(), offZ = Jn();
     const tc = Math.round(foot.x - offX);
     const tr = Math.round(foot.z - offZ);
     const label = kind === 'chicken' ? '🐔' : kind === 'wolf' ? '🐺' : '🧟';
@@ -9416,8 +9438,8 @@ loadMySales();
           try {
             const foot2 = agHuntGetFoot(kind, agHuntTarget.idx);
             if (foot2) {
-              const mc = Math.round(foot2.x - rn);
-              const mr = Math.round(foot2.z - sn);
+              const mc = Math.round(foot2.x - Qn());
+              const mr = Math.round(foot2.z - Jn());
               const dc = ce - mc;
               const dr = de - mr;
               const len = Math.max(1, Math.abs(dc) + Math.abs(dr));
@@ -9737,7 +9759,7 @@ loadMySales();
       var inInv    = (Jt[type] || 0) > 0;
       var inHotbar = vt.some(function(s){ return s && s.type === type && s.count > 0; });
       if (!inInv && !inHotbar) return false;
-      N(type);
+      agUsePotionByType(type);
       // Registra timestamps compartilhados com Hunt
       if (type === 'potion_health')   agPotionHealthAt   = now;
       if (type === 'potion_shield')   agPotionShieldAt   = now;
@@ -19991,5 +20013,5 @@ loadMySales();
   } // fecha o else do guard de instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v1.76'
+// FIM AUTO-GATHER v1.77'
 
