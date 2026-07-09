@@ -6623,7 +6623,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.74';
+  const AG_VERSION          = 'v1.76';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -7422,8 +7422,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     // tree_coal: retorna machado (hint mostra o que temos)
     const tools = AG_TOOLS[agMode] || (agIsRockMode() ? AG_TOOLS['rock'] : (agMode === 'tree_coal' ? AG_TOOLS['tree'] : []));
     for (const t of tools)
-      for (let i = 0; i < De.length; i++) {
-        const s = De[i];
+      for (let i = 0; i < vt.length; i++) {
+        const s = vt[i];
         if (s && s.type === t && (s.count||0) > 0) return i;
       }
     return -1;
@@ -7436,12 +7436,12 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
                  : agIsRockMode()    ? AG_TOOLS['rock']
                  : AG_TOOLS['fish']  || ['tool_fishing_rod'];
     if (!needed) return false;
-    const current = Yn();
+    const current = wr();
     if (needed.includes(current)) return true;
     // Procurar ferramenta na hotbar e equipar
     for (const t of needed) {
-      for (let i = 0; i < De.length; i++) {
-        const s = De[i];  // Fe = hotbarSlots, não Oe
+      for (let i = 0; i < vt.length; i++) {
+        const s = vt[i];  // Fe = hotbarSlots, não Oe
         if (s && s.type === t && (s.count||0) > 0) {
           AG_LOG.info('agEnsureTool: trocando slot ' + i + ' (' + t + ') | era: ' + current);
           (function(){ try { an=i; kt(); } catch(_){} })();
@@ -7462,7 +7462,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       agHintEl.textContent = '⚠ ' + toolName + ' nao esta na hotbar';
       agHintEl.style.color = '#e05';
     } else {
-      const s = De[slot];
+      const s = vt[slot];
       var toolSrc = s && s.type ? {
         'tool_axe':'/assets/hud/tools/axe.png', 'tool_axe_l2':'/assets/hud/tools/axelvl2.png',
         'tool_pickaxe':'/assets/hud/tools/pickaxe.png', 'tool_pickaxe_l2':'/assets/hud/tools/pickaxelvl2.png',
@@ -7507,8 +7507,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         if (!s || !s.type) return false;
         if (s.type === t && (s.count||0) < max) return false;
       }
-      for (let i = 0; i < De.length; i++) {
-        const s = De[i];
+      for (let i = 0; i < vt.length; i++) {
+        const s = vt[i];
         if (!s || !s.type) return false;
         if (s.type === t && (s.count||0) < max) return false;
       }
@@ -7886,7 +7886,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         const isTreeRes = res && res.resType === 'tree';
         const neededTypes = isTreeRes ? AG_TOOLS['tree'] : AG_TOOLS['rock'];
         // 'all': machado para tree, picareta para rock
-        const currentTool = Yn();
+        const currentTool = wr();
         AG_LOG.debug('tree_coal approach: resType=' + res.resType +
           ' | isTree=' + isTreeRes +
           ' | currentTool=' + currentTool +
@@ -7894,8 +7894,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         if (!neededTypes.includes(currentTool)) {
           let ok = false;
           for (const t of neededTypes) {
-            for (let i = 0; i < De.length; i++) {
-              const s = De[i];
+            for (let i = 0; i < vt.length; i++) {
+              const s = vt[i];
               if (s && s.type === t && (s.count||0) > 0) {
                 AG_LOG.info('tree_coal: trocando para', t, 'slot', i+1);
                 (function(){ try { an=i; kt(); } catch(_){} })(); ok = true; break;
@@ -8131,7 +8131,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
     if (agIsBusy())          { agSetStatus('⏸ Aguardando…');             agSchedule(AG_TICK_MS);  return; }
     if (agInventoryFull())   { agSetStatus('🎣 Inventário cheio — pausado'); agSchedule(2000);     return; }
-    const eq = Yn();
+    const eq = wr();
     if (eq !== 'tool_fishing_rod') {
       const slot = agFindToolSlot();
       if (slot === -1) { agSetStatus('⚠️ Fishing Rod não está na hotbar'); agSchedule(2000); return; }
@@ -8267,7 +8267,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       AG_LOG.debug('Aguardando entrar no GAME... | hud=' + agHudVisible() +
         ' | server=' + agServerScreenVisible() +
         ' | Nt=' + Nt +
-        ' | JY=' + JY() +
+        ' | JY=' + R$() +
         ' | mode=' + agMode +
         ' | m=' + D +
         ' | fishOk=' + AG_FISHING_REALMS.has(D));
@@ -8321,7 +8321,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         agSchedule(1500); return;
       }
 
-      if (!JY()) { agSetStatus('⏸ Realm não suporta coleta'); agSchedule(AG_RETRY_MS); return; }
+      if (!R$()) { agSetStatus('⏸ Realm não suporta coleta'); agSchedule(AG_RETRY_MS); return; }
       if (agFarmRealm && D!==agFarmRealm) { agSetStatus('⏸ Aguardando mapa ' + (AG_REALM_LABELS[agFarmRealm]||agFarmRealm) + '…'); agSchedule(1500); return; }
       if (agIsBusy())        { agSetStatus('⏸ Aguardando…');               agSchedule(AG_TICK_MS); return; }
       if (agInventoryFull()) { agSetStatus('🎒 Inventário cheio — pausado'); agSchedule(2000);      return; }
@@ -8330,8 +8330,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         if (!agEnsureTool()) { agSetStatus('⚠️ Sem ' + (agMode==='tree'?'machado':'picareta') + ' na hotbar'); agSchedule(2000); return; }
       } else {
         // Para modos multi: verifica se tem pelo menos machado OU picareta disponível
-        const _haAxe  = AG_TOOLS['tree'].some(function(t){ for(var i=0;i<De.length;i++){ var s=De[i]; if(s&&s.type===t&&(s.count||0)>0) return true; } return false; });
-        const _haPick = AG_TOOLS['rock'].some(function(t){ for(var i=0;i<De.length;i++){ var s=De[i]; if(s&&s.type===t&&(s.count||0)>0) return true; } return false; });
+        const _haAxe  = AG_TOOLS['tree'].some(function(t){ for(var i=0;i<vt.length;i++){ var s=vt[i]; if(s&&s.type===t&&(s.count||0)>0) return true; } return false; });
+        const _haPick = AG_TOOLS['rock'].some(function(t){ for(var i=0;i<vt.length;i++){ var s=vt[i]; if(s&&s.type===t&&(s.count||0)>0) return true; } return false; });
         if (!_haAxe && !_haPick) { agSetStatus('⚠️ Sem machado nem picareta na hotbar'); agSchedule(2000); return; }
       }
 
@@ -9139,10 +9139,10 @@ loadMySales();
 
   // Ferramenta de caça
   function agEnsureSword() {
-    const eq = Yn();
+    const eq = wr();
     if (eq === 'wild_sword' || eq === 'wild_sword_l2') return true;
-    for (let i = 0; i < De.length; i++) {
-      const s = De[i];
+    for (let i = 0; i < vt.length; i++) {
+      const s = vt[i];
       if (s && (s.type === 'wild_sword' || s.type === 'wild_sword_l2') && (s.count||0) > 0) {
         (function(){ try { an=i; kt(); } catch(_){} })(); return true;
       }
@@ -9248,7 +9248,7 @@ loadMySales();
     }
     // Verifica se tem pocao
     const inInv  = (Jt[type] || 0) > 0;
-    const inHotbar = De.some(s => s && s.type === type && s.count > 0);
+    const inHotbar = vt.some(s => s && s.type === type && s.count > 0);
     if (!inInv && !inHotbar) return false;
     try {
       N(type);
@@ -9735,7 +9735,7 @@ loadMySales();
         if (Are()) return false;
       }
       var inInv    = (Jt[type] || 0) > 0;
-      var inHotbar = De.some(function(s){ return s && s.type === type && s.count > 0; });
+      var inHotbar = vt.some(function(s){ return s && s.type === type && s.count > 0; });
       if (!inInv && !inHotbar) return false;
       N(type);
       // Registra timestamps compartilhados com Hunt
@@ -9759,11 +9759,11 @@ loadMySales();
   /** Equipa a espada na hotbar se não estiver equipada */
   function agBossEnsureSword() {
     try {
-      var eq = Yn();
+      var eq = wr();
       if (eq === 'wild_sword' || eq === 'wild_sword_l2') return true;
       // Procura espada na hotbar
-      for (var i = 0; i < De.length; i++) {
-        var s = De[i];
+      for (var i = 0; i < vt.length; i++) {
+        var s = vt[i];
         if (s && (s.type === 'wild_sword' || s.type === 'wild_sword_l2')) {
           equipHotbarSlot(i);
           AG_BOSS_LOG.info('Boss: equipou espada no slot ' + i + ' (' + s.type + ')');
@@ -10232,7 +10232,7 @@ loadMySales();
         var canSwingNow = typeof swordMeleeEligible === 'function' && Zu();
 
         AG_BOSS_LOG.debug('Boss fight | canMelee=true | swordElig=' + canSwingNow +
-          ' | eq=' + (typeof getEquippedItemType === 'function' ? Yn() : '?') +
+          ' | eq=' + (typeof getEquippedItemType === 'function' ? wr() : '?') +
           ' | cd=' + (typeof Yk !== 'undefined' && typeof clock !== 'undefined'
             ? (Yk - j.elapsedTime).toFixed(2) + 's' : '?'));
 
@@ -11091,7 +11091,7 @@ loadMySales();
     if (agMode === 'fish') {
       if (!AG_FISHING_REALMS.has(D)) return false;
     } else {
-      if (!JY()) return false;
+      if (!R$()) return false;
     }
     if (D === 'shack') return false;
     return true;
@@ -11106,7 +11106,7 @@ loadMySales();
     if (agMode === 'fish') {
       if (!AG_FISHING_REALMS.has(D) && D !== 'shack') return false;
     } else {
-      if (!JY() && D !== 'shack') return false;
+      if (!R$() && D !== 'shack') return false;
     }
     return true;
   }
@@ -11120,7 +11120,7 @@ loadMySales();
       ' | queueBtns=' + queueBtns.length +
       ' | (Nt != null)=' + (Nt != null) +
       ' | m=' + D +
-      ' | gatherAllowed=' + JY()
+      ' | gatherAllowed=' + R$()
     );
   }
 
@@ -11953,7 +11953,7 @@ loadMySales();
         ? ' <span style="color:#3d9">✓ pesca OK</span>'
         : ' <span style="color:#e05">✗ sem pesca</span>';
     } else if (agMode === 'tree' || agIsRockMode()) {
-      const ok = (function(){try{return JY();}catch(_){return false;}})();
+      const ok = (function(){try{return R$();}catch(_){return false;}})();
       indicator = ok
         ? ' <span style="color:#3d9">✓ coleta OK</span>'
         : ' <span style="color:#e05">✗ sem coleta</span>';
@@ -19970,7 +19970,7 @@ loadMySales();
     console.group('[AG Debug]');
     try { console.log('agActive:', agActive, '| mode:', agMode, '| realm:', m); } catch(_) {}
     try { console.log('agIsInGame2:', agIsInGame2()); } catch(_) {}
-    try { console.log('V$ (gatherAllowed):', JY()); } catch(_) {}
+    try { console.log('V$ (gatherAllowed):', R$()); } catch(_) {}
     try { console.log('Nt (playerId):', Nt, '| connected:', Nt != null); } catch(_) {}
     try { console.log('agHudVisible:', agHudVisible(), '| serverScreen:', agServerScreenVisible()); } catch(_) {}
     try { const ctx = R3(); console.log('ctx:', ctx ? 'ok' : 'NULL', '| treeMap:', ctx && ctx.treeMap ? ctx.treeMap.size : 0, '| rockMap:', ctx && ctx.rockMap ? ctx.rockMap.size : 0); } catch(e) { console.log('ctx erro:', e.message); }
@@ -19991,5 +19991,5 @@ loadMySales();
   } // fecha o else do guard de instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v1.74'
+// FIM AUTO-GATHER v1.76'
 
