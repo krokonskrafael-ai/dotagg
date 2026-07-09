@@ -1,0 +1,8 @@
+{
+  "files": [
+    {
+      "intercept": "game.d08fa21f99143470.js",
+      "serve": "game.js"
+    }
+  ]
+}
