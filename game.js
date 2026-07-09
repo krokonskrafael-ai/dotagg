@@ -8266,7 +8266,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     if(!agIsInGame2()){
       AG_LOG.debug('Aguardando entrar no GAME... | hud=' + agHudVisible() +
         ' | server=' + agServerScreenVisible() +
-        ' | Re=' + Re +
+        ' | Nt=' + Nt +
         ' | JY=' + JY() +
         ' | mode=' + agMode +
         ' | m=' + h +
@@ -10317,7 +10317,7 @@ loadMySales();
 
   // ── Auto-restore após restart ──────────────────────────────────────────────
   // Salva estado ativo no localStorage e restaura automaticamente
-  // quando (Re != null) fica true (player passou pela fila e entrou)
+  // quando (Nt != null) fica true (player passou pela fila e entrou)
 
   const AG_STORAGE_KEY = 'kintara_ag_state';
 
@@ -10348,7 +10348,7 @@ loadMySales();
     try { localStorage.removeItem(AG_STORAGE_KEY); } catch (_) {}
   }
 
-  // Monitora (Re != null) para detectar quando o jogo carrega após restart
+  // Monitora (Nt != null) para detectar quando o jogo carrega após restart
   let agRestoreCheckTimer = null;
   let agRestoreTriggered  = false;
 
@@ -10703,7 +10703,7 @@ loadMySales();
     window.agOptDebugLog = function() {
       var btn = document.querySelector ? null : null;
       try {
-        // Re-executa a lógica do botão diretamente
+        // Nt-executa a lógica do botão diretamente
         var ev = new MouseEvent('click', { bubbles: true });
         var el = (typeof shadow !== 'undefined' && shadow) ? shadow.getElementById('om-debug-btn') : null;
         if (el) el.dispatchEvent(ev);
@@ -10923,7 +10923,7 @@ loadMySales();
   function agStartRestoreMonitor() {
     if (agRestoreTriggered) return;
     agRestoreCheckTimer = setInterval(() => {
-      if (!(Re != null)) return;
+      if (!(Nt != null)) return;
       clearInterval(agRestoreCheckTimer);
       agRestoreCheckTimer = null;
       agRestoreTriggered = true;
@@ -11086,7 +11086,7 @@ loadMySales();
   function agIsInGame() {
     if (!agHudVisible()) return false;
     if (agServerScreenVisible()) return false;
-    if (!(Re != null)) return false;
+    if (!(Nt != null)) return false;
     if (agGameStateBlocksFarm()) return false;
     if (agMode === 'fish') {
       if (!AG_FISHING_REALMS.has(h)) return false;
@@ -11100,7 +11100,7 @@ loadMySales();
   function agIsInGame2() {
     if (!agHudVisible()) return false;
     if (agServerScreenVisible()) return false;
-    if (!(Re != null)) return false;
+    if (!(Nt != null)) return false;
     if (agGameStateBlocksFarm()) return false;
     // Em modo pesca, verificar se o realm suporta pesca em vez de JY()
     if (agMode === 'fish') {
@@ -11118,7 +11118,7 @@ loadMySales();
     AG_LOG.info(label + ' | inGame=' + agIsInGame() +
       ' | serverScreen=' + serverScreen +
       ' | queueBtns=' + queueBtns.length +
-      ' | (Re != null)=' + (Re != null) +
+      ' | (Nt != null)=' + (Nt != null) +
       ' | m=' + h +
       ' | gatherAllowed=' + JY()
     );
@@ -14025,14 +14025,14 @@ loadMySales();
     function agUpdateCamBtn() {
       var btn = $('ag-camera-btn');
       if (!btn) return;
-      var on = !!ye.centerCamera;
+      var on = !!it.centerCamera;
       btn.style.background = on ? 'rgba(110,231,160,0.15)' : 'rgba(255,255,255,0.08)';
       btn.style.borderColor = on ? 'rgba(110,231,160,0.5)' : 'rgba(255,255,255,0.18)';
       btn.style.color       = on ? '#6ee7a0' : '#8a93a8';
     }
     $('ag-camera-btn').addEventListener('click', function(e) {
       e.stopPropagation();
-      ye.centerCamera = !ye.centerCamera;
+      it.centerCamera = !it.centerCamera;
       _();
       agUpdateCamBtn();
     });
@@ -14139,7 +14139,7 @@ loadMySales();
           }).catch(function() {});
       }
 
-      // Re-popula quando tela de seleção aparecer (MutationObserver)
+      // Nt-popula quando tela de seleção aparecer (MutationObserver)
       var _selObserver = new MutationObserver(function() {
         if (document.querySelector('.kintara-server-select-list')) {
           setTimeout(agPopulateFromCards, 200);
@@ -16466,8 +16466,8 @@ loadMySales();
         const sc = JSON.parse(localStorage.getItem('kintara_ag_startup') || '{}');
         if (!sc.centercam) return;
         if (!agIsInGame()) return;
-        if (!ye.centerCamera) {
-          ye.centerCamera = true;
+        if (!it.centerCamera) {
+          it.centerCamera = true;
           _();
           AG_LOG.debug('Center Cam: reativado');
         }
@@ -16531,12 +16531,16 @@ loadMySales();
         // Se joinClub desabilitado, pular servidores de club/members
         if (!_joinClub && txt.indexOf('members only') !== -1) return false;
         if (!_joinClub && txt.indexOf('tap to subscribe') !== -1) return false;
+        if (!_joinClub && txt.indexOf('kintara club') !== -1) return false;
         var hint = b.querySelector('.kintara-server-card__hint');
         if (hint) {
           var ht = hint.textContent.toLowerCase();
           if (ht.indexOf('requires level') !== -1) return false;
           if (!_joinClub && ht.indexOf('members only') !== -1) return false;
+          if (!_joinClub && ht.indexOf('kintara club') !== -1) return false;
         }
+        var dataName = (b.getAttribute && (b.getAttribute('data-server-name') || b.getAttribute('data-name'))) || '';
+        if (dataName && !_joinClub && dataName.toLowerCase().indexOf('kintara club') !== -1) return false;
         return true;
       });
       if (!buttons.length) { console.warn('[AutoGather] Nenhum servidor acessível'); return false; }
@@ -19967,7 +19971,7 @@ loadMySales();
     try { console.log('agActive:', agActive, '| mode:', agMode, '| realm:', m); } catch(_) {}
     try { console.log('agIsInGame2:', agIsInGame2()); } catch(_) {}
     try { console.log('V$ (gatherAllowed):', JY()); } catch(_) {}
-    try { console.log('Re (playerId):', Re, '| connected:', Re != null); } catch(_) {}
+    try { console.log('Nt (playerId):', Nt, '| connected:', Nt != null); } catch(_) {}
     try { console.log('agHudVisible:', agHudVisible(), '| serverScreen:', agServerScreenVisible()); } catch(_) {}
     try { const ctx = R3(); console.log('ctx:', ctx ? 'ok' : 'NULL', '| treeMap:', ctx && ctx.treeMap ? ctx.treeMap.size : 0, '| rockMap:', ctx && ctx.rockMap ? ctx.rockMap.size : 0); } catch(e) { console.log('ctx erro:', e.message); }
     try {
