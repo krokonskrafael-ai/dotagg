@@ -6623,7 +6623,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.81';
+  const AG_VERSION          = 'v1.83';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -8127,7 +8127,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
           // Depositar o máximo e ativar cooking
           var _fishCount = (function(){ try { return Math.min(N(), H()); } catch(_){ return 0; } })();
           if (_fishCount < 1) return false;
-          try { nd = 'fish'; B(_fishCount); vs = !0; SA = j.elapsedTime + 10; Tu = !0; } catch(_) {}
+          try { nd = 'fish'; B(_fishCount); vs = !0; SA = Ye.elapsedTime + 10; Tu = !0; } catch(_) {}
           agSetStatus('🔥 Cozinhando ' + _fishCount + ' peixe(s)…');
           return true;
         }
@@ -8187,7 +8187,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
     agLastFishPhase = phase;
     if (phase === 'wait') {
-      var _remaining = Math.max(0, JB - j.elapsedTime);
+      var _remaining = Math.max(0, JB - Ye.elapsedTime);
       agSetStatus('🎣 Aguardando mordida… (' + Math.max(0,Math.round(_remaining)) + 's)');
       // Agendar para 500ms antes da mordida esperada, ou AG_TICK_MS
       var _nextCheck = _remaining > 1 ? Math.min((_remaining - 0.3) * 1000, 5000) : AG_TICK_MS;
@@ -8200,7 +8200,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       if (U || qe.length) { agSetStatus('⏸ Aguardando parar…'); agSchedule(300); return; }
       P8e(fishTile.col, fishTile.row);
       // Sobrescrever o timer de mordida para 20-23s (bundle usa 20-30s)
-      try { JB = j.elapsedTime + (20 + Math.random() * 3); } catch(_) {}
+      try { JB = Ye.elapsedTime + (20 + Math.random() * 3); } catch(_) {}
       agLastFishPhase = 'wait';
       agSetStatus(`🎣 Linha lançada! [${fishTile.col},${fishTile.row}]`); agSchedule(AG_TICK_MS); return;
     }
@@ -9336,15 +9336,15 @@ loadMySales();
     agHuntTarget = null; agHuntCombatAt = null;
     qe = Nl(ce, de, fleeCol, fleeRow);
     if (qe && qe.length && !$e) Hl();
-    agHuntSetStatus('🏃 Fugindo para area PVE! HP=' + Math.ceil(Jt/20) + ' Shield=' + An);
+    agHuntSetStatus('🏃 Fugindo para area PVE! HP=' + (function(){try{return Math.ceil((wo|0)/20);}catch(_){return '?';}})() + ' Shield=' + (function(){try{return Bo|0;}catch(_){return '?';}})());
   }
 
   function agHuntTick() {
     if (!agHuntActive) return;
 
     // ── Verificacao de vida/escudo (sempre, mesmo fora de combate) ──────────
-    const hpSegs    = Math.ceil(Jt / 20);  // 0-5
-    const shieldSegs = agReadShieldFromDom(); // lê do DOM (mais confiável que An)
+    const hpSegs    = (function(){ try { return Math.ceil((wo|0) / 20); } catch(_) { return 5; } })();  // 0-5 from actual playerHp
+    const shieldSegs = (function(){ try { return Bo|0; } catch(_) { return agReadShieldFromDom(); } })(); // Bo = playerWildShieldCharges
 
     // Potions — thresholds configuráveis
     var _huntHpThr     = agHuntHpThresh();
@@ -9467,12 +9467,12 @@ loadMySales();
       // Mp() = wildStrikeEligible: tem espada e não está stunado
       // Im = timestamp do próximo swing disponível (setado em vm())
       const canSwing   = (function(){ try { return Mp(); } catch(_){ return false; } })();
-      const swingReady = (function(){ try { return j.elapsedTime >= Im; } catch(_){ return true; } })();
+      const swingReady = (function(){ try { return Ye.elapsedTime >= Cf; } catch(_){ return true; } })();
       const didStrike  = canSwing && swingReady;
 
       AG_LOG.debug('Hunt adj | char=' + ce + ',' + de + ' | mob=' + tc + ',' + tr +
         ' | canSwing=' + canSwing + ' swingReady=' + swingReady +
-        ' | cd=' + (function(){ try { return (Im - j.elapsedTime).toFixed(2); } catch(_){ return '?'; } })() + 's' +
+        ' | cd=' + (function(){ try { return (Cf - Ye.elapsedTime).toFixed(2); } catch(_){ return '?'; } })() + 's' +
         ' | kite=' + _kiteActive + ' recuando=' + _kiteRecuando);
 
       if (didStrike) {
@@ -9502,7 +9502,7 @@ loadMySales();
               if (kPath && kPath.length) {
                 qe = kPath;
                 if (!$e) Hl();
-                const swingCooldownMs = (function(){ try { return Math.max(0, (Im - j.elapsedTime) * 1000 + 50); } catch(_){ return 900; } })();
+                const swingCooldownMs = (function(){ try { return Math.max(0, (Cf - Ye.elapsedTime) * 1000 + 50); } catch(_){ return 900; } })();
                 agKiteUntil = Date.now() + swingCooldownMs;
                 AG_LOG.info('Kite: recuando | dist=' + (kPath.length) + ' tiles | janela=' + Math.round(swingCooldownMs) + 'ms');
               } else {
@@ -10305,7 +10305,7 @@ loadMySales();
         AG_BOSS_LOG.debug('Boss fight | canMelee=true | swordElig=' + canSwingNow +
           ' | eq=' + (typeof getEquippedItemType === 'function' ? wr() : '?') +
           ' | cd=' + (typeof Yk !== 'undefined' && typeof clock !== 'undefined'
-            ? (Yk - j.elapsedTime).toFixed(2) + 's' : '?'));
+            ? (Yk - Ye.elapsedTime).toFixed(2) + 's' : '?'));
 
         if (canSwingNow) {
           try {
@@ -12550,7 +12550,7 @@ loadMySales();
         'ag-backpack-host':    agOpenBackpackHud,
         'ag-mapinfo-host':     agOpenMapInfoHud,
         'ag-stats-host':       agOpenStatsHud,
-        'ag-daily-gold-host':  agOpenDailyGoldHud,
+        'ag-daily-gold-host':  agOpenLotteryHud,
         'ag-calc-host':     agOpenCalcHud,
         'ag-spin-host':     agOpenSpinHud,
         'ag-merch-host':    agOpenMerchHud,
@@ -12764,17 +12764,10 @@ loadMySales();
   }
 
   // ── Backpack mini HUD ──────────────────────────────────────────────────────
-  function agOpenDailyGoldHud() {
+  function agOpenLotteryHud() {
     if (document.getElementById('ag-daily-gold-host')) {
       document.getElementById('ag-daily-gold-host').remove(); try { agRefreshHudBtns(); } catch(_) {} return;
     }
-
-    var DAILY_COST = [
-      { type:'wood',             label:'Wood',        amount:2500 },
-      { type:'stone',            label:'Stone',       amount:1500 },
-      { type:'coal',             label:'Coal',        amount:700  },
-      { type:'cooked_fish_meat', label:'Cooked Fish', amount:30   },
-    ];
 
     var host = document.createElement('div');
     host.id = 'ag-daily-gold-host';
@@ -12802,21 +12795,22 @@ loadMySales();
       '.divider{border:none;border-top:1px solid rgba(255,255,255,0.07);margin:6px 0}' +
       '.btn{width:100%;padding:5px 0;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;margin-top:4px;transition:background .15s}' +
       '.btn-ok{background:rgba(110,231,160,0.18);color:#6ee7a0;border:1px solid rgba(110,231,160,0.3)}' +
-      '.btn-off{background:rgba(100,116,139,0.1);color:#64748b;border:1px solid rgba(100,116,139,0.15)}' + '.btn-cancel{background:rgba(248,113,113,0.15);color:#f87171;border:1px solid rgba(248,113,113,0.3)}' +
+      '.btn-off{background:rgba(100,116,139,0.1);color:#64748b;border:1px solid rgba(100,116,139,0.15)}' +
+      '.btn-cancel{background:rgba(248,113,113,0.15);color:#f87171;border:1px solid rgba(248,113,113,0.3)}' +
       '.result{font-size:10px;color:#8a93a8;text-align:center;min-height:12px;margin-top:4px}';
 
     var panel = document.createElement('div');
     panel.className = 'panel';
     panel.innerHTML =
       '<div class="hdr" id="dg-hdr">' +
-        '<span class="title">&#127775; Daily Personal Gold</span>' +
+        '<span class="title">&#127922; LOTTERY</span>' +
         '<button class="close" id="dg-close">&#10005;</button>' +
       '</div>' +
-      // ── Linha 2 colunas: Quests | Recursos ──────────────────────────────
+      // Quests | Recursos
       '<div style="display:flex;gap:8px;margin-bottom:6px">' +
         '<div style="flex:1;min-width:0">' +
           '<div style="font-size:8px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:3px">Quests</div>' +
-          '<div id="dg-quests" class="row" style="font-size:10px">🔄…</div>' +
+          '<div id="dg-quests" class="row" style="font-size:10px">&#128260;…</div>' +
         '</div>' +
         '<div style="width:1px;background:rgba(255,255,255,0.07);flex-shrink:0"></div>' +
         '<div style="flex:1;min-width:0">' +
@@ -12826,18 +12820,23 @@ loadMySales();
       '</div>' +
       '<hr class="divider">' +
       '<div id="dg-cap" class="row" style="font-size:10px"></div>' +
+      '<div id="dg-info" class="row" style="margin-top:4px"></div>' +
       '<div id="dg-worth" class="row" style="margin-top:4px"></div>' +
-      '<button id="dg-btn" class="btn btn-off" style="margin-top:6px" disabled>🔄 Verificar</button>' +
+      '<button id="dg-btn" class="btn btn-off" style="margin-top:6px" disabled>&#128260; Verificar</button>' +
       '<div id="dg-result" class="result"></div>';
 
     shadow.appendChild(styleEl);
     shadow.appendChild(panel);
     var $d = function(id) { return shadow.getElementById(id); };
 
+    // Cache do status da lottery
+    var _lotteryData = null;
+
     async function dgRender() {
       var questsEl  = $d('dg-quests');
       var resEl     = $d('dg-resources');
       var capEl     = $d('dg-cap');
+      var infoEl    = $d('dg-info');
       var worthEl   = $d('dg-worth');
       var btn       = $d('dg-btn');
       if (!questsEl) return;
@@ -12845,17 +12844,24 @@ loadMySales();
       questsEl.textContent = '🔄 Verificando…';
 
       try {
-        // Cap status
-        var rCap = await fetch('/api/auth/merchant-cap-status', {credentials:'include'});
-        var dCap = await rCap.json().catch(function(){ return {}; });
+        // Lottery status
+        var rLot = await fetch('/api/auth/merchant-lottery-status', {credentials:'include'});
+        var dLot = await rLot.json().catch(function(){ return {}; });
+        _lotteryData = dLot;
 
-        // Usar cache do poller centralizado (síncrono, sem requests)
+        // Custos do ticket (do servidor, com fallback)
+        var TICKET_COST = (dLot.cost && dLot.cost.length > 0) ? dLot.cost : [
+          {type:'wood', amount:2600}, {type:'stone', amount:1400},
+          {type:'coal', amount:800}, {type:'cooked_fish_meat', amount:40}
+        ];
+        var COST_LABELS = {wood:'Wood', stone:'Stone', coal:'Coal', cooked_fish_meat:'Cooked Fish', metal:'Metal', gold:'Gold'};
+
+        // Usar cache do poller centralizado
         var floors = {};
         try {
           ['wood','stone','coal','cooked_fish_meat','gold'].forEach(function(t) {
             var c = agGetCachedPrice(t);
             floors[t] = c ? c.price : null;
-            // Se faltando, força uma busca em background (próxima abertura já vem preenchido)
             if (!c) { try { agPollOneItem(t); } catch(_e) {} }
           });
         } catch(_) {}
@@ -12883,14 +12889,12 @@ loadMySales();
         var allDone = questDone >= questTotal;
 
         // ── Quests ──────────────────────────────────────────────────────────
-        // Formato compacto — cada quest em linha própria, sem header separado
         var qHtml = '';
         if (questDetails.length > 0) {
           questDetails.forEach(function(U) {
-            var pg = (U.goal && !$e.claimed) ? ' <span style="color:#64748b;font-size:8px">'+U.prog+'/'+U.goal+'</span>' : '';
+            var pg = (U.goal && !U.claimed) ? ' <span style="color:#64748b;font-size:8px">'+U.prog+'/'+U.goal+'</span>' : '';
             qHtml += '<div style="color:' + (U.claimed?'#6ee7a0':'#94a3b8') + '">' + (U.claimed?'✅':'⬜') + ' ' + U.label + pg + '</div>';
           });
-          // Total no topo
           qHtml = '<div style="color:' + (allDone?'#6ee7a0':'#f59e0b') + ';font-weight:700;margin-bottom:2px">' +
             (allDone?'✅':'⏳') + ' ' + questDone + '/' + questTotal + '</div>' + qHtml;
         } else {
@@ -12900,73 +12904,105 @@ loadMySales();
 
         // ── Recursos ──────────────────────────────────────────────────────────
         var hasAll = true, resHtml = '';
-        DAILY_COST.forEach(function(item) {
+        TICKET_COST.forEach(function(item) {
           var have = 0;
-          try { have = (typeof Bx === 'function') ? Bx(item.type)|0 : ((typeof Jt !== 'undefined' && Jt[item.type] != null) ? Jt[item.type]|0 : 0); } catch(_) {}
+          try { have = (typeof Kn === 'function') ? Kn(item.type)|0 : ((typeof Jt !== 'undefined' && Jt[item.type] != null) ? Jt[item.type]|0 : 0); } catch(_) {}
           var ok = have >= item.amount;
           if (!ok) hasAll = false;
           resHtml += '<div style="display:flex;justify-content:space-between;font-size:9px;color:' + (ok?'#6ee7a0':'#f87171') + '">' +
-            '<span>' + item.label + '</span>' +
+            '<span>' + (COST_LABELS[item.type]||item.type) + '</span>' +
             '<span>' + have.toLocaleString() + '/' + item.amount.toLocaleString() + '</span>' +
           '</div>';
         });
         resEl.innerHTML = resHtml;
 
-        // ── Cap ───────────────────────────────────────────────────────────────
-        var capUsed = dCap.used || 0, capTotal = dCap.cap || 1, capRem = dCap.remaining || 0;
-        var kinsAmt = dCap.kinsUiAmount != null ? Number(dCap.kinsUiAmount).toFixed(0) : '?';
-        var holdPend = dCap.holdPending === true;
-        capEl.innerHTML =
-          '<span style="color:#fbbf24">💰 ' + kinsAmt + ' KINS</span> · ' +
-          '<span style="color:' + (capRem>0?'#d4d8e2':'#6ee7a0') + '">' +
-          (capRem > 0 ? '⏳ Cap: ' + capRem + ' disponível (' + capUsed + '/' + capTotal + ')' : '✅ Cap: já claimado hoje') +
-          '</span>';
-        if (holdPend) {
-          capEl.innerHTML += '<br><span style="color:#f87171;font-size:9px">⏸ KINS em período de hold (' + (dCap.holdHours||0) + 'm)</span>';
+        // ── Lottery info ──────────────────────────────────────────────────────
+        var phase = dLot.phase || 'unknown';
+        var entryCap = dLot.entryCap || 0;
+        var entriesUsed = dLot.entriesUsed || 0;
+        var entriesRem = dLot.entriesRemaining || 0;
+        var poolGold = dLot.poolGold || 0;
+        var kinsAmt = dLot.kinsUiAmount || 0;
+        var holdPend = dLot.holdPending === true;
+        var drawAtMs = dLot.drawAtMs || 0;
+        var resetAtMs = dLot.resetAtMs || 0;
+
+        var phaseLabel = phase === 'entry_open' ? '🎰 Inscrições abertas'
+                       : phase === 'draw_pending' ? '⏳ Aguardando sorteio'
+                       : phase === 'claim_open' ? '🏆 Claim disponível'
+                       : phase;
+        var phaseColor = phase === 'entry_open' ? '#6ee7a0'
+                       : phase === 'claim_open' ? '#fbbf24'
+                       : '#8a93a8';
+
+        var capHtml = '<div style="color:' + phaseColor + ';font-weight:700;font-size:10px">' + phaseLabel + '</div>';
+        capHtml += '<div style="font-size:9px;color:#d4d8e2;margin-top:2px">🎟️ Tickets: <b>' + entriesUsed + '/' + entryCap + '</b>' +
+          (entriesRem > 0 ? ' <span style="color:#6ee7a0">(' + entriesRem + ' disponível)</span>' : ' <span style="color:#64748b">(esgotado)</span>') + '</div>';
+        capHtml += '<div style="font-size:9px;color:#d4d8e2">🏆 Pool: <b style="color:#fbbf24">' + poolGold + ' gold</b></div>';
+
+        if (drawAtMs > 0) {
+          var drawDate = new Date(drawAtMs);
+          var now = Date.now();
+          if (drawAtMs > now) {
+            var diffMin = Math.round((drawAtMs - now) / 60000);
+            var diffH = Math.floor(diffMin / 60);
+            var diffM = diffMin % 60;
+            capHtml += '<div style="font-size:9px;color:#94a3b8">⏰ Sorteio em: ' + (diffH > 0 ? diffH + 'h ' : '') + diffM + 'min</div>';
+          } else {
+            capHtml += '<div style="font-size:9px;color:#fbbf24">⏰ Sorteio: agora!</div>';
+          }
         }
 
-        // ── Profit/Waste — tudo em TOKEN (USD) ─────────────────────────────────
-        var worthEl2 = $d('dg-worth');
-        if (worthEl2) {
-          var hasCost = true, totalCostUsd = 0, costLines = [];
-          DAILY_COST.forEach(function(item) {
-            var f = floors[item.type];
-            if (f == null) { hasCost = false; costLines.push(item.label + ': floor N/D'); return; }
-            var cost = item.amount * f;
-            totalCostUsd += cost;
-            costLines.push(item.label + ': ' + item.amount.toLocaleString() + ' × $' + f.toFixed(7) + ' = <b>$' + cost.toFixed(4) + '</b>');
-          });
+        if (holdPend) {
+          capHtml += '<div style="font-size:9px;color:#f87171">⏸ KINS em hold (' + (dLot.holdHours||24) + 'h)</div>';
+        }
 
-          var goldFloorUsd = floors['gold'];
+        // Claim info
+        if (dLot.claim && dLot.claim.wonGold > 0) {
+          capHtml += '<div style="font-size:10px;color:#fbbf24;font-weight:700;margin-top:3px">🎉 Ganhou: ' + dLot.claim.wonGold + ' gold!</div>';
+        }
+
+        capEl.innerHTML = capHtml;
+
+        // ── Custo do ticket em USD ──────────────────────────────────────────
+        if (worthEl) {
+          var hasCost = true, totalCostUsd = 0;
+          TICKET_COST.forEach(function(item) {
+            var f = floors[item.type];
+            if (f == null) { hasCost = false; return; }
+            totalCostUsd += item.amount * f;
+          });
           var html = '<div style="font-size:9px;margin-top:3px;display:flex;flex-direction:column;gap:2px">';
-          if (!hasCost || goldFloorUsd == null) {
+          if (!hasCost) {
             html += '<span style="color:#f59e0b">⚠️ Floors indisponíveis</span>';
           } else {
-            var profit2   = goldFloorUsd - totalCostUsd;
-            var worthIt2  = profit2 >= 0;
-            var pc2       = worthIt2 ? '#6ee7a0' : '#f87171';
-            var sign2     = profit2 >= 0 ? '+' : '';
-            html += '<div style="display:flex;justify-content:space-between"><span style="color:#64748b">Custo total:</span><b style="color:#d4d8e2">$' + totalCostUsd.toFixed(4) + '</b></div>';
-            html += '<div style="display:flex;justify-content:space-between"><span style="color:#64748b">1 gold vale:</span><b style="color:#d4d8e2">$' + goldFloorUsd.toFixed(4) + '</b></div>';
-            html += '<div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid rgba(255,255,255,0.07);padding-top:3px;margin-top:1px"><span style="color:' + pc2 + '">' + (worthIt2 ? '✅ LUCRO' : '❌ WASTE') + '</span><b style="color:' + pc2 + '">' + sign2 + '$' + profit2.toFixed(4) + '</b></div>';
+            html += '<div style="display:flex;justify-content:space-between"><span style="color:#64748b">Custo/ticket:</span><b style="color:#d4d8e2">$' + totalCostUsd.toFixed(4) + '</b></div>';
           }
           html += '</div>';
-          worthEl2.innerHTML = html;
+          worthEl.innerHTML = html;
         }
 
-        // ── Botão ─────────────────────────────────────────────────────────────
-        var canTrade = allDone && hasAll && capRem > 0 && !holdPend;
+        // Info extra
+        if (infoEl) {
+          infoEl.innerHTML = '';
+        }
+
+        // ── Botão ─────────────────────────────────────────────────────────
+        var canEnter = phase === 'entry_open' && allDone && hasAll && entriesRem > 0 && !holdPend;
         btn.disabled  = false;
-        btn.className = 'btn ' + (canTrade ? 'btn-ok' : 'btn-off');
-        btn.textContent = canTrade ? '🎉 Fazer trade (1 gold)' : (capRem <= 0 ? '✅ Já claimado' : '🔄 Atualizar');
-        btn._canTrade = canTrade;
+        btn.className = 'btn ' + (canEnter ? 'btn-ok' : 'btn-off');
+        btn.textContent = canEnter ? '🎟️ Comprar ticket (' + entriesRem + ' disp.)'
+                        : entriesRem <= 0 ? '✅ Tickets esgotados'
+                        : phase !== 'entry_open' ? '⏳ ' + phaseLabel
+                        : '🔄 Atualizar';
+        btn._canEnter = canEnter;
 
       } catch(e) {
         questsEl.textContent = '✗ Erro: ' + e.message;
       }
     }
 
-    // ── Estado do fluxo de trade ──────────────────────────────────────────
+    // ── Trade flow ────────────────────────────────────────────────────────
     var _dgRunning   = false;
     var _dgCancelled = false;
 
@@ -12991,16 +13027,15 @@ loadMySales();
     function dgCleanup(wasActive, savedRealm) {
       _dgRunning   = false;
       _dgCancelled = false;
-      // Voltar ao realm anterior e retomar farm
       try {
-        if (savedRealm && savedRealm !== 'world' && m !== savedRealm) {
+        if (savedRealm && savedRealm !== 'world' && D !== savedRealm) {
           agNavTo(savedRealm);
           var _retry = 0;
           var _retryIv = setInterval(function() {
             _retry++;
-            if (m === savedRealm || _retry > 60) {
+            if (D === savedRealm || _retry > 60) {
               clearInterval(_retryIv);
-              if (wasActive && !agActive) { agStart(); AG_LOG.info('[DailyGold] Farm retomado'); }
+              if (wasActive && !agActive) { agStart(); AG_LOG.info('[Lottery] Farm retomado'); }
             }
           }, 500);
         } else {
@@ -13011,175 +13046,119 @@ loadMySales();
     }
 
     async function dgDoTradeFlow() {
-      console.log('[DailyGold] dgDoTradeFlow START | _dgRunning=' + _dgRunning + ' m=' + D);
-      AG_LOG.info('[DailyGold] dgDoTradeFlow START | m=' + D + ' agActive=' + agActive);
-      if (_dgRunning) { console.log('[DailyGold] já rodando, skip'); return; }
+      if (_dgRunning) return;
 
-      // Pré-checagem usando a fonte CERTA do Personal Gold: /api/auth/merchant-cap-status
-      // (cap diário individual + hold de KINS) — NÃO usar merchant-cycle-status, que é
-      // da pool global de doação coletiva e não tem relação com o trade pessoal.
+      // Pré-check lottery status
       try {
-        var _dgCapR = await fetch('/api/auth/merchant-cap-status', { credentials: 'include' });
-        var _dgCapD = await _dgCapR.json().catch(function(){ return {}; });
-        var _dgCapRem = _dgCapD ? (_dgCapD.remaining || 0) : null;
-        if (_dgCapRem != null && _dgCapRem <= 0) {
-          dgSetResult('✅ Cap diário já claimado hoje', '#6ee7a0');
-          console.log('[DailyGold] cap já usado (remaining=' + _dgCapRem + '), abortando');
+        var _chkR = await fetch('/api/auth/merchant-lottery-status', { credentials: 'include' });
+        var _chkD = await _chkR.json().catch(function(){ return {}; });
+        if (_chkD.phase !== 'entry_open') {
+          dgSetResult('⏳ Inscrições não estão abertas (fase: ' + (_chkD.phase||'?') + ')', '#f59e0b');
           return;
         }
-        if (_dgCapD && _dgCapD.holdPending === true) {
-          dgSetResult('⏸ KINS em período de hold (' + (_dgCapD.holdHours || 0) + 'm)', '#f59e0b');
-          console.log('[DailyGold] hold pendente, abortando');
+        if ((_chkD.entriesRemaining || 0) <= 0) {
+          dgSetResult('✅ Tickets esgotados para hoje', '#6ee7a0');
           return;
         }
-      } catch(_e) { /* se falhar a checagem, segue normalmente — o trade real vai revalidar */ }
+        if (_chkD.holdPending === true) {
+          dgSetResult('⏸ KINS em período de hold', '#f59e0b');
+          return;
+        }
+      } catch(_e) {}
 
       _dgRunning   = true;
       _dgCancelled = false;
 
       var wasActive  = agActive;
-      var savedRealm = m;
+      var savedRealm = D;
 
       dgSetBtn(null, true);
       dgSetResult('⏳ Preparando…', '#8a93a8');
-      console.log('[DailyGold] btn setado, parando farm...');
 
       // 1. Parar farm
-      try { if (wasActive) agStop(); } catch(e) { console.log('[DailyGold] agStop err:', e.message); }
-      console.log('[DailyGold] farm parado, aguardando 300ms...');
+      try { if (wasActive) agStop(); } catch(_) {}
       await new Promise(function(r){ setTimeout(r, 300); });
-      console.log('[DailyGold] após await 300ms | _dgCancelled=' + _dgCancelled + ' m=' + D);
       if (_dgCancelled) { dgSetResult('🛑 Cancelado', '#f87171'); dgCleanup(wasActive, savedRealm); return; }
 
-      // 2. Ir ao world — navegação própria com loop de retry
-      console.log('[DailyGold] passo 2 | m=' + D);
+      // 2. Ir ao world
       if (D!=='world') {
-        dgSetResult('🚶 Voltando ao World (' + D + ')…', '#8a93a8');
-        console.log('[DailyGold] iniciando nav para world...');
-
-        // Navegar para tile de saída do realm atual via interval próprio
-        var _navResolved = false;
-        var _navResult   = false;
-
+        dgSetResult('🚶 Voltando ao World…', '#8a93a8');
+        var _navResult = false;
         await new Promise(function(resolve) {
           var attempts = 0;
           var _navIv = setInterval(function() {
-            console.log('[DailyGold] navIv | attempts=' + attempts + ' m=' + D + ' ce=' + ce + ' de=' + de + ' U=' + U + ' Y.len=' + qe.length);
-            if (_dgCancelled || attempts > 120) {
-              clearInterval(_navIv);
-              _navResolved = true;
-              resolve();
-              return;
-            }
+            if (_dgCancelled || attempts > 120) { clearInterval(_navIv); resolve(); return; }
             attempts++;
-
-            // Chegou ao world
-            if (D==='world') {
-              clearInterval(_navIv);
-              _navResult = true;
-              resolve();
-              return;
-            }
-
-            // Obter tile de saída do realm atual
+            if (D==='world') { clearInterval(_navIv); _navResult = true; resolve(); return; }
             try {
               var exit = agNavGetExitTile(D);
-              console.log('[DailyGold] exit=' + JSON.stringify(exit) + ' m=' + D + ' PS.size=' + (typeof PS !== 'undefined' ? PS.size : 'undef'));
-              if (!exit) { return; }
-
+              if (!exit) return;
               var distExit = Math.abs(ce - exit.col) + Math.abs(de - exit.row);
-
-              // Já está no tile de saída — aguardar transição do jogo
-              if (distExit <= 1) { return; }
-
-              // Calcular e setar path até a saída
+              if (distExit <= 1) return;
               if (!$e && qe.length === 0) {
                 var path = Nl(ce, de, exit.col, exit.row);
-                console.log('[DailyGold] path para exit=' + (path ? path.length : 'null') + ' exit=' + JSON.stringify(exit));
-                if (path && path.length > 0) {
-                  qe = path;
-                  Hl();
-                  console.log('[DailyGold] Ll chamado | Y.len=' + qe.length + ' U=' + U);
-                }
+                if (path && path.length > 0) { qe = path; Hl(); }
               }
-            } catch(e) { console.log('[DailyGold] nav err: ' + e.message); }
+            } catch(_) {}
           }, 500);
         });
-
         if (_dgCancelled) { dgSetResult('🛑 Cancelado', '#f87171'); dgCleanup(wasActive, savedRealm); return; }
-        if (!_navResult && D!=='world') { dgSetResult('✗ Não cheguei ao World (realm: ' + D + ')', '#f87171'); dgCleanup(wasActive, savedRealm); return; }
+        if (!_navResult && D!=='world') { dgSetResult('✗ Não cheguei ao World', '#f87171'); dgCleanup(wasActive, savedRealm); return; }
       }
 
-      // 3. Aguardar o world carregar e caminhar até o merchant
+      // 3. Caminhar até o merchant
       var MERCH_COL = 21, MERCH_ROW = 12;
       dgSetResult('🚶 Indo ao Merchant…', '#8a93a8');
-
-      // Cancelar ações e aguardar 1s para o world inicializar (grid/pathfinding)
-      try { (function(){try{qe=[],$e = !1,dt=0}catch(_){}})(); } catch(_) {}
+      try { (function(){try{qe=[],$e=!1,dt=0}catch(_){}})(); } catch(_) {}
       try { (function(){try{gn()}catch(_){};try{kn()}catch(_){}})(); } catch(_) {}
       try { on(); } catch(_) {}
       await new Promise(function(r){ setTimeout(r, 3000); });
       if (_dgCancelled) { dgSetResult('🛑 Cancelado', '#f87171'); dgCleanup(wasActive, savedRealm); return; }
 
-      // Tentar calcular path — retry se falhar (grid pode demorar a carregar)
       function dgWalkToMerch() {
-        // Tentar o tile exato e um raio de 2 tiles ao redor (merchant pode ter se movido)
         var candidates = [[MERCH_COL, MERCH_ROW]];
-        for (var _dr = -2; _dr <= 2; _dr++) {
-          for (var _dc = -2; _dc <= 2; _dc++) {
-            if (_dr === 0 && _dc === 0) continue;
-            candidates.push([MERCH_COL + _dc, MERCH_ROW + _dr]);
-          }
-        }
-        // Ordenar por distância ao tile alvo original
-        candidates.sort(function(a, b) {
-          return (Math.abs(a[0]-MERCH_COL)+Math.abs(a[1]-MERCH_ROW)) - (Math.abs(b[0]-MERCH_COL)+Math.abs(b[1]-MERCH_ROW));
-        });
-        for (var _ci = 0; _ci < candidates.length; _ci++) {
-          var _tc = candidates[_ci][0], _tr = candidates[_ci][1];
+        for (var _dr = -2; _dr <= 2; _dr++)
+          for (var _dc = -2; _dc <= 2; _dc++)
+            if (_dr !== 0 || _dc !== 0) candidates.push([MERCH_COL+_dc, MERCH_ROW+_dr]);
+        candidates.sort(function(a,b){ return (Math.abs(a[0]-MERCH_COL)+Math.abs(a[1]-MERCH_ROW))-(Math.abs(b[0]-MERCH_COL)+Math.abs(b[1]-MERCH_ROW)); });
+        for (var _ci=0;_ci<candidates.length;_ci++) {
           try {
-            var path = Nl(ce, de, _tc, _tr);
-            if (path && path.length > 0) {
-              qe = path; if (!$e) Hl();
-              AG_LOG.info('[DailyGold] path ok -> ' + _tc + ',' + _tr + ' len=' + path.length);
-              return true;
-            }
-          } catch(_e) {}
+            var path = Nl(ce,de,candidates[_ci][0],candidates[_ci][1]);
+            if (path && path.length > 0) { qe=path; if(!$e) Hl(); return true; }
+          } catch(_) {}
         }
-        AG_LOG.warn('[DailyGold] sem caminho no raio 2x2 de ' + MERCH_COL + ',' + MERCH_ROW);
         return false;
       }
 
-      // Tentar até 10x com 2s entre cada tentativa (grid do world pode demorar a carregar)
       var _pathOk = false;
-      for (var _pt = 0; _pt < 10; _pt++) {
-        if (dgWalkToMerch()) { _pathOk = true; break; }
+      for (var _pt=0;_pt<10;_pt++) {
+        if (dgWalkToMerch()) { _pathOk=true; break; }
         dgSetResult('🌀 Aguardando grid world... (' + (_pt+1) + '/10)', '#8a93a8');
-        await new Promise(function(r){ setTimeout(r, 2000); });
+        await new Promise(function(r){ setTimeout(r,2000); });
         if (_dgCancelled) break;
       }
       if (!_pathOk || _dgCancelled) {
         if (_dgCancelled) dgSetResult('🛑 Cancelado', '#f87171');
-        else dgSetResult('✗ Sem caminho até o Merchant (pos=' + ce + ',' + de + ')', '#f87171');
+        else dgSetResult('✗ Sem caminho até o Merchant', '#f87171');
         dgCleanup(wasActive, savedRealm); return;
       }
 
-      // Aguardar chegada — retry a cada 4s se parou
-      var _walk = 0;
-      while (_walk < 80 && !_dgCancelled) {
-        await new Promise(function(r){ setTimeout(r, 500); });
+      // Aguardar chegada
+      var _walk=0;
+      while (_walk<80 && !_dgCancelled) {
+        await new Promise(function(r){ setTimeout(r,500); });
         _walk++;
-        var distNow = Math.abs(ce-MERCH_COL) + Math.abs(de-MERCH_ROW);
-        if (distNow <= 2) break;
-        if (_walk % 8 === 0 && !$e && qe.length === 0) dgWalkToMerch();
+        if (Math.abs(ce-MERCH_COL)+Math.abs(de-MERCH_ROW) <= 2) break;
+        if (_walk%8===0 && !$e && qe.length===0) dgWalkToMerch();
       }
       if (_dgCancelled) { dgSetResult('🛑 Cancelado', '#f87171'); dgCleanup(wasActive, savedRealm); return; }
+      if (Math.abs(ce-MERCH_COL)+Math.abs(de-MERCH_ROW) > 3) {
+        dgSetResult('✗ Não chegou ao Merchant', '#f87171');
+        dgCleanup(wasActive, savedRealm); return;
+      }
 
-      var dist = Math.abs(ce-MERCH_COL) + Math.abs(de-MERCH_ROW);
-      if (dist > 3) { dgSetResult('✗ Não chegou ao Merchant (dist=' + dist + ')', '#f87171'); dgCleanup(wasActive, savedRealm); return; }
-
-      // 4. Fazer o trade
-      dgSetResult('💰 Fazendo trade…', '#8a93a8');
+      // 4. Comprar ticket via trade (usa o mesmo endpoint do gold trade — o servidor detecta a lottery)
+      dgSetResult('🎟️ Comprando ticket…', '#8a93a8');
       try {
         try { cn({inventoryMutationFlush:true}); } catch(_) {}
         var r = await fetch('/api/auth/merchant-trade-for-gold', {
@@ -13188,45 +13167,34 @@ loadMySales();
         });
         var d = await r.json().catch(function(){ return {}; });
         if (r.ok && d.ok !== false) {
-          // Aplicar backpack do response (igual ao jogo nativo: Nd(n.backpack))
           try {
             if (d.backpack) { Nd(d.backpack); yn(); Ue(); }
             else            { ui(); yn(); Ue(); }
-          } catch(e) { AG_LOG.warn('[DailyGold] sync: ' + e.message); }
-          dgSetResult('✓ +1 gold! Trade feito.', '#6ee7a0');
-          AG_LOG.info('[DailyGold] Trade OK — inventário sincronizado');
+          } catch(e) { AG_LOG.warn('[Lottery] sync: ' + e.message); }
+          dgSetResult('✓ Ticket comprado! Boa sorte! 🍀', '#6ee7a0');
+          AG_LOG.info('[Lottery] Ticket comprado com sucesso');
         } else {
           var msg = d.error === 'not_at_merchant'         ? 'Não está perto do merchant'
                   : d.error === 'insufficient_materials'  ? 'Recursos insuficientes'
                   : d.error === 'merchant_daily_cap'      ? 'Cap atingido'
                   : d.error === 'daily_quests_incomplete' ? 'Quests incompletas'
+                  : d.error === 'lottery_closed'          ? 'Inscrições fechadas'
                   : (d.error || 'Erro');
           dgSetResult('✗ ' + msg, '#f87171');
-          AG_LOG.warn('[DailyGold] Trade falhou: ' + msg);
         }
       } catch(e) {
         dgSetResult('✗ Erro: ' + e.message, '#f87171');
       }
 
-      // 5. Cleanup — volta ao realm e retoma farm
-      await new Promise(function(r){ setTimeout(r, 1000); });
+      await new Promise(function(r){ setTimeout(r,1000); });
       dgCleanup(wasActive, savedRealm);
     }
 
     $d('dg-btn').addEventListener('click', function() {
-      console.log('[DailyGold] btn click | _dgRunning=' + _dgRunning + ' _canTrade=' + ($d('dg-btn') && $d('dg-btn')._canTrade));
-      if (_dgRunning) {
-        _dgCancelled = true;
-        console.log('[DailyGold] cancelando...');
-        return;
-      }
+      if (_dgRunning) { _dgCancelled = true; return; }
       var btn = $d('dg-btn');
-      if (btn && btn._canTrade) {
-        console.log('[DailyGold] chamando dgDoTradeFlow...');
-        dgDoTradeFlow();
-      } else {
-        dgRender();
-      }
+      if (btn && btn._canEnter) { dgDoTradeFlow(); }
+      else { dgRender(); }
     });
 
     $d('dg-close').addEventListener('click', function() { host.remove(); try { agRefreshHudBtns(); } catch(_) {} });
@@ -13252,16 +13220,15 @@ loadMySales();
     dgRender();
     try { agRefreshHudBtns(); } catch(_) {}
 
-    // Timer 1: refresh completo a cada 3min (inclui floors via cache do poller)
+    // Timer: refresh a cada 60s
     var _iv = setInterval(function() {
       if (!document.getElementById('ag-daily-gold-host')) { clearInterval(_iv); return; }
       dgRender();
-    }, 180000);
+    }, 60000);
 
-    // Timer 2: refresh leve a cada 60s — só quests + cap (sem floors)
+    // Timer quests: refresh leve a cada 30s
     var _ivQuests = setInterval(function() {
       if (!document.getElementById('ag-daily-gold-host')) { clearInterval(_ivQuests); return; }
-      // Atualizar quests (lê ya/Kc local — zero requests)
       var questsEl = $d('dg-quests');
       if (!questsEl) return;
       try {
@@ -13281,15 +13248,16 @@ loadMySales();
         if (questDetails.length > 0) {
           qHtml += '<div style="margin-top:3px">';
           questDetails.forEach(function(U) {
-            var pg = (U.goal && !$e.claimed) ? ' <span style="color:#64748b;font-size:8px">'+U.prog+'/'+U.goal+'</span>' : '';
+            var pg = (U.goal && !U.claimed) ? ' <span style="color:#64748b;font-size:8px">'+U.prog+'/'+U.goal+'</span>' : '';
             qHtml += '<div style="color:' + (U.claimed?'#6ee7a0':'#94a3b8') + '">' + (U.claimed?'✅':'⬜') + ' ' + U.label + pg + '</div>';
           });
           qHtml += '</div>';
         }
         questsEl.innerHTML = qHtml;
       } catch(_) {}
-    }, 60000);
+    }, 30000);
   }
+
 
     function agOpenBackpackHud() {
     // Remove existing if present
@@ -13835,7 +13803,7 @@ loadMySales();
             '<button class="ag-icon-btn" id="ag-stats-btn" title="Stats"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="10" width="3" height="6" rx="1" fill="#7eb8f7" opacity=".8"/><rect x="7" y="6" width="3" height="10" rx="1" fill="#7eb8f7"/><rect x="12" y="2" width="3" height="14" rx="1" fill="#6ee7a0"/></svg></button>',
             '<button class="ag-icon-btn" id="ag-calc-btn" title="Calculadora"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="2" stroke="#8a93a8" stroke-width="1.2" fill="none"/><rect x="5" y="5" width="8" height="2.5" rx="1" fill="#7eb8f7" opacity=".8"/><circle cx="5.5" cy="11" r="1" fill="#8a93a8"/><circle cx="9" cy="11" r="1" fill="#8a93a8"/><circle cx="12.5" cy="11" r="1" fill="#6ee7a0"/></svg></button>',
             '<button class="ag-icon-btn" id="ag-merch-btn" title="Merchant Gold"><img src="/assets/hud/resources/gold.png" width="20" height="20" style="image-rendering:pixelated;filter:drop-shadow(0 0 3px #f59e0b)" draggable="false"></button>',
-            '<button class="ag-icon-btn" id="ag-daily-gold-btn" title="Daily Personal Gold" style="border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.08);font-size:18px">&#127775;</button>',
+            '<button class="ag-icon-btn" id="ag-daily-gold-btn" title="Lottery" style="border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.08);font-size:18px">&#127922;</button>',
             '<button class="ag-icon-btn" id="ag-spin-hud-btn" title="Free Spin" style="font-size:18px">&#127922;</button>',
             '<button class="ag-icon-btn" id="ag-skip-tutorial-btn" title="Skip Tutorial" style="border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#fbbf24" stroke-width="1.3"/><text x="10" y="14.5" text-anchor="middle" font-size="10" font-weight="800" font-family="monospace" fill="#fbbf24">S</text></svg></button>',
           '</div>',
@@ -15614,7 +15582,7 @@ loadMySales();
         'ag-backpack-host':    agOpenBackpackHud,
         'ag-mapinfo-host':     agOpenMapInfoHud,
         'ag-stats-host':       agOpenStatsHud,
-        'ag-daily-gold-host':  agOpenDailyGoldHud,
+        'ag-daily-gold-host':  agOpenLotteryHud,
         'ag-calc-host':     agOpenCalcHud,
         'ag-spin-host':     agOpenSpinHud,
         'ag-merch-host':    agOpenMerchHud,
@@ -16240,7 +16208,7 @@ loadMySales();
     $('ag-stats-btn').addEventListener('click',    function() { agOpenStatsHud();    agRefreshHudBtns(); });
     $('ag-calc-btn').addEventListener('click',     function() { agOpenCalcHud();     agRefreshHudBtns(); });
     $('ag-merch-btn').addEventListener('click',    function() { agOpenMerchHud();    agRefreshHudBtns(); });
-    $('ag-daily-gold-btn').addEventListener('click', function() { agOpenDailyGoldHud(); agRefreshHudBtns(); });
+    $('ag-daily-gold-btn').addEventListener('click', function() { agOpenLotteryHud(); agRefreshHudBtns(); });
     if ($('ag-spin-hud-btn')) {
       $('ag-spin-hud-btn').addEventListener('click', function() { agOpenSpinHud(); });
     }
@@ -20131,5 +20099,5 @@ loadMySales();
   } // fecha o else do guard de instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v1.81'
+// FIM AUTO-GATHER v1.80'
 
