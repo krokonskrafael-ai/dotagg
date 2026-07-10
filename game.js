@@ -6623,7 +6623,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.86';
+  const AG_VERSION          = 'v1.88';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -8121,7 +8121,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     if (!agCanAutoCook()) return false;
     try {
       // Verifica adjacência ao roast pit
-      var _adj = (function(){ try { return typeof U === 'function' && f2 && U(f2); } catch(_){ return false; } })();
+      var _adj = (function(){ try { return typeof $e === 'function' && f2 && $e(f2); } catch(_){ return false; } })();
       if (_adj) {
         // Já está adjacente — iniciar cooking se não estiver ativo
         var _cooking = (function(){ try { return Tu && vs; } catch(_){ return false; } })();
@@ -8176,9 +8176,9 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     if (eq !== 'tool_fishing_rod') {
       const slot = agFindToolSlot();
       if (slot === -1) { agSetStatus('⚠️ Fishing Rod não está na hotbar'); agSchedule(2000); return; }
-      (function(){ try { Hn=slot; yn(); } catch(_){} })();
+      try { W5(slot); } catch(_) { try { Hn=slot; yn(); } catch(_2){} };
     }
-    const phase = _s;
+    const phase = ws;
     if ((agLastFishPhase === 'reel' || agLastFishPhase === 'strike') && phase === 'idle') {
       // peixe capturado — aguarda 1-2s antes de lançar de novo
       agLastFishPhase = phase;
@@ -8189,7 +8189,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
     agLastFishPhase = phase;
     if (phase === 'wait') {
-      var _remaining = Math.max(0, JB - Ye.elapsedTime);
+      var _remaining = Math.max(0, PL - Ye.elapsedTime);
       agSetStatus('🎣 Aguardando mordida… (' + Math.max(0,Math.round(_remaining)) + 's)');
       // Agendar para 500ms antes da mordida esperada, ou AG_TICK_MS
       var _nextCheck = _remaining > 1 ? Math.min((_remaining - 0.3) * 1000, 5000) : AG_TICK_MS;
@@ -8199,10 +8199,10 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     if (phase === 'reel')   { agSetStatus('🎣 Recolhendo linha…');     agSchedule(200); return; }
     const fishTile = agFindFishTile();
     if (fishTile) {
-      if (U || qe.length) { agSetStatus('⏸ Aguardando parar…'); agSchedule(300); return; }
-      P8e(fishTile.col, fishTile.row);
+      if ($e || qe.length) { agSetStatus('⏸ Aguardando parar…'); agSchedule(300); return; }
+      LFe(fishTile.col, fishTile.row);
       // Sobrescrever o timer de mordida para 20-23s (bundle usa 20-30s)
-      try { JB = Ye.elapsedTime + (20 + Math.random() * 3); } catch(_) {}
+      try { PL = Ye.elapsedTime + (20 + Math.random() * 3); } catch(_) {}
       agLastFishPhase = 'wait';
       agSetStatus(`🎣 Linha lançada! [${fishTile.col},${fishTile.row}]`); agSchedule(AG_TICK_MS); return;
     }
@@ -8304,8 +8304,15 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       } catch(_) { return false; }
     })();
     function _isClubServer(b) {
-      var txt = ((b.textContent || '') + ' ' + ((b.getAttribute && b.getAttribute('data-server-name')) || '')).toLowerCase();
-      return txt.indexOf('members only') !== -1 || txt.indexOf('tap to subscribe') !== -1 || txt.indexOf('kintara club') !== -1;
+      // Verifica o botão E o card pai (o botão pode ter texto curto tipo "Play")
+      var el = b;
+      var fullText = '';
+      for (var _depth = 0; _depth < 5 && el; _depth++) {
+        fullText += ' ' + (el.textContent || '') + ' ' + ((el.getAttribute && el.getAttribute('data-server-name')) || '');
+        el = el.parentElement;
+      }
+      fullText = fullText.toLowerCase();
+      return fullText.indexOf('members only') !== -1 || fullText.indexOf('tap to subscribe') !== -1 || fullText.indexOf('kintara club') !== -1;
     }
     var allBtns = Array.from(document.querySelectorAll('.kintara-server-select-btn'));
     var eligible = allBtns.filter(function(b) {
@@ -8315,6 +8322,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       if (!_joinClub2 && _isClubServer(b)) return false;
       return true;
     });
+    AG_LOG.info('[AutoJoin] joinClub=' + _joinClub2 + ' | eligible=' + eligible.length + '/' + allBtns.length + ' total');
     if (eligible.length > 0) {
       AG_LOG.info('[AutoJoin] Clicando btn: ' + eligible[0].textContent.trim().slice(0,30));
       eligible[0].click();
@@ -8366,7 +8374,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
           try { Ane(); } catch(e) { AG_LOG.warn('eee erro: ' + e.message); }
           agSchedule(1500); return;
         }
-        AG_LOG.warn('Shack pos=[' + ce + ',' + de + '] U=' + U + ' Y.len=' + qe.length + ' cols=' + wo + ' rows=' + ko);
+        AG_LOG.warn('Shack pos=[' + ce + ',' + de + '] U=' + $e + ' Y.len=' + qe.length + ' cols=' + wo + ' rows=' + ko);
         try {
           const path = Nl(ce, de, 2, 3);
           AG_LOG.warn('Shack path=' + JSON.stringify(path ? path.slice(0,3) : null) + ' len=' + (path ? path.length : 'null'));
@@ -11700,7 +11708,7 @@ loadMySales();
       AG_LOG.warn('Shack: saindo via path para [' + 7 + ',' + 4 + '] pos=[' + ce + ',' + de + ']');
       try {
         const path = Nl(ce, de, 7, 4);
-        AG_LOG.warn('Shack path len=' + (path ? path.length : 'null') + ' U=' + U);
+        AG_LOG.warn('Shack path len=' + (path ? path.length : 'null') + ' U=' + $e);
         if (path && path.length) {
           qe = path;
           $e = false;
@@ -19774,7 +19782,7 @@ loadMySales();
         console.warn(
           '  tile ' + x.key +
           ' | banido há ' + passouMin + 'm' + passouSeg + 's' +
-          ' | expira em ' + mm + 'm' + _s + 's'
+          ' | expira em ' + mm + 'm' + ws + 's'
         );
       });
       console.groupEnd();
@@ -19790,7 +19798,7 @@ loadMySales();
         console.info(
           '  tile ' + x.key +
           ' | banido há ' + passouSeg + 's' +
-          ' | expira em ' + mm + 'm' + _s + 's'
+          ' | expira em ' + mm + 'm' + ws + 's'
         );
       });
       console.groupEnd();
