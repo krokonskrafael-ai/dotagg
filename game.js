@@ -6623,7 +6623,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.78';
+  const AG_VERSION          = 'v1.79';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6807,7 +6807,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     agSpotBanList.set(key, { ot: now, ms: banMs });
     // Bane todo o cluster de pedras junto
     try {
-      const ctx = R3();
+      const ctx = SA();
       const map = ctx && ctx.rockMap;
       if (map) {
         const data = map.get(key);
@@ -7132,7 +7132,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     agStats.items += n;
     agUpdateRateDisplay();
     // Registra timestamp do último item recebido durante coleta ativa
-    if (agActive && (Da === 'mining' || _agChopState === 'chopping')) {
+    if (agActive && (Ar === 'mining' || _agChopState === 'chopping')) {
       agMiningLastItemAt = Date.now();
     }
   }
@@ -7172,13 +7172,13 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
             AG_LOG.warn('🔍 TILE DEBUG: wear sem loot para nós | key=' + agLastKey +
               ' | m=' + d.m + '/' + d.hm +
               ' | by=' + d.by + '(nós=' + localPlayerId + ')' +
-              ' | state=' + (Da||io) +
+              ' | state=' + (Ar||io) +
               ' | isso pode indicar tile bugado se repetir');
           }
 
           // ── Sinal 2: wearHits > wearMax (inconsistência servidor/cliente) ──
           if (isOurTarget) {
-            var ctx3 = R3();
+            var ctx3 = SA();
             var rd3  = ctx3 && ctx3.rockMap && ctx3.rockMap.get(agLastKey);
             if (rd3 && Number(d.m) > Number(d.hm) && d.hm > 0) {
               AG_LOG.warn('🔍 TILE DEBUG: m > hm — inconsistência servidor/cliente | key=' + agLastKey +
@@ -7191,7 +7191,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
               setTimeout(function() {
                 if (!agActive || agLastKey !== _k3) return;
                 // Se ainda estamos minerando a mesma key depois do m===hm, é bugado
-                if (Da === 'mining' || _agChopState === 'chopping') {
+                if (Ar === 'mining' || _agChopState === 'chopping') {
                   AG_LOG.warn('🔍 TILE DEBUG: m===hm mas clear não chegou em 3s | key=' + _k3 +
                     ' | Fa=' + _agMineState + ' _agChopState=' + _agChopState +
                     ' | possível tile ressincronizado no servidor mas não no cliente');
@@ -7246,8 +7246,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
   function agInstallResourceCounter() {
     if (_agOrigAddResource) return;
-    _agOrigAddResource = Su;
-    Su = function(type, amt, opts) {
+    _agOrigAddResource = Md;
+    Md = function(type, amt, opts) {
       if (agActive) {
         const n = Number(amt) || 1;
         const tracked =
@@ -7272,7 +7272,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   }
   function agUninstallResourceCounter() {
     if (!_agOrigAddResource) return;
-    Su = _agOrigAddResource;
+    Md = _agOrigAddResource;
     _agOrigAddResource = null;
   }
 
@@ -7444,7 +7444,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         const s = vt[i];  // Fe = hotbarSlots, não Oe
         if (s && s.type === t && (s.count||0) > 0) {
           AG_LOG.info('agEnsureTool: trocando slot ' + i + ' (' + t + ') | era: ' + current);
-          (function(){ try { an=i; kt(); } catch(_){} })();
+          (function(){ try { Hn=i; yn(); } catch(_){} })();
           return true;
         }
       }
@@ -7516,9 +7516,18 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     } catch (_) { return false; }
   }
 
+  // ── Fishable water cells (substitui agGetFishableWaterCells() que era module-local r_e) ───────
+  function agGetFishableWaterCells() {
+    try {
+      if (D === 'pond')       return k$ || null;
+      // eldergrove/beach/ember water sets not exported; return null → fish only in pond
+      return null;
+    } catch(_) { return null; }
+  }
+
   // ── Resource map ───────────────────────────────────────────────────────────
   function agGetMap() {
-    const ctx = R3();
+    const ctx = SA();
     if (!ctx) return null;
     if (agMode === 'tree') return ctx.treeMap;
     if (agMode === 'rock' || agMode === 'rock_stone' || agMode === 'rock_coal') return ctx.rockMap;
@@ -7570,7 +7579,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   function agFindNearest() {
     const map = agGetMap();
     if (!map || map.size === 0) return null;
-    const blk  = d();
+    const blk  = hc();
     const seen  = new Set();
     let best = null, bestDist = Infinity;
 
@@ -7670,9 +7679,9 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   }
 
   function agFindNearestMulti() {
-    const ctx = R3();
+    const ctx = SA();
     if (!ctx) { AG_LOG.warn('agFindNearestMulti: sem contexto de recursos'); return null; }
-    const blk = d();
+    const blk = hc();
 
     const wantTree  = agMode === 'tree_coal' || agMode === 'tree_rock' || agMode === 'all';
     const wantCoal  = agMode === 'tree_coal' || agMode === 'tree_rock' || agMode === 'all';
@@ -7789,14 +7798,14 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
           : (function() {
               // Para pedras, precisa saber o subtipo — tenta via rockMap
               try {
-                var ctx = R3();
+                var ctx = SA();
                 var rd = ctx && ctx.rockMap && ctx.rockMap.get(cand.key);
                 if (rd && rd.hasMetal) return 'metal';
                 if (rd && rd.hasCoal)  return 'coal';
               } catch(_) {}
               return 'stone';
             })();
-        var _clSize = (function() { try { var ctx2=R3(); var rd2=ctx2&&ctx2.rockMap&&ctx2.rockMap.get(cand.key); return (rd2&&rd2.keys)?rd2.keys.length:1; } catch(_){return 1;} })();
+        var _clSize = (function() { try { var ctx2=SA(); var rd2=ctx2&&ctx2.rockMap&&ctx2.rockMap.get(cand.key); return (rd2&&rd2.keys)?rd2.keys.length:1; } catch(_){return 1;} })();
         cand._score = agOptScore(type, cand._d, _clSize);
         cand._type  = type;
       });
@@ -7898,7 +7907,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
               const s = vt[i];
               if (s && s.type === t && (s.count||0) > 0) {
                 AG_LOG.info('tree_coal: trocando para', t, 'slot', i+1);
-                (function(){ try { an=i; kt(); } catch(_){} })(); ok = true; break;
+                (function(){ try { Hn=i; yn(); } catch(_){} })(); ok = true; break;
               }
             }
             if (ok) break;
@@ -7920,7 +7929,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       agLastApKeyAt = Date.now();
       agLastApKeyAt = Date.now();
 
-      (function(){try{qe=[],$e = !1,Ne=0}catch(_){}})(); (function(){try{Pt()}catch(_){};try{Nt()}catch(_){}})();
+      (function(){try{qe=[],$e = !1,dt=0}catch(_){}})(); (function(){try{gn()}catch(_){};try{kn()}catch(_){}})();
 
       // Seta o target em 'approaching' — o game loop fará a transição para
       // 'chopping'/'mining' assim que o personagem chegar adjacente,
@@ -7933,13 +7942,13 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         _agChopState = 'approaching'; // usado pelo busy check durante o caminho
         _agAO = -1;
         // Setar target e state do bundle para que o game loop inicie o corte ao chegar
-        try { es = { col, row }; Qa = 'approaching'; } catch(_) {}
+        try { Ga = { col, row }; Zr = 'approaching'; } catch(_) {}
       } else {
         _agMineTarget = { col, row };
         _agMineState = 'approaching'; // usado pelo busy check durante o caminho
         _agJf = 0; _agRO = -1;
         // Setar target e state do bundle para que o game loop inicie a mineração ao chegar
-        try { Ha = { col, row }; Pa = 'approaching'; } catch(_) {}
+        try { Yo = { col, row }; Ar = 'approaching'; } catch(_) {}
       }
 
       agLastKey       = res.key;
@@ -7963,7 +7972,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       // e iniciar o corte corretamente.
       if (res.apDist === 0) {
         // Procura um tile livre qualquer adjacente para dar um passo
-        const blk  = d();
+        const blk  = hc();
         const dirs = [[0,-1],[0,1],[-1,0],[1,0]];
         let escaped = false;
         for (const [dc, dr] of dirs) {
@@ -7989,7 +7998,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
       // Pathfind com portais bloqueados para evitar troca de mapa acidental
       const portalBlk = agGetPortalAvoidSet();
-      const baseBlk   = d();
+      const baseBlk   = hc();
       const safeBlk   = new Set([...baseBlk, ...portalBlk]);
       const path = Nl(ce, de, ap.col, ap.row);
       if (!path || !path.length) {
@@ -8012,7 +8021,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   function agFishingAllowed() { return AG_FISHING_REALMS.has(D); }
 
   function agFindFishTile() {
-    const cells = vhe();
+    const cells = agGetFishableWaterCells();
     if (!cells || cells.size === 0) return null;
     // uHe = distância máxima (Chebyshev) para pescar — mesmo critério do bundle (bHe)
     var _maxDist = 2; // distância máxima Chebyshev para pesca (configurado)
@@ -8030,12 +8039,12 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   }
 
   function agFindFishingSpot() {
-    const cells = vhe();
+    const cells = agGetFishableWaterCells();
     if (!cells || cells.size === 0) {
       AG_LOG.debug('[Fish] agFindFishingSpot: vhe vazio para realm=' + D);
       return null;
     }
-    const blk = d();
+    const blk = hc();
     var _maxDist = 2; // distância máxima Chebyshev para pesca (configurado)
     AG_LOG.debug('[Fish] agFindFishingSpot: cells=' + cells.size + ' maxDist=' + _maxDist);
     let best = null, bestDist = Infinity;
@@ -8135,7 +8144,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     if (eq !== 'tool_fishing_rod') {
       const slot = agFindToolSlot();
       if (slot === -1) { agSetStatus('⚠️ Fishing Rod não está na hotbar'); agSchedule(2000); return; }
-      (function(){ try { an=slot; kt(); } catch(_){} })();
+      (function(){ try { Hn=slot; yn(); } catch(_){} })();
     }
     const phase = _s;
     if ((agLastFishPhase === 'reel' || agLastFishPhase === 'strike') && phase === 'idle') {
@@ -8172,7 +8181,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       // Diagnóstico beach
       (function() {
         try {
-          var cells = vhe();
+          var cells = agGetFishableWaterCells();
           var _uHe = (function(){ try { return uHe || 1; } catch(_){ return 1; } })();
           console.warn('[AG Fish Beach] vhe cells=' + (cells ? cells.size : 0) +
             ' | playerPos=' + ce + ',' + de +
@@ -8283,7 +8292,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       // Se entrou em shack acidentalmente, move diretamente para tile de saída [0,4]
       // O jogo chama Ane() automaticamente ao chegar lá (linha 98206 do game.js)
       if (D==='shack') {
-        (function(){try{qe=[],$e = !1,Ne=0}catch(_){}})(); (function(){try{Pt()}catch(_){};try{Nt()}catch(_){}})();
+        (function(){try{qe=[],$e = !1,dt=0}catch(_){}})(); (function(){try{gn()}catch(_){};try{kn()}catch(_){}})();
         agLastKey = null; agLastApKey = null; agLastApKeyAt = 0; agApproachAt = null;
         agSetStatus('⏸ Saindo da casinha...');
         // Se ja esta na tile de saida, chama eee diretamente
@@ -8339,8 +8348,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       if (!agLastKey) { _agMineState = 'idle'; _agChopState = 'idle'; }
       // Pa/Qa = fonte de verdade do bundle; _agMineState/ChopState = fallback enquanto andando
       var _aaState = 'idle', _jaState = 'idle';
-      try { _aaState = Pa || 'idle'; } catch(_) {}
-      try { _jaState = Qa || 'idle'; } catch(_) {}
+      try { _aaState = Ar || 'idle'; } catch(_) {}
+      try { _jaState = Zr || 'idle'; } catch(_) {}
       // Sincroniza: se Pa/Qa saíram de idle, o bundle detectou — atualiza estado interno
       if (_aaState !== 'idle') _agMineState = _aaState;
       if (_jaState !== 'idle') _agChopState = _jaState;
@@ -8367,7 +8376,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
       // Detecta coleta concluída — só se realmente entrou em busy antes
       if (!busy && agLastKey && agWasBusy && (!agHarvestDone || agHarvestDone.key !== agLastKey)) {
-        AG_LOG.debug('Coleta concluida: ' + agLastKey + ' | chop=' + (Qa||'idle') + ' | mine=' + (Pa||'idle') + ' | lastApKey=' + agLastApKey);
+        AG_LOG.debug('Coleta concluida: ' + agLastKey + ' | chop=' + (Zr||'idle') + ' | mine=' + (Ar||'idle') + ' | lastApKey=' + agLastApKey);
         agMarkHarvested(agLastKey);
         agMiningStartAt   = null;
         agMiningLastItemAt = null;
@@ -8376,8 +8385,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         agWasBusy   = false;
         _agMineState  = 'idle';
         _agChopState  = 'idle';
-        try { Ha = null; Pa = 'idle'; } catch(_) {}
-        try { es = null; Qa = 'idle'; } catch(_) {}
+        try { Yo = null; Ar = 'idle'; } catch(_) {}
+        try { Ga = null; Zr = 'idle'; } catch(_) {}
       }
 
 
@@ -8385,7 +8394,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       if (busy && agApproachAt && (Date.now()-agApproachAt) > AG_STUCK_LIMIT) {
         agSetStatus('🔄 Preso no caminho — trocando alvo');
         agMarkHarvested(agLastKey); agLastKey=null; agApproachAt=null; agLastApKey=null;
-        (function(){try{qe=[],$e = !1,Ne=0}catch(_){}})(); (function(){try{Pt()}catch(_){};try{Nt()}catch(_){}})(); agSchedule(AG_TICK_MS); return;
+        (function(){try{qe=[],$e = !1,dt=0}catch(_){}})(); (function(){try{gn()}catch(_){};try{kn()}catch(_){}})(); agSchedule(AG_TICK_MS); return;
       }
 
       if (busy) {
@@ -8415,13 +8424,13 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
           agMiningStartAt = null; agMiningLastItemAt = null;
           agSetStatus('⚠️ Tile bugado — banido 5min [' + agLastKey + ']');
           agMarkHarvested(agLastKey); agLastKey = null; agApproachAt = null; agLastApKey = null;
-          (function(){try{qe=[],$e = !1,Ne=0}catch(_){}})(); (function(){try{Pt()}catch(_){};try{Nt()}catch(_){}})(); agSchedule(AG_TICK_MS); return;
+          (function(){try{qe=[],$e = !1,dt=0}catch(_){}})(); (function(){try{gn()}catch(_){};try{kn()}catch(_){}})(); agSchedule(AG_TICK_MS); return;
         }
 
         // Detecta spot bugado: minerando além do tempo esperado para o cluster
         var _dynamicStuckMs = (function() {
           try {
-            var ctx2 = R3();
+            var ctx2 = SA();
             var rd2  = ctx2 && ctx2.rockMap && agLastKey && ctx2.rockMap.get(agLastKey);
             var clSz = (rd2 && rd2.keys) ? rd2.keys.length : 1;
             // Tempo base: 10s por tile de cluster (clusters grandes legítimos levam mais)
@@ -8439,14 +8448,14 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
             ' | elapsed=' + elapsed + 's' +
             ' | stuckThreshold=' + Math.round(_dynamicStuckMs/1000) + 's' +
             ' | char=' + ce + ',' + de +
-            ' | wearHits=' + (function(){ try { var d2=R3()?.rockMap?.get(agLastKey); return d2 ? d2.wearHits+'/'+d2.wearMax : '?'; } catch(_){return '?';} })() +
+            ' | wearHits=' + (function(){ try { var d2=SA()?.rockMap?.get(agLastKey); return d2 ? d2.wearHits+'/'+d2.wearMax : '?'; } catch(_){return '?';} })() +
             ' | itemsGanhos=' + (agStats.items - agMiningItemsAtStart) +
             ' | target=' + JSON.stringify(La||_agChopTarget));
           agBanSpot(agLastKey, false); // ban 2min — demorou além do esperado
           agMiningStartAt = null;
           agSetStatus('⚠️ Spot demorado — banido 2min [' + agLastKey + ']');
           agMarkHarvested(agLastKey); agLastKey=null; agApproachAt=null; agLastApKey=null;
-          (function(){try{qe=[],$e = !1,Ne=0}catch(_){}})(); (function(){try{Pt()}catch(_){};try{Nt()}catch(_){}})(); agSchedule(AG_TICK_MS); return;
+          (function(){try{qe=[],$e = !1,dt=0}catch(_){}})(); (function(){try{gn()}catch(_){};try{kn()}catch(_){}})(); agSchedule(AG_TICK_MS); return;
         }
         // Log periódico do estado atual (a cada ~5s)
         if (isActive && agMiningStartAt && (Date.now() - agMiningStartAt) % 5000 < 600) {
@@ -8479,8 +8488,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       } else {
         agSetStatus('❌ Sem caminho — tentando outro');
         _agChopState = 'idle'; _agMineState = 'idle';
-        try { Ha = null; Pa = 'idle'; } catch(_) {}
-        try { es = null; Qa = 'idle'; } catch(_) {}
+        try { Yo = null; Ar = 'idle'; } catch(_) {}
+        try { Ga = null; Zr = 'idle'; } catch(_) {}
         agMarkHarvested(res.key); agSchedule(AG_RETRY_MS); return;
       }
     } catch (err) { console.warn('[AutoGather] Tick erro:', err); agSetStatus('⚠️ Erro — veja console'); }
@@ -8623,7 +8632,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     agStopWatchdog();
     agStopServerRotate();
     agApproachAt=null; agHarvestDone=null; agLastApKey=null; agMiningStartAt=null;
-    try { (function(){try{qe=[],$e = !1,Ne=0}catch(_){}})(); (function(){try{Pt()}catch(_){};try{Nt()}catch(_){}})(); Do(); } catch (_) {}
+    try { (function(){try{qe=[],$e = !1,dt=0}catch(_){}})(); (function(){try{gn()}catch(_){};try{kn()}catch(_){}})(); on(); } catch (_) {}
     agSaveState();
     if (agBtnEl) { agBtnEl.textContent='▶ Iniciar (F8)'; agBtnEl.dataset.on='false'; }
     var _sh3 = document.getElementById('ag-panel-host') && document.getElementById('ag-panel-host').shadowRoot;
@@ -9144,7 +9153,7 @@ loadMySales();
     for (let i = 0; i < vt.length; i++) {
       const s = vt[i];
       if (s && (s.type === 'wild_sword' || s.type === 'wild_sword_l2') && (s.count||0) > 0) {
-        (function(){ try { an=i; kt(); } catch(_){} })(); return true;
+        (function(){ try { Hn=i; yn(); } catch(_){} })(); return true;
       }
     }
     return false;
@@ -9423,7 +9432,7 @@ loadMySales();
       const now = Date.now();
 
       // fs() = cancelPendingSwordMelee (garante pose correta)
-      try { fs(); } catch(_) {}
+      try { ys(); } catch(_) {}
 
       // Mp() = wildStrikeEligible: tem espada e não está stunado
       // Im = timestamp do próximo swing disponível (setado em vm())
@@ -9437,7 +9446,7 @@ loadMySales();
         ' | kite=' + _kiteActive + ' recuando=' + _kiteRecuando);
 
       if (didStrike) {
-        vm(kind, null, agHuntTarget.idx, null);
+        Hm(kind, null, agHuntTarget.idx, null);
         AG_LOG.info('Hunt: atacou ' + name + ' #' + agHuntTarget.idx + ' | char=' + ce + ',' + de);
 
         // Kite: define janela de recuo e inicia movimento
@@ -9450,7 +9459,7 @@ loadMySales();
               const dc = ce - mc;
               const dr = de - mr;
               const len = Math.max(1, Math.abs(dc) + Math.abs(dr));
-              const blk2 = d();
+              const blk2 = hc();
               let kPath = null;
               for (let _kd = 6; _kd >= 3 && !kPath; _kd--) {
                 const kiteC = ce + Math.round((dc / len) * _kd);
@@ -9483,7 +9492,7 @@ loadMySales();
       agHuntSetStatus(label + ' ' + (didStrike ? '⚔ Atacou' : '⏳ Aguardando') + ' ' + name + ' #' + agHuntTarget.idx + ' (troca em ' + remaining + 's)');
     } else {
       // NÃO ADJACENTE — caminha até o mob, recalculando path a cada tick
-      const blk = d();
+      const blk = hc();
       const ap  = Ef(tc, tr, blk, ce, de);
       if (ap) {
         const pm = pendingSwordMelee;
@@ -9494,7 +9503,7 @@ loadMySales();
           pm.approachRow !== ap.row;
 
         if (needsNewPath) {
-          try { fs(); } catch(_) {}
+          try { ys(); } catch(_) {}
           pendingSwordMelee = {
             kind, dummyRoot: null, wildIdx: agHuntTarget.idx, remoteId: null,
             targetCol: tc, targetRow: tr,
@@ -9813,7 +9822,7 @@ loadMySales();
   /** Retorna o tile do anel de ataque acessível mais próximo do personagem */
   function agBossBestAttackTile() {
     try {
-      var blk = d();
+      var blk = hc();
       // Preferir bestApproachForGladeSpiderBoss (usa pathfinding real do jogo)
       if (typeof bestApproachForGladeSpiderBoss === 'function') {
         var best2 = bestApproachForGladeSpiderBoss(blk, ce, de);
@@ -10211,7 +10220,7 @@ loadMySales();
           ? WILD_SWORD_SWING_COOLDOWN_S * 1000 + 50 : 1050;
         if (now - agBossLastSwingAt >= swingCd) {
           try {
-            vm('glade_mini_spider', null, miniAdj.idx);
+            Hm('glade_mini_spider', null, miniAdj.idx);
             agBossLastSwingAt = now;
             agBossSetStatus('🗡 Atacando mini spider #' + miniAdj.idx + ' (d=' + miniAdj.dist + ')');
             AG_BOSS_LOG.info('Mini spider hit #' + miniAdj.idx + ' | char=' + ce + ',' + de);
@@ -10270,7 +10279,7 @@ loadMySales();
 
         if (canSwingNow) {
           try {
-            vm('glade_spider', null, -1);
+            Hm('glade_spider', null, -1);
             agBossSetStatus('⚔ Atacando! Boss HP: ' + hpPct + '%');
           } catch(e) {
             AG_BOSS_LOG.warn('Boss attack erro: ' + e.message);
@@ -10557,7 +10566,7 @@ loadMySales();
     $o('om-debug-btn').addEventListener('click', function() {
       try {
         var cfg = agOptCfg;
-        var ctx = R3();
+        var ctx = SA();
         if (!ctx) { console.warn('[FarmDebug] Sem contexto de recursos ativo.'); return; }
 
         var _dc = ce || 0;  // charCol
@@ -10797,7 +10806,7 @@ loadMySales();
     ringColor = ringColor || 0x7eb8f7;
     fillColor = fillColor || 0x3b82f6;
     try {
-      var activeScene = (function(){ try { var ctx = R3(); return ctx && ctx.scene ? ctx.scene : null; } catch(_) { return null; } })();
+      var activeScene = (function(){ try { var ctx = SA(); return ctx && ctx.scene ? ctx.scene : null; } catch(_) { return null; } })();
       var camera = He;
       var camera = He; // THREE.Camera do bundle
       var offX = $e;
@@ -11172,8 +11181,8 @@ loadMySales();
       const ty = Math.round(de + (_ndy/dist)*steps);
       AG_LOG_WD.warn(' NUDGE: char(' + ce + ',' + de + ') -> (' + _tdx + ',' + ty + ') dist=' + Math.round(dist));
       // Cancel all current actions — same as ground click
-      try { (function(){try{qe=[],$e = !1,Ne=0}catch(_){}})(); } catch(_) {}
-      try { (function(){try{Pt()}catch(_){};try{Nt()}catch(_){}})(); } catch(_) {}
+      try { (function(){try{qe=[],$e = !1,dt=0}catch(_){}})(); } catch(_) {}
+      try { (function(){try{gn()}catch(_){};try{kn()}catch(_){}})(); } catch(_) {}
       try { cancelShovelDig(); } catch(_) {}
       try { Is(); } catch(_) {}
       agLastKey = null; agLastApKey = null; agLastApKeyAt = 0; agApproachAt = null;
@@ -11184,7 +11193,7 @@ loadMySales();
         AG_LOG.info('Nudge: andando ' + qe.length + ' steps');
       } else {
         // No direct path — try a random adjacent free tile
-        const blk = d();
+        const blk = hc();
         const dirs = [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
         for (const [dc,dr] of dirs) {
           const nc = ce+dc*3, nr = de+dr*3;
@@ -11449,7 +11458,7 @@ loadMySales();
   function agAntiBotGetResourceCount() {
     // Soma Wood + Stone + Coal + Metal visíveis no mapa atual
     try {
-      var ctx = R3();
+      var ctx = SA();
       if (!ctx) return -1;
       var total = 0;
       if (ctx.treeMap) ctx.treeMap.forEach(function(d) {
@@ -11594,7 +11603,7 @@ loadMySales();
     if (!agFarmRealm || D===agFarmRealm) return;
     // Não tentar navegar enquanto estiver na tela de fila/seleção de servidor
     if (agServerScreenVisible()) return;
-    (function(){try{qe=[],$e = !1,Ne=0}catch(_){}})(); (function(){try{Pt()}catch(_){};try{Nt()}catch(_){}})();
+    (function(){try{qe=[],$e = !1,dt=0}catch(_){}})(); (function(){try{gn()}catch(_){};try{kn()}catch(_){}})();
     agApproachAt = null; agLastKey = null; agLastApKey = null;
     // Shack: precisa sair primeiro antes de navegar
     if (D==='shack') {
@@ -12092,12 +12101,12 @@ loadMySales();
     function renderMapInfo() {
       try {
         const realmEl = $m('mi-realm');
-        if (realmEl) realmEl.textContent = ' — ' + (m || '?');
+        if (realmEl) realmEl.textContent = ' — ' + (D || '?');
 
         // Reset maxes on realm change
-        if (m !== miLastRealm) {
+        if (D !== miLastRealm) {
           miMaxTree=0; miMaxStone=0; miMaxCoal=0;
-          miLastRealm = m || '';
+          miLastRealm = D || '';
         }
 
         const el = $m('mi-content');
@@ -12105,7 +12114,7 @@ loadMySales();
         var html = '';
 
         // Resources
-        const ctx = R3();
+        const ctx = SA();
         if (ctx) {
           var treeAlive = 0;
           if (ctx.treeMap) {
@@ -13076,9 +13085,9 @@ loadMySales();
       dgSetResult('🚶 Indo ao Merchant…', '#8a93a8');
 
       // Cancelar ações e aguardar 1s para o world inicializar (grid/pathfinding)
-      try { (function(){try{qe=[],$e = !1,Ne=0}catch(_){}})(); } catch(_) {}
-      try { (function(){try{Pt()}catch(_){};try{Nt()}catch(_){}})(); } catch(_) {}
-      try { Do(); } catch(_) {}
+      try { (function(){try{qe=[],$e = !1,dt=0}catch(_){}})(); } catch(_) {}
+      try { (function(){try{gn()}catch(_){};try{kn()}catch(_){}})(); } catch(_) {}
+      try { on(); } catch(_) {}
       await new Promise(function(r){ setTimeout(r, 3000); });
       if (_dgCancelled) { dgSetResult('🛑 Cancelado', '#f87171'); dgCleanup(wasActive, savedRealm); return; }
 
@@ -13151,8 +13160,8 @@ loadMySales();
         if (r.ok && d.ok !== false) {
           // Aplicar backpack do response (igual ao jogo nativo: Nd(n.backpack))
           try {
-            if (d.backpack) { Nd(d.backpack); kt(); Ue(); }
-            else            { ui(); kt(); Ue(); }
+            if (d.backpack) { Nd(d.backpack); yn(); Ue(); }
+            else            { ui(); yn(); Ue(); }
           } catch(e) { AG_LOG.warn('[DailyGold] sync: ' + e.message); }
           dgSetResult('✓ +1 gold! Trade feito.', '#6ee7a0');
           AG_LOG.info('[DailyGold] Trade OK — inventário sincronizado');
@@ -13970,15 +13979,12 @@ loadMySales();
       var labels = {wood:'Wood',stone:'Stone',coal:'Coal',gold:'Gold',metal:'Metal',fish:'Fish',cooked_fish_meat:'Cooked Fish'};
       list.innerHTML = items.map(function(type) {
         var c = cfg[type] || {};
-        var checked = c.enabled ? 'checked' : '';
-        var locked  = c.locked  ? 'locked'  : '';
-        var lockIcon = c.locked ? '&#128274;' : '&#128275;';
-        var floor = c.floor || '';
-        return '<div class="as-item-row">' +
-          '<input type="checkbox" data-as-item="' + type + '" ' + checked + '>' +
-          '<span class="as-item-name">' + labels[type] + '</span>' +
-          (floor ? '<span class="as-item-floor">&#128274;' + floor + '</span>' : '') +
-          '<button class="as-lock-btn ' + locked + '" data-as-lock="' + type + '">' + lockIcon + '</button>' +
+        var ic = (cfg.items && cfg.items[type]) || agDefaultItemSellCfg();
+        var checked = ic.active ? 'checked' : '';
+        return '<div class="as-item-row" style="display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07)">' +
+          '<input type="checkbox" data-as-item="' + type + '" style="width:13px;height:13px;accent-color:#f97316;cursor:pointer;flex-shrink:0" ' + checked + '>' +
+          '<span class="as-item-name" data-as-cfg="' + type + '" style="flex:1;cursor:pointer;font-size:11px;color:' + (ic.active?'#d4d8e2':'#556') + ';user-select:none">' + labels[type] + '</span>' +
+          '<button class="as-cfg-btn" data-as-cfg="' + type + '" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:4px;color:#8a93a8;font-size:10px;padding:2px 6px;cursor:pointer;flex-shrink:0" title="Configurar ' + labels[type] + '">&#9881;</button>' +
         '</div>';
       }).join('');
       // handlers
@@ -13986,9 +13992,16 @@ loadMySales();
         el.addEventListener('change', function() {
           if (!agLoadAutoSellConfig) return;
           var cfg2 = agLoadAutoSellConfig();
-          cfg2[el.dataset.asItem] = cfg2[el.dataset.asItem] || {};
-          cfg2[el.dataset.asItem].enabled = el.checked;
-          try { localStorage.setItem('ag_autosell_cfg', JSON.stringify(cfg2)); } catch(_) {}
+          if (!cfg2.items) cfg2.items = {};
+          if (!cfg2.items[el.dataset.asItem]) cfg2.items[el.dataset.asItem] = agDefaultItemSellCfg();
+          cfg2.items[el.dataset.asItem].active = el.checked;
+          agSaveAutoSellConfig(cfg2);
+          try { agBuildSellPaneItems(sh); } catch(_) {}
+        });
+      });
+      list.querySelectorAll('[data-as-cfg]').forEach(function(el) {
+        el.addEventListener('click', function() {
+          try { agOpenAutoSellHud(); } catch(_) {}
         });
       });
       // Sync toggle button
@@ -14508,12 +14521,12 @@ loadMySales();
     function renderMapInfo() {
       try {
         const realmEl = $m('mi-realm');
-        if (realmEl) realmEl.textContent = ' — ' + (m || '?');
+        if (realmEl) realmEl.textContent = ' — ' + (D || '?');
 
         // Reset maxes on realm change
-        if (m !== miLastRealm) {
+        if (D !== miLastRealm) {
           miMaxTree=0; miMaxStone=0; miMaxCoal=0;
-          miLastRealm = m || '';
+          miLastRealm = D || '';
         }
 
         const el = $m('mi-content');
@@ -14521,7 +14534,7 @@ loadMySales();
         var html = '';
 
         // Resources
-        const ctx = R3();
+        const ctx = SA();
         if (ctx) {
           var treeAlive = 0;
           if (ctx.treeMap) {
@@ -16208,7 +16221,7 @@ loadMySales();
           if (D !== 'world') { canAdvance = false; }
           // Tentar acertar o dummy via vm()
           if (canAdvance) {
-            try { vm('dummy', null, -1, null); } catch(_) {}
+            try { Hm('dummy', null, -1, null); } catch(_) {}
             await new Promise(res => setTimeout(res, 300));
           }
         }
@@ -19836,7 +19849,7 @@ loadMySales();
           var pk  = keys && keys[0];
           var ctx, rec, proof = '';
           try {
-            ctx = R3();
+            ctx = SA();
             rec = kind === 'rock'
               ? (ctx && ctx.rockMap && ctx.rockMap.get(pk))
               : (ctx && ctx.treeMap && ctx.treeMap.get(pk));
@@ -20005,7 +20018,7 @@ loadMySales();
     try { console.log('V$ (gatherAllowed):', R$()); } catch(_) {}
     try { console.log('Nt (playerId):', Nt, '| connected:', Nt != null); } catch(_) {}
     try { console.log('agHudVisible:', agHudVisible(), '| serverScreen:', agServerScreenVisible()); } catch(_) {}
-    try { const ctx = R3(); console.log('ctx:', ctx ? 'ok' : 'NULL', '| treeMap:', ctx && ctx.treeMap ? ctx.treeMap.size : 0, '| rockMap:', ctx && ctx.rockMap ? ctx.rockMap.size : 0); } catch(e) { console.log('ctx erro:', e.message); }
+    try { const ctx = SA(); console.log('ctx:', ctx ? 'ok' : 'NULL', '| treeMap:', ctx && ctx.treeMap ? ctx.treeMap.size : 0, '| rockMap:', ctx && ctx.rockMap ? ctx.rockMap.size : 0); } catch(e) { console.log('ctx erro:', e.message); }
     try {
       console.log('ot type:', typeof ot, '| ot.size:', typeof ot !== 'undefined' ? ot.size : 'N/A');
       console.log('ll():', ll());
@@ -20023,5 +20036,5 @@ loadMySales();
   } // fecha o else do guard de instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v1.78'
+// FIM AUTO-GATHER v1.79'
 
