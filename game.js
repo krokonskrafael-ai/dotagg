@@ -6623,7 +6623,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.84';
+  const AG_VERSION          = 'v1.86';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -7546,11 +7546,13 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     } catch (_) { return false; }
   }
 
-  // ── Fishable water cells (substitui agGetFishableWaterCells() que era module-local r_e) ───────
+  // ── Fishable water cells (substitui r_e que era module-local) ─────────────
   function agGetFishableWaterCells() {
     try {
       if (D === 'pond')       return k$ || null;
-      // eldergrove/beach/ember water sets not exported; return null → fish only in pond
+      if (D === 'eldergrove') return ZO || null;
+      if (D === 'beach')      return iu || null;
+      if (D === 'ember')      return Lue || null;
       return null;
     } catch(_) { return null; }
   }
@@ -8252,9 +8254,23 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
   // ── Auto-Join Servidor ────────────────────────────────────────────────────
   var _agLastServerClick = 0;
+  var _agServerWaitStart = 0;
   function agAutoJoinServer() {
     var now = Date.now();
     if (now - _agLastServerClick < 8000) return; // throttle 8s entre tentativas
+
+    // Aguardar 4s após os botões de servidor aparecerem, para dar tempo
+    // de todos os servidores (incluindo non-Club) carregarem
+    var allBtnsNow = document.querySelectorAll('.kintara-server-select-btn');
+    if (allBtnsNow.length > 0 && _agServerWaitStart === 0) {
+      _agServerWaitStart = now;
+      AG_LOG.info('[AutoJoin] Servidores detectados (' + allBtnsNow.length + '), aguardando 4s para carregar todos...');
+      return;
+    }
+    if (_agServerWaitStart > 0 && (now - _agServerWaitStart) < 4000) {
+      return; // ainda aguardando
+    }
+    _agServerWaitStart = 0; // reset para próxima vez
     _agLastServerClick = now;
 
     var targetServer = agOptCfg.server || '';
@@ -8308,7 +8324,11 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     // 3. Fallback: qualquer botão visível na lista de servidores
     var listBtns = Array.from(document.querySelectorAll(
       '.kintara-server-card button, .kintara-server-list button, [class*="server"] button'
-    )).filter(function(b) { return !b.disabled; });
+    )).filter(function(b) {
+      if (b.disabled) return false;
+      if (!_joinClub2 && _isClubServer(b)) return false;
+      return true;
+    });
     if (listBtns.length > 0) {
       AG_LOG.info('[AutoJoin] Fallback: clicando primeiro btn disponível');
       listBtns[0].click();
@@ -9165,11 +9185,23 @@ loadMySales();
   window.__agGodMode  = false; // GodMode — bloqueia dano de mobs
   // GodMode loop: mantém HP e Shield no máximo enquanto ativo
   (function() {
-    setInterval(function() {
-      if (!window.__agGodMode) return;
-      try { if ((wo|0) < 100) wo = 100; } catch(_) {}
-      try { if ((Bo|0) < 5)   Bo = 5;   } catch(_) {}
-    }, 100); // 100ms = rápido o suficiente para anular dano antes do próximo frame
+    // GodMode: hook nas funções de dano + RAF loop para garantir HP/Shield máximo
+    // 1. Hook nLe (applyWildMbAckFromPresenceHub) — dano remoto
+    var _origNLe = nLe;
+    try {
+      nLe = function(e) {
+        if (window.__agGodMode) return; // ignora dano
+        return _origNLe.apply(this, arguments);
+      };
+    } catch(_) {}
+    // 2. RAF loop — reseta HP/Shield a cada frame (backup + cobre dano por contato)
+    (function _godLoop() {
+      if (window.__agGodMode) {
+        try { if ((wo|0) < 100) wo = 100; } catch(_) {}
+        try { if ((Bo|0) < 5)   Bo = 5;   } catch(_) {}
+      }
+      requestAnimationFrame(_godLoop);
+    })();
   })();
   let agHuntTargetAt    = 0;     // timestamp de quando setou o alvo (início do path)
   let agHuntCombatAt    = null;  // timestamp de quando chegou adjacente e começou a bater
@@ -11385,11 +11417,10 @@ loadMySales();
   /** Retorna quantos players estão no mesmo realm que o jogador local. */
   function agGetMapPlayerCount() {
     try {
-      if (typeof ot === 'undefined' || !ot || !ot.size) return 0;
-      // ll() = normalizedPresenceRegionFromGameState — mesmo filtro usado pelo jogo
-      var localKey = ll();
+      if (typeof un === 'undefined' || !un || !un.size) return 0;
+      var localKey = Ns();
       var count = 0;
-      for (var rp of ot.values()) {
+      for (var rp of un.values()) {
         if (rp && rp.netPresenceSnapKey === localKey) count++;
       }
       return count;
@@ -12501,7 +12532,7 @@ loadMySales();
     try {
       const counts = {};
       for (let i=0; i<24; i++) {
-        const s = ot && st[i];
+        const s = qt[i];
         if (!s||!s.type||!s.count||s.count<=0) continue;
         counts[s.type] = (counts[s.type]||0)+s.count;
       }
@@ -13373,7 +13404,7 @@ loadMySales();
         // Agrupa itens do inventário
         const counts = {};
         for (let i = 0; i < 24; i++) {
-          const s = ot && st[i];
+          const s = qt[i];
           if (!s || !s.type || !s.count || s.count <= 0) continue;
           counts[s.type] = (counts[s.type] || 0) + s.count;
         }
@@ -14011,7 +14042,9 @@ loadMySales();
             '<button class="as-cfg-btn" data-as-cfg="' + type + '" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:4px;color:#8a93a8;font-size:10px;padding:2px 6px;cursor:pointer;flex-shrink:0" title="Configurar ' + labels[type] + '">&#9881;</button>' +
           '</div>' +
           '<div class="as-item-cfg" data-cfg-for="' + type + '" style="display:none;padding:5px 8px 6px;background:rgba(255,200,100,0.04);border:1px solid rgba(255,200,100,0.12);border-radius:0 0 5px 5px;margin-top:-1px">' +
-            '<div style="margin-bottom:4px"><label style="' + lblS + '">Qtd mínima</label><input data-cfg-field="threshold" data-cfg-type="' + type + '" type="number" min="100" step="100" style="' + inpS + '" value="' + ic.threshold + '"></div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:9px;font-weight:700;color:#fbbf24">' + labels[type] + '</span><button data-cfg-close="' + type + '" style="background:none;border:none;color:#556;font-size:11px;cursor:pointer;padding:0 2px" title="Fechar">✕</button></div>' +
+            '<div style="margin-bottom:4px"><label style="' + lblS + '">Qtd mínima p/ vender</label><input data-cfg-field="threshold" data-cfg-type="' + type + '" type="number" min="100" step="100" style="' + inpS + '" value="' + ic.threshold + '"></div>' +
+            '<div style="margin-bottom:4px"><label style="' + lblS + '">Keep (reservar)</label><input data-cfg-field="keep" data-cfg-type="' + type + '" type="number" min="0" step="100" style="' + inpS + '" value="' + (ic.keep||0) + '" placeholder="0 = vende tudo"></div>' +
             '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;margin-bottom:3px;font-size:10px"><input type="checkbox" data-cfg-field="useFloor" data-cfg-type="' + type + '" style="accent-color:#f97316"' + (ic.useFloor?' checked':'') + '>Floor Price (−$0.01)</label>' +
             '<div data-cfg-floor-opts="' + type + '" style="' + (ic.useFloor?'':'display:none') + ';margin-left:16px;margin-bottom:3px">' +
               '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:10px;margin-bottom:2px"><input type="checkbox" data-cfg-field="useMinFloor" data-cfg-type="' + type + '" style="accent-color:#f97316"' + (ic.useMinFloor?' checked':'') + '>Check Min Floor</label>' +
@@ -14046,6 +14079,13 @@ loadMySales();
           if (!open) cfgDiv.style.display = '';
         });
       });
+      // Close button (X) inside config
+      list.querySelectorAll('[data-cfg-close]').forEach(function(el) {
+        el.addEventListener('click', function() {
+          var cfgDiv = list.querySelector('[data-cfg-for="' + el.dataset.cfgClose + '"]');
+          if (cfgDiv) cfgDiv.style.display = 'none';
+        });
+      });
       // Floor checkbox toggle
       list.querySelectorAll('[data-cfg-field="useFloor"]').forEach(function(el) {
         el.addEventListener('change', function() {
@@ -14072,6 +14112,7 @@ loadMySales();
           var rawMin = (list.querySelector('[data-cfg-field="minFloor"][data-cfg-type="' + t + '"]')?.value || '').replace(',','.');
           c2.items[t] = Object.assign(c2.items[t] || agDefaultItemSellCfg(), {
             threshold:   Number(list.querySelector('[data-cfg-field="threshold"][data-cfg-type="' + t + '"]')?.value) || 3000,
+            keep:        Number(list.querySelector('[data-cfg-field="keep"][data-cfg-type="' + t + '"]')?.value) || 0,
             useFloor:    !!list.querySelector('[data-cfg-field="useFloor"][data-cfg-type="' + t + '"]')?.checked,
             fixedPrice:  Number(list.querySelector('[data-cfg-field="fixedPrice"][data-cfg-type="' + t + '"]')?.value) || 0,
             useMinFloor: !!list.querySelector('[data-cfg-field="useMinFloor"][data-cfg-type="' + t + '"]')?.checked,
@@ -14903,7 +14944,7 @@ loadMySales();
     try {
       const counts = {};
       for (let i=0; i<24; i++) {
-        const s = ot && st[i];
+        const s = qt[i];
         if (!s||!s.type||!s.count||s.count<=0) continue;
         counts[s.type] = (counts[s.type]||0)+s.count;
       }
@@ -15053,7 +15094,7 @@ loadMySales();
               var _freeQty = 0;
               try {
                 for (var _fi = 0; _fi < 24; _fi++) {
-                  var _fs = ot && st[_fi];
+                  var _fs = qt[_fi];
                   if (_fs && _fs.type === itemType) _freeQty += (_fs.count || 0);
                 }
               } catch(_e) {}
@@ -15095,7 +15136,7 @@ loadMySales();
     let totalQty = 0, slotIndex = -1;
     try {
       for (let i = 0; i < 24; i++) {
-        const s = ot && st[i];
+        const s = qt[i];
         if (!s || !s.type || s.type !== itemType) continue;
         totalQty += (s.count || 0);
         if (slotIndex === -1) slotIndex = i;
@@ -15103,8 +15144,7 @@ loadMySales();
     } catch(e) { AG_LOG_SELL.warn('[' + itemType + '] erro ao ler inventario', e); return; }
 
     // Keep: reserva mínima — nunca vende abaixo desse valor
-    const keepEnabled = !!itemCfg.keepEnabled;
-    const keepAmount  = keepEnabled ? (Number(itemCfg.keepAmount) || 0) : 0;
+    const keepAmount  = Number(itemCfg.keep) || 0;
     const availableToSell = keepAmount > 0 ? Math.max(0, totalQty - keepAmount) : totalQty;
     // Gold e metal vendem por unidade; recursos comuns em lotes de 100
     const _lotSize = itemType === 'gold' ? 1 : 100; // gold unitário, demais em lotes de 100
@@ -15158,7 +15198,7 @@ loadMySales();
       try {
         await flushSaveInventoryImmediate({ inventoryMutationFlush: true });
         for (let i = 0; i < 24; i++) {
-          const s = ot && st[i];
+          const s = qt[i];
           if (s && s.type === itemType) { freshSlotIndex = i; break; }
         }
       } catch(_) { freshSlotIndex = slotIndex; }
@@ -15206,7 +15246,7 @@ loadMySales();
               await flushSaveInventoryImmediate({ inventoryMutationFlush: true });
               let syncSlot = -1;
               for (let i = 0; i < 24; i++) {
-                const s = ot && st[i];
+                const s = qt[i];
                 if (s && s.type === itemType && (s.count || 0) >= 1) { syncSlot = i; break; }
               }
               if (syncSlot === -1) { agAutoSellUpdateStatus('[' + itemType + '] sem item para sync'); return; }
@@ -15244,17 +15284,37 @@ loadMySales();
       return;
     }
 
+    // ── Verificar daily quests antes de criar ordens ────────────────────────
+    try {
+      var _questDone = 0, _questTotal = 3;
+      var _kcQ = (typeof rd !== 'undefined' && rd.quests) ? rd.quests : [];
+      var _yaC = (typeof Sa !== 'undefined' && Sa.claimed) ? Sa.claimed : {};
+      _questTotal = Math.max(3, _kcQ.length);
+      for (var _qi = 0; _qi < _kcQ.length; _qi++) {
+        if (_yaC[_kcQ[_qi].id]) _questDone++;
+      }
+      if (_kcQ.length === 0) {
+        var _clKeys = Object.keys(_yaC);
+        _questTotal = Math.max(3, _clKeys.length);
+        _questDone  = _clKeys.filter(function(k){ return _yaC[k]; }).length;
+      }
+      if (_questDone < _questTotal) {
+        agAutoSellUpdateStatus('⏳ Quests ' + _questDone + '/' + _questTotal + ' — aguardando');
+        AG_LOG_SELL.warn('Daily quests incompletas (' + _questDone + '/' + _questTotal + ') — adiando sell');
+        return;
+      }
+    } catch(_) {
+      // Se não conseguiu verificar quests, loga mas continua (melhor tentar do que travar)
+      AG_LOG_SELL.warn('Não foi possível verificar daily quests, continuando...');
+    }
+
     // Forçar refresh dos floors AGORA antes de criar anúncios
-    // Invalida o cache dos itens ativos para garantir preço fresco
     agAutoSellUpdateStatus('🔄 Atualizando floors…');
     AG_LOG.info('[AutoSell] Buscando floors frescos para: ' + activeItems.join(', '));
     const FORCE_REFRESH_DELAY = 1500; // ms entre cada item para não gerar 429
     for (const itemType of activeItems) {
-      // Invalidar cache desse item
       if (agFloorCache[itemType]) agFloorCache[itemType].ts = 0;
-      // Buscar fresco
       await agFetchFloor(itemType);
-      // Pequena pausa entre requests
       if (activeItems.indexOf(itemType) < activeItems.length - 1) {
         await new Promise(r => setTimeout(r, FORCE_REFRESH_DELAY));
       }
