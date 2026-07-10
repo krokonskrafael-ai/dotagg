@@ -6623,7 +6623,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.77';
+  const AG_VERSION          = 'v1.78';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -7970,10 +7970,10 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
           const nc = ce + dc, nr = de + dr;
           if (!blk.has(`${nc},${nr}`) && !(nc === col && nr === row)) {
             // Vai um passo pro lado e deixa o approaching state puxar de volta
-            const path = r(ce, de, nc, nr);
+            const path = Nl(ce, de, nc, nr);
             if (path && path.length) {
               qe = path;
-              if (!$e) Ll();
+              if (!$e) Hl();
               escaped = true;
               break;
             }
@@ -7991,16 +7991,16 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       const portalBlk = agGetPortalAvoidSet();
       const baseBlk   = d();
       const safeBlk   = new Set([...baseBlk, ...portalBlk]);
-      const path = r(ce, de, ap.col, ap.row);
+      const path = Nl(ce, de, ap.col, ap.row);
       if (!path || !path.length) {
         // Fallback sem portal-block se não achou caminho
-        const fallback = r(ce, de, ap.col, ap.row);
+        const fallback = Nl(ce, de, ap.col, ap.row);
         if (!fallback || !fallback.length) return false;
         qe = fallback;
       } else {
         qe = path;
       }
-      if (!$e) Ll();
+      if (!$e) Hl();
       return true;
     } catch (err) {
       console.warn('[AutoGather] agApproach erro:', err);
@@ -8199,9 +8199,9 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       try { _(); } catch (_) {}
       agSetStatus('⚡ Teleportado para a beira d\'água');
     } else {
-      const path = r(ce, de, spot.col, spot.row);
+      const path = Nl(ce, de, spot.col, spot.row);
       if (!path || !path.length) { agSetStatus('❌ Sem caminho para a água'); agSchedule(AG_RETRY_MS); return; }
-      qe = path; if (!$e) Ll();
+      qe = path; if (!$e) Hl();
       agSetStatus(`🚶 Indo pescar [${spot.col},${spot.row}]`);
     }
     agSchedule(AG_TICK_MS);
@@ -8295,12 +8295,12 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         }
         AG_LOG.warn('Shack pos=[' + ce + ',' + de + '] U=' + U + ' Y.len=' + qe.length + ' cols=' + wo + ' rows=' + ko);
         try {
-          const path = r(ce, de, 2, 3);
+          const path = Nl(ce, de, 2, 3);
           AG_LOG.warn('Shack path=' + JSON.stringify(path ? path.slice(0,3) : null) + ' len=' + (path ? path.length : 'null'));
           if (path && path.length) {
             qe = path;
             $e = false;
-            Ll();
+            Hl();
           } else {
             // findPath falhou — dispara key event para mover manualmente
             AG_LOG.warn('Shack: findPath falhou — tentando via KeyS');
@@ -9156,7 +9156,7 @@ loadMySales();
     // Determina max índices e offset correto para cada tipo
     // ZCe = WILD_ENEMY_COUNT (importado do bundle)
     const maxIdx = (kind === 'wild')
-      ? (function(){ try { return ZCe || 24; } catch(_){ return 24; } })()
+      ? (function(){ try { return uT || 24; } catch(_){ return 24; } })()
       : AG_HUNT_MUX_IDX;
     const offX = Qn();  // wildOffX — offset correto para mobs de hunt
     const offZ = Jn();  // wildOffZ
@@ -9165,9 +9165,9 @@ loadMySales();
     for (let i = 0; i < maxIdx; i++) {
       let foot = null;
       try {
-        if (kind === 'chicken') foot = lr?.getChickenApproximateFoot(i);
-        else if (kind === 'wolf') foot = Ya?.getWolfApproximateFoot(i);
-        else foot = hr()?.getEnemyApproximateFoot(i);
+        if (kind === 'chicken') foot = Ys?.getChickenApproximateFoot(i);
+        else if (kind === 'wolf') foot = or?.getWolfApproximateFoot(i);
+        else foot = mr()?.getEnemyApproximateFoot(i);
       } catch (_) { continue; }
       if (!foot) { nullCount++; continue; }
       aliveCount++;
@@ -9193,9 +9193,9 @@ loadMySales();
   // Pega a posição atual de um mob pelo kind+idx
   function agHuntGetFoot(kind, idx) {
     try {
-      if (kind === 'chicken') return lr?.getChickenApproximateFoot(idx) ?? null;
-      if (kind === 'wolf')    return Ya?.getWolfApproximateFoot(idx) ?? null;
-      return hr()?.getEnemyApproximateFoot(idx) ?? null;
+      if (kind === 'chicken') return Ys?.getChickenApproximateFoot(idx) ?? null;
+      if (kind === 'wolf')    return or?.getWolfApproximateFoot(idx) ?? null;
+      return mr()?.getEnemyApproximateFoot(idx) ?? null;
     } catch (_) { return null; }
   }
 
@@ -9249,35 +9249,42 @@ loadMySales();
     W5(hi);
     const ok = PSe();
     if (prev !== hi) { try { W5(prev); } catch(_) {} }
-    if (!ok) throw new Error('consumo bloqueado (' + type + ')');
-    return true;
+    return !!ok; // false = jogo bloqueou (ex.: shield cheio) — não é erro
+  }
+
+  // HoT do escudo ativo? (jue = shieldPotionChargeTimes do bundle)
+  function agShieldHoT() {
+    try { return jue.length > 0; } catch(_) { return false; }
   }
 
   function agHuntUsePotion(type) {
     const now = Date.now();
     if (type === 'potion_health') {
       // Não usar enquanto HoT ativo (Cy = array de ticks agendados da poção)
-      try { if (typeof Cy !== 'undefined' && Cy.length > 0) return false; } catch(_) {}
+      try { if (typeof $ue !== 'undefined' && $ue.length > 0) return false; } catch(_) {}
       // Cooldown mínimo de 10s (= intervalo entre ticks do HoT)
       if (now - agPotionHealthAt < 10000) return false;
     }
-    if (type === 'potion_shield' && now - agPotionShieldAt < AG_POTION_COOLDOWN) return false;
+    if (type === 'potion_shield') {
+      try { if ((Bo | 0) >= 5) return false; } catch(_) {}  // shield cheio — não desperdiça
+      if (now - agPotionShieldAt < AG_POTION_COOLDOWN) return false;
+    }
     if (type === 'potion_strength') {
       // Grace period local após usar (cobre delay entre fetch e Zp ser setado)
       if (now - agPotionStrengthAt < AG_POTION_STRENGTH_GRACE_MS) return false;
       // Também bloqueia se buff ainda ativo (verificação principal)
-      if (Are()) return false;
+      if (dpe()) return false;
     }
     // Verifica se tem pocao
     const inInv  = (Jt[type] || 0) > 0;
     const inHotbar = vt.some(s => s && s.type === type && s.count > 0);
     if (!inInv && !inHotbar) return false;
     try {
-      agUsePotionByType(type);
+      if (!agUsePotionByType(type)) return false;
       if (type === 'potion_health')   agPotionHealthAt   = now;
       if (type === 'potion_shield')   agPotionShieldAt   = now;
       if (type === 'potion_strength') agPotionStrengthAt = now;
-      AG_LOG.info('Hunt: usou ' + type + ' | hp=' + Jt + ' shield=' + An + ' | Lre=' + Lre());
+      AG_LOG.info('Hunt: usou ' + type + ' | hp=' + Jt + ' shield=' + An + ' | Lre=' + agShieldHoT());
       return true;
     } catch(e) { AG_LOG.warn('Hunt potion err: ' + e.message); return false; }
   }
@@ -9288,8 +9295,8 @@ loadMySales();
     const fleeRow = de; // mantém a linha atual
     Is();
     agHuntTarget = null; agHuntCombatAt = null;
-    qe = r(ce, de, fleeCol, fleeRow);
-    if (qe && qe.length && !$e) Ll();
+    qe = Nl(ce, de, fleeCol, fleeRow);
+    if (qe && qe.length && !$e) Hl();
     agHuntSetStatus('🏃 Fugindo para area PVE! HP=' + Math.ceil(Jt/20) + ' Shield=' + An);
   }
 
@@ -9307,7 +9314,7 @@ loadMySales();
 
     // Shield: bloquear uso se ainda está no grace period após última aplicação
     // Lre() = shieldPotionApplyGraceActive — true enquanto shield foi aplicado recentemente
-    if (agHuntPotionEnabled('potion_shield') && shieldSegs <= _huntShieldThr && !Lre()) {
+    if (agHuntPotionEnabled('potion_shield') && shieldSegs <= _huntShieldThr && !agShieldHoT()) {
       agHuntUsePotion('potion_shield');
     }
     if (agHuntPotionEnabled('potion_health') && hpSegs <= _huntHpThr) {
@@ -9449,13 +9456,13 @@ loadMySales();
                 const kiteC = ce + Math.round((dc / len) * _kd);
                 const kiteR = de + Math.round((dr / len) * _kd);
                 if (!blk2.has(kiteC + ',' + kiteR)) {
-                  const _p = r(ce, de, kiteC, kiteR);
+                  const _p = Nl(ce, de, kiteC, kiteR);
                   if (_p && _p.length >= 3) { kPath = _p; break; }
                 }
               }
               if (kPath && kPath.length) {
                 qe = kPath;
-                if (!$e) Ll();
+                if (!$e) Hl();
                 const swingCooldownMs = (function(){ try { return Math.max(0, (Im - j.elapsedTime) * 1000 + 50); } catch(_){ return 900; } })();
                 agKiteUntil = Date.now() + swingCooldownMs;
                 AG_LOG.info('Kite: recuando | dist=' + (kPath.length) + ' tiles | janela=' + Math.round(swingCooldownMs) + 'ms');
@@ -9494,8 +9501,8 @@ loadMySales();
             approachCol: ap.col, approachRow: ap.row,
             phase: 'walk',
           };
-          const path = r(ce, de, ap.col, ap.row);
-          if (path && path.length) { qe = path; if (!$e) Ll(); }
+          const path = Nl(ce, de, ap.col, ap.row);
+          if (path && path.length) { qe = path; if (!$e) Hl(); }
         }
       }
       const dist = Math.abs(ce - tc) + Math.abs(de - tr);
@@ -9748,23 +9755,26 @@ loadMySales();
       var now = Date.now();
       // Mesmos guards do agHuntUsePotion
       if (type === 'potion_health') {
-        if (cm > 0) return false;
+        if (($ue.length) > 0) return false;
         if (now - agPotionHealthAt < AG_POTION_COOLDOWN) return false;
       }
-      if (type === 'potion_shield' && now - agPotionShieldAt < AG_POTION_COOLDOWN) return false;
+      if (type === 'potion_shield') {
+        try { if ((Bo | 0) >= 5) return false; } catch(_) {}  // shield cheio
+        if (now - agPotionShieldAt < AG_POTION_COOLDOWN) return false;
+      }
       if (type === 'potion_strength') {
         if (now - agPotionStrengthAt < AG_POTION_STRENGTH_GRACE_MS) return false;
-        if (Are()) return false;
+        if (dpe()) return false;
       }
       var inInv    = (Jt[type] || 0) > 0;
       var inHotbar = vt.some(function(s){ return s && s.type === type && s.count > 0; });
       if (!inInv && !inHotbar) return false;
-      agUsePotionByType(type);
+      if (!agUsePotionByType(type)) return false;
       // Registra timestamps compartilhados com Hunt
       if (type === 'potion_health')   agPotionHealthAt   = now;
       if (type === 'potion_shield')   agPotionShieldAt   = now;
       if (type === 'potion_strength') agPotionStrengthAt = now;
-      AG_BOSS_LOG.info('Usou ' + type + ' | hp=' + Jt + ' shield=' + An + ' | HoT=' + cm);
+      AG_BOSS_LOG.info('Usou ' + type + ' | hp=' + Jt + ' shield=' + An + ' | HoT=' + ($ue.length));
       return true;
     } catch(_) { return false; }
   }
@@ -10004,8 +10014,8 @@ loadMySales();
               var _wCols = wo;
               wildExtPortal = { col: Math.floor(_wCols / 2), row: 0 };
             }
-            var _path = r(ce, de, wildExtPortal.col, wildExtPortal.row);
-            if (_path && _path.length) { qe = _path; if (!$e) Ll(); }
+            var _path = Nl(ce, de, wildExtPortal.col, wildExtPortal.row);
+            if (_path && _path.length) { qe = _path; if (!$e) Hl(); }
             AG_BOSS_LOG.info('Boss nav: indo para portal wild_ext em ' + wildExtPortal.col + ',' + wildExtPortal.row);
           } catch(e) { AG_BOSS_LOG.warn('Boss nav wild erro: ' + e.message); }
         } else if (D==='world') {
@@ -11168,9 +11178,9 @@ loadMySales();
       try { Is(); } catch(_) {}
       agLastKey = null; agLastApKey = null; agLastApKeyAt = 0; agApproachAt = null;
       // Walk using same mechanism as ground click
-      qe = r(ce, de, _tdx, ty);
+      qe = Nl(ce, de, _tdx, ty);
       if (qe && qe.length) {
-        if (!$e) Ll();
+        if (!$e) Hl();
         AG_LOG.info('Nudge: andando ' + qe.length + ' steps');
       } else {
         // No direct path — try a random adjacent free tile
@@ -11179,8 +11189,8 @@ loadMySales();
         for (const [dc,dr] of dirs) {
           const nc = ce+dc*3, nr = de+dr*3;
           if (blk.has(nc+','+nr)) continue;
-          qe = r(ce, de, nc, nr);
-          if (qe && qe.length) { if (!$e) Ll(); break; }
+          qe = Nl(ce, de, nc, nr);
+          if (qe && qe.length) { if (!$e) Hl(); break; }
         }
         AG_LOG.warn('Nudge: sem caminho direto — tentando alternativo');
       }
@@ -11282,7 +11292,7 @@ loadMySales();
         agHuntUsePotion('potion_shield');
       }
       // Health — só usa se HoT não estiver ativo (Cy = ticks do HoT)
-      var _hotActive = (function(){ try { return typeof Cy !== 'undefined' && Cy.length > 0; } catch(_){ return false; } })();
+      var _hotActive = (function(){ try { return typeof $ue !== 'undefined' && $ue.length > 0; } catch(_){ return false; } })();
       if (!_hotActive && agHuntPotionEnabled('potion_health') && hpSegs <= agHuntHpThresh()) {
         agHuntUsePotion('potion_health');
       }
@@ -11596,12 +11606,12 @@ loadMySales();
       }
       AG_LOG.warn('Shack: saindo via path para [' + 7 + ',' + 4 + '] pos=[' + ce + ',' + de + ']');
       try {
-        const path = r(ce, de, 7, 4);
+        const path = Nl(ce, de, 7, 4);
         AG_LOG.warn('Shack path len=' + (path ? path.length : 'null') + ' U=' + U);
         if (path && path.length) {
           qe = path;
           $e = false;
-          Ll();
+          Hl();
         } else {
           // Fallback: key event direcional
           const dc = 7 - ce;
@@ -11836,8 +11846,8 @@ loadMySales();
           agNavSetStatus('🌀 Entrando em Frostmere…');
           agNavTimer = setTimeout(agNavTick, 500); return;
         }
-        const pp = r(ce, de, portal.col, portal.row);
-        if (pp && pp.length) { qe = pp; if (!$e) Ll(); }
+        const pp = Nl(ce, de, portal.col, portal.row);
+        if (pp && pp.length) { qe = pp; if (!$e) Hl(); }
         agNavSetStatus('🚶 Indo para Frostmere (via Eldergrove)…');
         agNavTimer = setTimeout(agNavTick, 500); return;
       }
@@ -11850,8 +11860,8 @@ loadMySales();
           agNavSetStatus('🌀 Entrando na Beach…');
           agNavTimer = setTimeout(agNavTick, 500); return;
         }
-        const pp = r(ce, de, portal.col, portal.row);
-        if (pp && pp.length) { qe = pp; if (!$e) Ll(); }
+        const pp = Nl(ce, de, portal.col, portal.row);
+        if (pp && pp.length) { qe = pp; if (!$e) Hl(); }
         agNavSetStatus('🚶 Indo para Beach…');
         agNavTimer = setTimeout(agNavTick, 500); return;
       }
@@ -11878,14 +11888,14 @@ loadMySales();
         agNavTimer = setTimeout(agNavTick, 500);
         return;
       }
-      const path = r(ce, de, exit.col, exit.row);
+      const path = Nl(ce, de, exit.col, exit.row);
       if (!path || !path.length) {
         agNavSetStatus('❌ Sem caminho para saída de ' + (AG_REALM_LABELS[D] || D));
         agNavTimer = setTimeout(agNavTick, 2000);
         return;
       }
       qe = path;
-      if (!$e) Ll();
+      if (!$e) Hl();
       agNavSetStatus('🚶 Saindo de ' + (AG_REALM_LABELS[D] || D) + ' → ' + (AG_REALM_LABELS[agNavTarget] || agNavTarget) + '…');
       agNavTimer = setTimeout(agNavTick, 500);
       return;
@@ -11918,8 +11928,8 @@ loadMySales();
           agNavSetStatus('🌀 Entrando na Beach…');
           agNavTimer = setTimeout(agNavTick, 500); return;
         }
-        const bp = r(ce, de, beachPortal.col, beachPortal.row);
-        if (bp && bp.length) { qe = bp; if (!$e) Ll(); }
+        const bp = Nl(ce, de, beachPortal.col, beachPortal.row);
+        if (bp && bp.length) { qe = bp; if (!$e) Hl(); }
         agNavSetStatus('🚶 Indo para Beach (caminho para Ember)…');
         agNavTimer = setTimeout(agNavTick, 500); return;
       }
@@ -11933,13 +11943,13 @@ loadMySales();
     }
 
     // Caminha até o portal
-    const path = r(ce, de, portal.col, portal.row);
+    const path = Nl(ce, de, portal.col, portal.row);
     if (!path || !path.length) {
       agNavSetStatus('❌ Sem caminho para o portal');
       agNavTarget = null; return;
     }
     qe = path;
-    if (!$e) Ll();
+    if (!$e) Hl();
     agNavSetStatus('🚶 Indo para ' + (AG_REALM_LABELS[agNavTarget] || agNavTarget) + '…');
     agNavTimer = setTimeout(agNavTick, 500);
   }
@@ -12131,11 +12141,11 @@ loadMySales();
         // Mobs
         var mobHtml = '';
         // Chickens (eldergrove)
-        if (D==='eldergrove' && typeof lr !== 'undefined') {
+        if (D==='eldergrove' && typeof Ys !== 'undefined') {
           try {
             var chickenAlive = 0, chickenTotal = 0;
             for (var ci = 0; ci < 30; ci++) {
-              const foot = lr.getChickenApproximateFoot(ci);
+              const foot = Ys.getChickenApproximateFoot(ci);
               if (foot !== null && foot !== undefined) { chickenTotal++; chickenAlive++; }
             }
             if (chickenTotal > 0) mobHtml += '<div class="mi-row"><span class="mi-name">' + img('/assets/hud/resources/rawchicken.png') + ' Galinhas</span><span class="mi-qty green">' + chickenAlive + '</span></div>';
@@ -12144,7 +12154,7 @@ loadMySales();
         // Wild zombies
         if ((D==='wild' || D==='wild_exp' || D==='wild_ext' || D==='ember') && typeof _agChopState !== 'undefined') {
           try {
-            const sys = hr();
+            const sys = mr();
             if (sys) {
               var zombieAlive = 0;
               for (var zi = 0; zi < 20; zi++) {
@@ -13045,11 +13055,11 @@ loadMySales();
 
               // Calcular e setar path até a saída
               if (!$e && qe.length === 0) {
-                var path = r(ce, de, exit.col, exit.row);
+                var path = Nl(ce, de, exit.col, exit.row);
                 console.log('[DailyGold] path para exit=' + (path ? path.length : 'null') + ' exit=' + JSON.stringify(exit));
                 if (path && path.length > 0) {
                   qe = path;
-                  Ll();
+                  Hl();
                   console.log('[DailyGold] Ll chamado | Y.len=' + qe.length + ' U=' + U);
                 }
               }
@@ -13089,9 +13099,9 @@ loadMySales();
         for (var _ci = 0; _ci < candidates.length; _ci++) {
           var _tc = candidates[_ci][0], _tr = candidates[_ci][1];
           try {
-            var path = r(ce, de, _tc, _tr);
+            var path = Nl(ce, de, _tc, _tr);
             if (path && path.length > 0) {
-              qe = path; if (!$e) Ll();
+              qe = path; if (!$e) Hl();
               AG_LOG.info('[DailyGold] path ok -> ' + _tc + ',' + _tr + ' len=' + path.length);
               return true;
             }
@@ -14547,11 +14557,11 @@ loadMySales();
         // Mobs
         var mobHtml = '';
         // Chickens (eldergrove)
-        if (D==='eldergrove' && typeof lr !== 'undefined') {
+        if (D==='eldergrove' && typeof Ys !== 'undefined') {
           try {
             var chickenAlive = 0, chickenTotal = 0;
             for (var ci = 0; ci < 30; ci++) {
-              const foot = lr.getChickenApproximateFoot(ci);
+              const foot = Ys.getChickenApproximateFoot(ci);
               if (foot !== null && foot !== undefined) { chickenTotal++; chickenAlive++; }
             }
             if (chickenTotal > 0) mobHtml += '<div class="mi-row"><span class="mi-name">' + img('/assets/hud/resources/rawchicken.png') + ' Galinhas</span><span class="mi-qty green">' + chickenAlive + '</span></div>';
@@ -14560,7 +14570,7 @@ loadMySales();
         // Wild zombies
         if ((D==='wild' || D==='wild_exp' || D==='wild_ext' || D==='ember') && typeof _agChopState !== 'undefined') {
           try {
-            const sys = hr();
+            const sys = mr();
             if (sys) {
               var zombieAlive = 0;
               for (var zi = 0; zi < 20; zi++) {
@@ -18150,9 +18160,9 @@ loadMySales();
 
         // 3. Navegar até o tile adjacente ao merchant
         if (resEl) resEl.textContent = '🚶 Indo ao Merchant (col=' + AG_MERCH_COL + ', row=' + AG_MERCH_ROW + ')…';
-        var path = r(ce, de, AG_MERCH_COL, AG_MERCH_ROW);
+        var path = Nl(ce, de, AG_MERCH_COL, AG_MERCH_ROW);
         if (path && path.length) {
-          qe = path; if (!$e) Ll();
+          qe = path; if (!$e) Hl();
         }
         // Aguardar chegada (max 20s)
         var _walkWait = 0;
@@ -19785,7 +19795,7 @@ loadMySales();
         console.log('  seg['+i+'] '+(blue?'🔵 AZUL':'⚫ cinza')+' bg='+bg.slice(0,60));
       });
     }
-    console.log('[ShieldDebug] An='+An+' Lre='+Lre());
+    console.log('[ShieldDebug] An='+An+' Lre='+agShieldHoT());
     return { dom, An };
   };
   console.info('[AG] agShieldDebug() disponível no console');
@@ -20013,5 +20023,5 @@ loadMySales();
   } // fecha o else do guard de instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v1.77'
+// FIM AUTO-GATHER v1.78'
 
