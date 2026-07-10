@@ -6623,29 +6623,38 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.80';
+  const AG_VERSION          = 'v1.81';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
-  // ── Bloqueio global de clicks nos painéis AG ──────────────────────────────
-  // Impede que clicks/pointer events nos painéis do farmer passem para o jogo
-  // (capture phase no document, verifica se o target está dentro de um ag-*-host)
+  // ── Bloqueio de clicks nos painéis AG ──────────────────────────────────────
+  // Impede que clicks/pointer events nos painéis do farmer escapem para o jogo.
+  // Usa MutationObserver para aplicar stopPropagation na fase de BUBBLING em cada
+  // host element AG — assim os eventos funcionam normalmente dentro do shadow DOM
+  // mas não chegam ao canvas do jogo.
+  var _agBlockedHosts = new WeakSet();
+  function agBlockHostEvents(host) {
+    if (!host || _agBlockedHosts.has(host)) return;
+    _agBlockedHosts.add(host);
+    ['pointerdown','pointerup','pointermove','click','mousedown','mouseup','mousemove','dblclick','contextmenu'].forEach(function(evt) {
+      host.addEventListener(evt, function(e) { e.stopPropagation(); }); // bubbling (default)
+    });
+  }
+  // Aplica em hosts existentes e futuros
   (function() {
     var agHostIds = ['ag-panel-host','ag-autosell-host','ag-opt-menu-host',
       'ag-mapinfo-host','ag-stats-host','ag-calc-host','ag-merch-host',
       'ag-daily-gold-host','ag-backpack-host','ag-spin-host'];
-    function isAgHost(el) {
-      while (el) {
-        if (el.id && agHostIds.indexOf(el.id) >= 0) return true;
-        el = el.parentElement || (el.getRootNode && el.getRootNode()).host;
-      }
-      return false;
+    function scanHosts() {
+      agHostIds.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) agBlockHostEvents(el);
+      });
     }
-    ['pointerdown','pointerup','click','mousedown','mouseup','dblclick'].forEach(function(evt) {
-      document.addEventListener(evt, function(e) {
-        if (isAgHost(e.target)) { e.stopPropagation(); }
-      }, true);
-    });
+    scanHosts();
+    // Observer para hosts criados dinamicamente
+    var obs = new MutationObserver(function() { scanHosts(); });
+    obs.observe(document.body || document.documentElement, { childList: true, subtree: false });
   })();
 
   // ── Logger ─────────────────────────────────────────────────────────────────
@@ -13531,10 +13540,6 @@ loadMySales();
       zIndex:'2147483647', pointerEvents:'none',
     });
     document.body.appendChild(host);
-    // Bloqueia eventos pointer/mouse/click para não passarem para o game
-    ['pointerdown','pointerup','pointermove','click','mousedown','mouseup','mousemove','dblclick','contextmenu'].forEach(function(evt) {
-      host.addEventListener(evt, function(e) { e.stopPropagation(); }, true);
-    });
     const shadow = host.attachShadow({ mode:'open' });
 
     const styleEl = document.createElement('style');
@@ -15292,10 +15297,6 @@ loadMySales();
       zIndex:'2147483647', pointerEvents:'none',
     });
     document.body.appendChild(host);
-    // Bloqueia eventos para não passarem para o game
-    ['pointerdown','pointerup','pointermove','click','mousedown','mouseup','mousemove','dblclick','contextmenu'].forEach(function(evt) {
-      host.addEventListener(evt, function(e) { e.stopPropagation(); }, true);
-    });
     const shadow = host.attachShadow({ mode:'open' });
 
     shadow.innerHTML = `<style>
@@ -20130,5 +20131,5 @@ loadMySales();
   } // fecha o else do guard de instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v1.80'
+// FIM AUTO-GATHER v1.81'
 
