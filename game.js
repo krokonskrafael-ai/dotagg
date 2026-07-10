@@ -6623,7 +6623,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.83';
+  const AG_VERSION          = 'v1.84';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -8278,11 +8278,25 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
 
     // 2. Clicar no primeiro botão de servidor disponível (não desabilitado, não FULL)
+    // Verificar se joinClub está habilitado
+    var _joinClub2 = (function() {
+      try {
+        var saved = JSON.parse(localStorage.getItem('kintara_ag_startup') || '{}');
+        if (saved.joinClub === true) return true;
+        if (saved.joinClub === false) return false;
+        return false;
+      } catch(_) { return false; }
+    })();
+    function _isClubServer(b) {
+      var txt = ((b.textContent || '') + ' ' + ((b.getAttribute && b.getAttribute('data-server-name')) || '')).toLowerCase();
+      return txt.indexOf('members only') !== -1 || txt.indexOf('tap to subscribe') !== -1 || txt.indexOf('kintara club') !== -1;
+    }
     var allBtns = Array.from(document.querySelectorAll('.kintara-server-select-btn'));
     var eligible = allBtns.filter(function(b) {
       if (b.disabled) return false;
       var txt = (b.textContent || '').toUpperCase();
       if (txt.includes('FULL') && !txt.includes('QUEUE')) return false;
+      if (!_joinClub2 && _isClubServer(b)) return false;
       return true;
     });
     if (eligible.length > 0) {
@@ -9148,7 +9162,15 @@ loadMySales();
 
   let agHuntActive      = false;
   let agHuntTarget      = null;
-  window.__agGodMode  = false; // GodMode — bloqueia dano de mobs  // { kind, idx } alvo atual
+  window.__agGodMode  = false; // GodMode — bloqueia dano de mobs
+  // GodMode loop: mantém HP e Shield no máximo enquanto ativo
+  (function() {
+    setInterval(function() {
+      if (!window.__agGodMode) return;
+      try { if ((wo|0) < 100) wo = 100; } catch(_) {}
+      try { if ((Bo|0) < 5)   Bo = 5;   } catch(_) {}
+    }, 100); // 100ms = rápido o suficiente para anular dano antes do próximo frame
+  })();
   let agHuntTargetAt    = 0;     // timestamp de quando setou o alvo (início do path)
   let agHuntCombatAt    = null;  // timestamp de quando chegou adjacente e começou a bater
   let agHuntTrackTimer  = null;
@@ -9183,7 +9205,8 @@ loadMySales();
     for (let i = 0; i < vt.length; i++) {
       const s = vt[i];
       if (s && (s.type === 'wild_sword' || s.type === 'wild_sword_l2') && (s.count||0) > 0) {
-        (function(){ try { Hn=i; yn(); } catch(_){} })(); return true;
+        try { W5(i); } catch(_) { try { Hn=i; yn(); } catch(_2){} }
+        return true;
       }
     }
     return false;
@@ -9342,27 +9365,27 @@ loadMySales();
   function agHuntTick() {
     if (!agHuntActive) return;
 
-    // ── Verificacao de vida/escudo (sempre, mesmo fora de combate) ──────────
+    // ── Verificacao de vida/escudo (SÓ em combate ativo) ──────────────
     const hpSegs    = (function(){ try { return Math.ceil((wo|0) / 20); } catch(_) { return 5; } })();  // 0-5 from actual playerHp
     const shieldSegs = (function(){ try { return Bo|0; } catch(_) { return agReadShieldFromDom(); } })(); // Bo = playerWildShieldCharges
 
-    // Potions — thresholds configuráveis
-    var _huntHpThr     = agHuntHpThresh();
-    var _huntShieldThr = agHuntShieldThresh();
+    // Potions — thresholds configuráveis. Só usa poção se já está em combate (evita disparo ao entrar no wild)
+    if (agHuntCombatAt) {
+      var _huntHpThr     = agHuntHpThresh();
+      var _huntShieldThr = agHuntShieldThresh();
 
-
-    // Shield: bloquear uso se ainda está no grace period após última aplicação
-    // Lre() = shieldPotionApplyGraceActive — true enquanto shield foi aplicado recentemente
-    if (agHuntPotionEnabled('potion_shield') && shieldSegs <= _huntShieldThr && !agShieldHoT()) {
-      agHuntUsePotion('potion_shield');
-    }
-    if (agHuntPotionEnabled('potion_health') && hpSegs <= _huntHpThr) {
-      agHuntUsePotion('potion_health');
-    }
-    // Strength — guard centralizado em agHuntUsePotion (grace + playerStrengthBuffActive)
-    if (agHuntPotionEnabled('potion_strength') &&
-        hpSegs > _huntHpThr && shieldSegs > _huntShieldThr) {
-      agHuntUsePotion('potion_strength');
+      // Shield: bloquear uso se ainda está no grace period após última aplicação
+      if (agHuntPotionEnabled('potion_shield') && shieldSegs <= _huntShieldThr && !agShieldHoT()) {
+        agHuntUsePotion('potion_shield');
+      }
+      if (agHuntPotionEnabled('potion_health') && hpSegs <= _huntHpThr) {
+        agHuntUsePotion('potion_health');
+      }
+      // Strength — guard centralizado em agHuntUsePotion (grace + playerStrengthBuffActive)
+      if (agHuntPotionEnabled('potion_strength') &&
+          hpSegs > _huntHpThr && shieldSegs > _huntShieldThr) {
+        agHuntUsePotion('potion_strength');
+      }
     }
     // Fuga: sem escudo ce vida abaixo do threshold (só em combate)
     if (shieldSegs === 0 && hpSegs <= _huntHpThr && agHuntCombatAt) {
@@ -11324,7 +11347,7 @@ loadMySales();
       // HP segments: Math.ceil(mo/20) → 0-5 barras
       const hpSegs     = (function(){ try { return Math.max(0, Math.ceil(mo / 20)); } catch(_){ return 5; } })();
       // xo = shield segments (0-5)
-      const shieldSegs = (function(){ try { return Math.max(0, xo | 0); } catch(_){ return 5; } })();
+      const shieldSegs = (function(){ try { return Math.max(0, Bo | 0); } catch(_){ return 5; } })();
 
       // Shield primeiro (prioridade maior)
       if (agHuntPotionEnabled('potion_shield') && shieldSegs <= agHuntShieldThresh()) {
