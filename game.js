@@ -6623,9 +6623,30 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.79';
+  const AG_VERSION          = 'v1.80';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
+
+  // ── Bloqueio global de clicks nos painéis AG ──────────────────────────────
+  // Impede que clicks/pointer events nos painéis do farmer passem para o jogo
+  // (capture phase no document, verifica se o target está dentro de um ag-*-host)
+  (function() {
+    var agHostIds = ['ag-panel-host','ag-autosell-host','ag-opt-menu-host',
+      'ag-mapinfo-host','ag-stats-host','ag-calc-host','ag-merch-host',
+      'ag-daily-gold-host','ag-backpack-host','ag-spin-host'];
+    function isAgHost(el) {
+      while (el) {
+        if (el.id && agHostIds.indexOf(el.id) >= 0) return true;
+        el = el.parentElement || (el.getRootNode && el.getRootNode()).host;
+      }
+      return false;
+    }
+    ['pointerdown','pointerup','click','mousedown','mouseup','dblclick'].forEach(function(evt) {
+      document.addEventListener(evt, function(e) {
+        if (isAgHost(e.target)) { e.stopPropagation(); }
+      }, true);
+    });
+  })();
 
   // ── Logger ─────────────────────────────────────────────────────────────────
   // Cria logger com prefixo colorido
@@ -13510,6 +13531,10 @@ loadMySales();
       zIndex:'2147483647', pointerEvents:'none',
     });
     document.body.appendChild(host);
+    // Bloqueia eventos pointer/mouse/click para não passarem para o game
+    ['pointerdown','pointerup','pointermove','click','mousedown','mouseup','mousemove','dblclick','contextmenu'].forEach(function(evt) {
+      host.addEventListener(evt, function(e) { e.stopPropagation(); }, true);
+    });
     const shadow = host.attachShadow({ mode:'open' });
 
     const styleEl = document.createElement('style');
@@ -13981,10 +14006,24 @@ loadMySales();
         var c = cfg[type] || {};
         var ic = (cfg.items && cfg.items[type]) || agDefaultItemSellCfg();
         var checked = ic.active ? 'checked' : '';
-        return '<div class="as-item-row" style="display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07)">' +
-          '<input type="checkbox" data-as-item="' + type + '" style="width:13px;height:13px;accent-color:#f97316;cursor:pointer;flex-shrink:0" ' + checked + '>' +
-          '<span class="as-item-name" data-as-cfg="' + type + '" style="flex:1;cursor:pointer;font-size:11px;color:' + (ic.active?'#d4d8e2':'#556') + ';user-select:none">' + labels[type] + '</span>' +
-          '<button class="as-cfg-btn" data-as-cfg="' + type + '" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:4px;color:#8a93a8;font-size:10px;padding:2px 6px;cursor:pointer;flex-shrink:0" title="Configurar ' + labels[type] + '">&#9881;</button>' +
+        var inpS = 'width:100%;box-sizing:border-box;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.16);border-radius:4px;color:#d4d8e2;font-size:10px;padding:2px 5px;outline:none;font-family:inherit;margin-top:1px';
+        var lblS = 'font-size:9px;color:#8a93a8;display:block;margin-bottom:1px';
+        return '<div style="margin-bottom:2px">' +
+          '<div class="as-item-row" style="display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07)">' +
+            '<input type="checkbox" data-as-item="' + type + '" style="width:13px;height:13px;accent-color:#f97316;cursor:pointer;flex-shrink:0" ' + checked + '>' +
+            '<span class="as-item-name" style="flex:1;font-size:11px;color:' + (ic.active?'#d4d8e2':'#556') + ';user-select:none">' + labels[type] + '</span>' +
+            '<button class="as-cfg-btn" data-as-cfg="' + type + '" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:4px;color:#8a93a8;font-size:10px;padding:2px 6px;cursor:pointer;flex-shrink:0" title="Configurar ' + labels[type] + '">&#9881;</button>' +
+          '</div>' +
+          '<div class="as-item-cfg" data-cfg-for="' + type + '" style="display:none;padding:5px 8px 6px;background:rgba(255,200,100,0.04);border:1px solid rgba(255,200,100,0.12);border-radius:0 0 5px 5px;margin-top:-1px">' +
+            '<div style="margin-bottom:4px"><label style="' + lblS + '">Qtd mínima</label><input data-cfg-field="threshold" data-cfg-type="' + type + '" type="number" min="100" step="100" style="' + inpS + '" value="' + ic.threshold + '"></div>' +
+            '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;margin-bottom:3px;font-size:10px"><input type="checkbox" data-cfg-field="useFloor" data-cfg-type="' + type + '" style="accent-color:#f97316"' + (ic.useFloor?' checked':'') + '>Floor Price (−$0.01)</label>' +
+            '<div data-cfg-floor-opts="' + type + '" style="' + (ic.useFloor?'':'display:none') + ';margin-left:16px;margin-bottom:3px">' +
+              '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:10px;margin-bottom:2px"><input type="checkbox" data-cfg-field="useMinFloor" data-cfg-type="' + type + '" style="accent-color:#f97316"' + (ic.useMinFloor?' checked':'') + '>Check Min Floor</label>' +
+              '<div data-cfg-min-row="' + type + '" style="' + (ic.useMinFloor?'':'display:none') + '"><label style="' + lblS + '">Min Floor $/un</label><input data-cfg-field="minFloor" data-cfg-type="' + type + '" type="text" inputmode="decimal" placeholder="0.00006" style="' + inpS + '" value="' + (ic.minFloor||'') + '"></div>' +
+            '</div>' +
+            '<div data-cfg-fixed-row="' + type + '" style="' + (ic.useFloor?'opacity:.3;pointer-events:none':'') + ';margin-bottom:3px"><label style="' + lblS + '">Preço fixo $/un (−$0.01)</label><input data-cfg-field="fixedPrice" data-cfg-type="' + type + '" type="number" step="0.00000001" min="0" placeholder="0.00010000" style="' + inpS + '" value="' + (ic.fixedPrice||'') + '"></div>' +
+            '<button data-cfg-save="' + type + '" style="width:100%;padding:3px 0;border-radius:4px;border:none;background:#f97316;color:#fff;font-size:10px;font-weight:700;cursor:pointer">&#10003; Salvar</button>' +
+          '</div>' +
         '</div>';
       }).join('');
       // handlers
@@ -14001,7 +14040,51 @@ loadMySales();
       });
       list.querySelectorAll('[data-as-cfg]').forEach(function(el) {
         el.addEventListener('click', function() {
-          try { agOpenAutoSellHud(); } catch(_) {}
+          var type = el.dataset.asCfg;
+          var cfgDiv = list.querySelector('[data-cfg-for="' + type + '"]');
+          if (!cfgDiv) return;
+          // Toggle expand/collapse
+          var open = cfgDiv.style.display !== 'none';
+          // Close all others first
+          list.querySelectorAll('.as-item-cfg').forEach(function(d) { d.style.display = 'none'; });
+          if (!open) cfgDiv.style.display = '';
+        });
+      });
+      // Floor checkbox toggle
+      list.querySelectorAll('[data-cfg-field="useFloor"]').forEach(function(el) {
+        el.addEventListener('change', function() {
+          var t = el.dataset.cfgType;
+          var opts = list.querySelector('[data-cfg-floor-opts="' + t + '"]');
+          var fr = list.querySelector('[data-cfg-fixed-row="' + t + '"]');
+          if (opts) opts.style.display = el.checked ? '' : 'none';
+          if (fr) { fr.style.opacity = el.checked ? '0.3' : '1'; fr.style.pointerEvents = el.checked ? 'none' : 'auto'; }
+        });
+      });
+      list.querySelectorAll('[data-cfg-field="useMinFloor"]').forEach(function(el) {
+        el.addEventListener('change', function() {
+          var t = el.dataset.cfgType;
+          var mr = list.querySelector('[data-cfg-min-row="' + t + '"]');
+          if (mr) mr.style.display = el.checked ? '' : 'none';
+        });
+      });
+      // Save button
+      list.querySelectorAll('[data-cfg-save]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var t = btn.dataset.cfgSave;
+          var c2 = agLoadAutoSellConfig();
+          if (!c2.items) c2.items = {};
+          var rawMin = (list.querySelector('[data-cfg-field="minFloor"][data-cfg-type="' + t + '"]')?.value || '').replace(',','.');
+          c2.items[t] = Object.assign(c2.items[t] || agDefaultItemSellCfg(), {
+            threshold:   Number(list.querySelector('[data-cfg-field="threshold"][data-cfg-type="' + t + '"]')?.value) || 3000,
+            useFloor:    !!list.querySelector('[data-cfg-field="useFloor"][data-cfg-type="' + t + '"]')?.checked,
+            fixedPrice:  Number(list.querySelector('[data-cfg-field="fixedPrice"][data-cfg-type="' + t + '"]')?.value) || 0,
+            useMinFloor: !!list.querySelector('[data-cfg-field="useMinFloor"][data-cfg-type="' + t + '"]')?.checked,
+            minFloor:    parseFloat(rawMin) || 0,
+          });
+          agSaveAutoSellConfig(c2);
+          // Flash feedback
+          btn.textContent = '✓ Salvo!'; btn.style.background = '#27ae60';
+          setTimeout(function() { btn.innerHTML = '&#10003; Salvar'; btn.style.background = '#f97316'; }, 1200);
         });
       });
       // Sync toggle button
@@ -14111,6 +14194,13 @@ loadMySales();
     $('ag-mode').addEventListener('change', function(e) {
       agMode = e.target.value; agRefreshHint(); agSaveState();
       if (agActive) { agStatsReset(); agStartRateTimer(); }
+      // Farm Otimizado é sempre ativo no modo 'all'
+      if (agMode === 'all' && !agOptimizedFarm) {
+        agOptimizedFarm = true;
+        agOptUpdateIndicator();
+        try { agOptFarmRefreshFloors(); } catch(_) {}
+        AG_OPT_LOG.warn('Auto-ATIVADO (modo All selecionado)');
+      }
       // Mostrar/esconder Auto Cook Fish
       var fishCookRow = $('ag-fish-cook-row');
       if (fishCookRow) fishCookRow.style.display = agMode === 'fish' ? '' : 'none';
@@ -15202,6 +15292,10 @@ loadMySales();
       zIndex:'2147483647', pointerEvents:'none',
     });
     document.body.appendChild(host);
+    // Bloqueia eventos para não passarem para o game
+    ['pointerdown','pointerup','pointermove','click','mousedown','mouseup','mousemove','dblclick','contextmenu'].forEach(function(evt) {
+      host.addEventListener(evt, function(e) { e.stopPropagation(); }, true);
+    });
     const shadow = host.attachShadow({ mode:'open' });
 
     shadow.innerHTML = `<style>
@@ -20036,5 +20130,5 @@ loadMySales();
   } // fecha o else do guard de instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v1.79'
+// FIM AUTO-GATHER v1.80'
 
