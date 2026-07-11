@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.96';
+  const AG_VERSION          = 'v1.95';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -13543,15 +13543,25 @@ loadMySales();
       });
     }
 
-    // Drag
+    // Drag (usa setPointerCapture para funcionar com o bloqueio de eventos do host)
+    var _bkDrag = null;
     panel.addEventListener('pointerdown', function(e) {
-      if (e.target.id === 'bk-cl' || e.target.tagName === 'INPUT') return;
+      if (e.target.id === 'bk-cl' || e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') return;
       var r = host.getBoundingClientRect();
-      var dx = e.clientX-r.left, dy = e.clientY-r.top;
-      function mv(ev) { host.style.left=(ev.clientX-dx)+'px'; host.style.top=(ev.clientY-dy)+'px'; host.style.right='auto'; }
-      function up() { document.removeEventListener('pointermove',mv); document.removeEventListener('pointerup',up); try{localStorage.setItem('kintara_ag_bank_pos',JSON.stringify({left:host.style.left,top:host.style.top}));}catch(_){} }
-      document.addEventListener('pointermove',mv);
-      document.addEventListener('pointerup',up);
+      _bkDrag = {dx: e.clientX-r.left, dy: e.clientY-r.top};
+      panel.setPointerCapture(e.pointerId);
+    });
+    panel.addEventListener('pointermove', function(e) {
+      if (!_bkDrag) return;
+      host.style.left = (e.clientX-_bkDrag.dx)+'px';
+      host.style.top  = (e.clientY-_bkDrag.dy)+'px';
+      host.style.right = 'auto';
+    });
+    panel.addEventListener('pointerup', function(e) {
+      if (!_bkDrag) return;
+      _bkDrag = null;
+      try { panel.releasePointerCapture(e.pointerId); } catch(_){}
+      try { localStorage.setItem('kintara_ag_bank_pos', JSON.stringify({left:host.style.left,top:host.style.top})); } catch(_){}
     });
 
     render();
