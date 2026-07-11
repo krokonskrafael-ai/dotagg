@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.90';
+  const AG_VERSION          = 'v1.92';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6680,7 +6680,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   (function() {
     var agHostIds = ['ag-panel-host','ag-autosell-host','ag-opt-menu-host',
       'ag-mapinfo-host','ag-stats-host','ag-calc-host','ag-merch-host',
-      'ag-daily-gold-host','ag-backpack-host','ag-spin-host'];
+      'ag-daily-gold-host','ag-backpack-host','ag-bank-host','ag-spin-host'];
     function scanHosts() {
       agHostIds.forEach(function(id) {
         var el = document.getElementById(id);
@@ -8297,7 +8297,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
     // Aguardar 4s após os botões de servidor aparecerem, para dar tempo
     // de todos os servidores (incluindo non-Club) carregarem
-    var allBtnsNow = document.querySelectorAll('.kintara-server-select-btn');
+    var allBtnsNow = document.querySelectorAll('button.kintara-server-card, .kintara-server-select-btn');
     if (allBtnsNow.length > 0 && _agServerWaitStart === 0) {
       _agServerWaitStart = now;
       AG_LOG.info('[AutoJoin] Servidores detectados (' + allBtnsNow.length + '), aguardando 4s para carregar todos...');
@@ -8350,7 +8350,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       fullText = fullText.toLowerCase();
       return fullText.indexOf('members only') !== -1 || fullText.indexOf('tap to subscribe') !== -1 || fullText.indexOf('kintara club') !== -1;
     }
-    var allBtns = Array.from(document.querySelectorAll('.kintara-server-select-btn'));
+    var allBtns = Array.from(document.querySelectorAll('button.kintara-server-card, .kintara-server-select-btn'));
     var eligible = allBtns.filter(function(b) {
       if (b.disabled) return false;
       var txt = (b.textContent || '').toUpperCase();
@@ -9226,7 +9226,8 @@ loadMySales();
 
   let agHuntActive      = false;
   let agHuntTarget      = null;
-  window.__agGodMode  = false; // GodMode — bloqueia dano de mobs
+  window.__agGodMode  = false; // GodMode
+  var agZombiesOnly = false; // Only attack zombies (skip dragons) — bloqueia dano de mobs
   // GodMode: intercepta dano de DUAS fontes:
   // 1. Dano remoto (servidor → WS presenceHub): wrappea yt.onmessage para remover campos php/psc/wmb
   // 2. Dano por contato (local, tickWildMobContactDamage): seta Cl=Infinity impedindo o hit
@@ -9352,6 +9353,8 @@ loadMySales();
       } catch (_) { continue; }
       if (!foot) { nullCount++; continue; }
       aliveCount++;
+      // Only Zombies: skip dragons (dragons have higher foot.y ~0.35+ vs zombies ~0.25)
+      if (agZombiesOnly && kind === 'wild' && foot.y > 0.32) { continue; }
       const tc = Math.round(foot.x - offX);
       const tr = Math.round(foot.z - offZ);
       const d  = Math.abs(ce - tc) + Math.abs(de - tr);
@@ -9474,7 +9477,7 @@ loadMySales();
     // Foge para area PVE: borda esquerda col >= 45 (conforme descricao, X=45~48)
     const fleeCol = 46; // centro da area PVE
     const fleeRow = de; // mantém a linha atual
-    Is();
+    ys();
     agHuntTarget = null; agHuntCombatAt = null;
     qe = Nl(ce, de, fleeCol, fleeRow);
     if (qe && qe.length && !$e) Hl();
@@ -9648,7 +9651,7 @@ loadMySales();
                 agKiteUntil = Date.now() + swingCooldownMs;
                 AG_LOG.info('Kite: recuando | dist=' + (kPath.length) + ' tiles | janela=' + Math.round(swingCooldownMs) + 'ms');
               } else {
-                AG_LOG.warn('Kite: sem tile de recuo | tentou ' + kiteC + ',' + kiteR);
+                AG_LOG.warn('Kite: sem tile de recuo');
               }
             }
           } catch(e) {
@@ -11273,7 +11276,7 @@ loadMySales();
       const cards = document.querySelectorAll('.kintara-server-card');
       if (Array.from(cards).some(isVisible)) return true;
       // Botões de fila visíveis
-      const qBtns = document.querySelectorAll('.kintara-server-select-btn');
+      const qBtns = document.querySelectorAll('button.kintara-server-card, .kintara-server-select-btn');
       if (Array.from(qBtns).some(isVisible)) return true;
       // Botões com texto de fila — apenas se visíveis
       const allBtns = Array.from(document.querySelectorAll('button'));
@@ -11326,7 +11329,7 @@ loadMySales();
 
   // Debug info for agIsInGame — logs all relevant state
   function agLogInGameState(label) {
-    const queueBtns    = document.querySelectorAll('.kintara-server-select-btn');
+    const queueBtns    = document.querySelectorAll('button.kintara-server-card, .kintara-server-select-btn');
     const serverScreen = agServerScreenVisible();
     AG_LOG.info(label + ' | inGame=' + agIsInGame() +
       ' | serverScreen=' + serverScreen +
@@ -11356,7 +11359,7 @@ loadMySales();
       try { (function(){try{qe=[],$e = !1,dt=0}catch(_){}})(); } catch(_) {}
       try { (function(){try{gn()}catch(_){};try{kn()}catch(_){}})(); } catch(_) {}
       try { cancelShovelDig(); } catch(_) {}
-      try { Is(); } catch(_) {}
+      try { ys(); } catch(_) {}
       agLastKey = null; agLastApKey = null; agLastApKeyAt = 0; agApproachAt = null;
       // Walk using same mechanism as ground click
       qe = Nl(ce, de, _tdx, ty);
@@ -11390,7 +11393,7 @@ loadMySales();
       if (!agActive) return;
       if (!started) {
         if (!agIsInGame()) {
-          AG_LOG_WD.debug(' aguardando entrar em jogo | queueBtns=' + document.querySelectorAll('.kintara-server-select-btn').length + ' | m=' + D);
+          AG_LOG_WD.debug(' aguardando entrar em jogo | queueBtns=' + document.querySelectorAll('button.kintara-server-card, .kintara-server-select-btn').length + ' | m=' + D);
           return;
         }
         agWatchdogLastItems = agStats.items;
@@ -11770,7 +11773,7 @@ loadMySales();
   let agRealmCheckTimer = null;
 
   function agRealmCheckTick() {
-    if (!agActive || agMode === 'fish') return;
+    if (!agActive) return;
     if (!agFarmRealm || D===agFarmRealm) return;
     // Não tentar navegar enquanto estiver na tela de fila/seleção de servidor
     if (agServerScreenVisible()) return;
@@ -11877,38 +11880,38 @@ loadMySales();
     }
     try {
       if (targetRealm === 'pond') {
-        return fromSet(h6);  // pondPortalWorldSet
+        return fromSet(F_);  // pondPortalWorldSet
       }
       if (targetRealm === 'eldergrove') {
         // Primeiro tenta via eldergrovePortalWorldSet (w6)
-        const t = fromSet(w6);
+        const t = fromSet(iT);
         if (t) return t;
         // Fallback via ELDERGROVE_PORTAL_COLS + ROW
         try {
-          const col = Array.isArray(NS) ? NS[0] : NS;
-          if (col != null && zk != null) return {col, row: zk};
+          const col = Array.isArray(ld) ? ld[0] : ld;
+          if (col != null && Zy != null) return {col, row: Zy};
         } catch(_) {}
         return null;
       }
       if (targetRealm === 'wild' || targetRealm === 'wild_ext' || targetRealm === 'wild_exp') {
         // wildPortalWorldSet (VE)
-        const t = fromSet(VE);
+        const t = fromSet(Kp);
         if (t) return t;
         // Fallback via WILD_PORTAL_MID + ROW
-        try { if (Ag != null && zk != null) return {col: Ag, row: zk}; } catch(_) {}
+        try { if (Mc != null && Gd != null) return {col: Mc, row: Gd}; } catch(_) {}
         return null;
       }
       if (targetRealm === 'beach') {
         // pond -> beach: pondBeachEntryTileSet (XE) — tile no pond que leva à beach
-        return fromSet(XE);
+        return fromSet(Z2);
       }
       if (targetRealm === 'ember') {
         // beach -> ember: beachEmberEntryTileSet (Ej)
-        return fromSet(Ej);
+        return fromSet(TW);
       }
       if (targetRealm === 'frostmere') {
         // eldergrove -> frostmere: Yk (eldergroveFrostmereEntryTileSet)
-        return fromSet(Yk);
+        return fromSet(bM);
       }
     } catch(e) {
       console.warn('[AutoGather] agNavGetPortalTile erro:', e.message);
@@ -11918,11 +11921,11 @@ loadMySales();
 
   function agNavDebug() {
     console.group('[AutoGather] Portal debug');
-    try { console.log('h6 (pond portal):', h6 ? [...h6].slice(0,3) : 'undefined'); } catch(e) { console.log('h6 erro:', e.message); }
-    try { console.log('w6 (eldergrove portal):', w6 ? [...w6].slice(0,3) : 'undefined'); } catch(e) { console.log('w6 erro:', e.message); }
-    try { console.log('VE (wild portal):', VE ? [...VE].slice(0,3) : 'undefined'); } catch(e) { console.log('VE erro:', e.message); }
-    try { console.log('NS (eldr portal cols):', NS, 'zk (row):', zk); } catch(e) { console.log('eldergrove cols/row erro:', e.message); }
-    try { console.log('Ag (wild mid):', Ag, '$w (row):', $w); } catch(e) { console.log('wild mid/row erro:', e.message); }
+    try { console.log('F_ (pond portal):', F_ ? [...h6].slice(0,3) : 'undefined'); } catch(e) { console.log('h6 erro:', e.message); }
+    try { console.log('iT (eldergrove portal):', iT ? [...w6].slice(0,3) : 'undefined'); } catch(e) { console.log('w6 erro:', e.message); }
+    try { console.log('Kp (wild portal):', Kp ? [...VE].slice(0,3) : 'undefined'); } catch(e) { console.log('VE erro:', e.message); }
+    try { console.log('ld (eldr portal cols):', ld, 'Zy (row):', Zy); } catch(e) { console.log('eldergrove cols/row erro:', e.message); }
+    try { console.log('Mc (wild mid):', Mc, 'Gd (row):', Gd); } catch(e) { console.log('wild mid/row erro:', e.message); }
     try { console.log('E:', ce, 'de:', de, 'gameState:', D); } catch(e) {}
     console.groupEnd();
   }
@@ -13399,6 +13402,219 @@ loadMySales();
     }, 30000);
   }
 
+  // ── Bank Storage miniHUD ─────────────────────────────────────────────────
+  var agDepositIfFull = false; // [x] Deposit if Full Inventory
+  var _agDepositRunning = false;
+
+  function agOpenBankHud() {
+    if (document.getElementById('ag-bank-host')) {
+      document.getElementById('ag-bank-host').remove(); return;
+    }
+    var host = document.createElement('div');
+    host.id = 'ag-bank-host';
+    var _pos = (function(){ try{ return JSON.parse(localStorage.getItem('kintara_ag_bank_pos'))||{}; }catch(_){ return {}; } })();
+    Object.assign(host.style, {
+      position:'fixed', zIndex:'2147483647',
+      top: _pos.top || '200px', left: _pos.left || '14px', right: _pos.right || 'auto',
+    });
+    document.body.appendChild(host);
+    var shadow = host.attachShadow({mode:'open'});
+    var style = document.createElement('style');
+    style.textContent =
+      ':host{all:initial}' +
+      '.p{pointer-events:auto;background:rgba(10,12,20,0.94);border:1px solid rgba(255,255,255,0.13);border-radius:8px;padding:8px 10px;min-width:180px;max-width:240px;font-family:"Segoe UI",system-ui,sans-serif;font-size:11px;color:#d4d8e2;box-shadow:0 4px 20px rgba(0,0,0,0.6)}' +
+      '.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;cursor:grab}' +
+      '.hdr:active{cursor:grabbing}' +
+      '.t{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#7eb8f7}' +
+      '.cl{background:none;border:none;color:#556;font-size:12px;cursor:pointer;padding:0}.cl:hover{color:#aab}' +
+      '.row{display:flex;justify-content:space-between;font-size:10px;padding:1px 0;color:#d4d8e2}' +
+      '.lbl{color:#94a3b8}.qty{font-weight:700;color:#fbbf24}' +
+      '.dep{margin-top:6px;padding:2px 0;font-size:9px;text-align:center;color:#64748b}';
+    var panel = document.createElement('div');
+    panel.className = 'p';
+    shadow.appendChild(style);
+    shadow.appendChild(panel);
+
+    var LABELS = {wood:'Wood',stone:'Stone',coal:'Coal',metal:'Metal',gold:'Gold',fish:'Fish',cooked_fish_meat:'Cooked Fish'};
+
+    function render() {
+      var items = {};
+      try {
+        for (var i = 0; i < vs.length; i++) {
+          var s = vs[i];
+          if (s && s.type && (s.count||0) > 0) {
+            items[s.type] = (items[s.type]||0) + s.count;
+          }
+        }
+      } catch(_) {}
+      var keys = Object.keys(items).sort();
+      var html = '<div class="hdr" id="bk-hdr"><span class="t">&#127974; Bank Storage</span><button class="cl" id="bk-cl">&#10005;</button></div>';
+      if (keys.length === 0) {
+        html += '<div style="font-size:10px;color:#556;text-align:center;padding:6px 0">Vazio ou não carregado</div>';
+        html += '<div class="dep">Abra o baú no jogo para sincronizar</div>';
+      } else {
+        keys.forEach(function(k) {
+          var lbl = LABELS[k] || k;
+          html += '<div class="row"><span class="lbl">' + lbl + '</span><span class="qty">' + items[k].toLocaleString() + '</span></div>';
+        });
+        html += '<div class="dep">' + keys.length + ' tipo(s) · ' + vs.length + ' slots</div>';
+      }
+      // Deposit if Full checkbox
+      html += '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;margin-top:5px;font-size:9px;color:#94a3b8">' +
+        '<input type="checkbox" id="bk-dep-full" style="accent-color:#f97316"' + (agDepositIfFull ? ' checked' : '') + '>' +
+        'Deposit if Full Inventory</label>';
+      if (_agDepositRunning) {
+        html += '<div style="font-size:9px;color:#fbbf24;text-align:center;margin-top:3px">⏳ Depositando...</div>';
+      }
+      panel.innerHTML = html;
+      // Event handlers
+      var cl = shadow.getElementById('bk-cl');
+      if (cl) cl.addEventListener('click', function() { host.remove(); });
+      var dep = shadow.getElementById('bk-dep-full');
+      if (dep) dep.addEventListener('change', function() {
+        agDepositIfFull = dep.checked;
+        try { localStorage.setItem('kintara_ag_deposit_full', agDepositIfFull ? '1' : '0'); } catch(_) {}
+      });
+    }
+
+    // Drag
+    panel.addEventListener('pointerdown', function(e) {
+      if (e.target.id === 'bk-cl' || e.target.tagName === 'INPUT') return;
+      var r = host.getBoundingClientRect();
+      var dx = e.clientX-r.left, dy = e.clientY-r.top;
+      function mv(ev) { host.style.left=(ev.clientX-dx)+'px'; host.style.top=(ev.clientY-dy)+'px'; host.style.right='auto'; }
+      function up() { document.removeEventListener('pointermove',mv); document.removeEventListener('pointerup',up); try{localStorage.setItem('kintara_ag_bank_pos',JSON.stringify({left:host.style.left,top:host.style.top}));}catch(_){} }
+      document.addEventListener('pointermove',mv);
+      document.addEventListener('pointerup',up);
+    });
+
+    render();
+    var iv = setInterval(function() {
+      if (!document.getElementById('ag-bank-host')) { clearInterval(iv); return; }
+      render();
+    }, 10000);
+  }
+
+  // ── Deposit if Full: transfere recursos do inventário pro bank ────────────
+  // Carrega config salva
+  try { agDepositIfFull = localStorage.getItem('kintara_ag_deposit_full') === '1'; } catch(_) {}
+
+  function agIsInventoryFull() {
+    try {
+      for (var i = 0; i < qt.length; i++) {
+        if (!qt[i] || (qt[i].count||0) <= 0) return false;
+      }
+      return true;
+    } catch(_) { return false; }
+  }
+
+  async function agDoDepositToBank() {
+    if (_agDepositRunning) return;
+    _agDepositRunning = true;
+    var wasActive = agActive;
+    var savedRealm = D;
+    AG_LOG.info('[Bank] Inventário cheio — iniciando depósito no bank');
+
+    try {
+      // 1. Parar farm
+      if (wasActive) try { agStop(); } catch(_) {}
+      await new Promise(function(r){ setTimeout(r, 300); });
+
+      // 2. Se não está no world, ir ao world primeiro
+      if (D !== 'world' && D !== 'bankShop') {
+        AG_LOG.info('[Bank] Saindo para world primeiro...');
+        var _navAttempts = 0;
+        while (D !== 'world' && D !== 'bankShop' && _navAttempts < 120) {
+          _navAttempts++;
+          try {
+            var exit = agNavGetExitTile(D);
+            if (exit && !$e && qe.length === 0) {
+              var path = Nl(ce, de, exit.col, exit.row);
+              if (path && path.length > 0) { qe = path; Hl(); }
+            }
+          } catch(_) {}
+          await new Promise(function(r){ setTimeout(r, 500); });
+        }
+        if (D !== 'world' && D !== 'bankShop') {
+          AG_LOG.warn('[Bank] Não conseguiu voltar ao world');
+          _agDepositRunning = false;
+          if (wasActive) try { agStart(); } catch(_) {}
+          return;
+        }
+      }
+
+      // 3. Entrar no bank
+      if (D !== 'bankShop') {
+        AG_LOG.info('[Bank] Entrando no bank...');
+        try { F3(); } catch(e) { AG_LOG.warn('[Bank] Erro ao entrar: ' + e.message); }
+        await new Promise(function(r){ setTimeout(r, 2000); });
+        if (D !== 'bankShop') {
+          AG_LOG.warn('[Bank] Não entrou no bankShop (D=' + D + ')');
+          _agDepositRunning = false;
+          if (wasActive) try { agStart(); } catch(_) {}
+          return;
+        }
+      }
+
+      // 4. Abrir modal do bank e depositar
+      AG_LOG.info('[Bank] Depositando recursos...');
+      try { zo = true; } catch(_) {} // abrir modal flag
+      await new Promise(function(r){ setTimeout(r, 500); });
+
+      var deposited = 0;
+      var RESOURCE_TYPES = new Set(['wood','stone','coal','metal','gold','fish','cooked_fish_meat']);
+      for (var i = 0; i < qt.length; i++) {
+        var slot = qt[i];
+        if (!slot || (slot.count||0) <= 0) continue;
+        if (!RESOURCE_TYPES.has(slot.type)) continue;
+        try {
+          ti('inv', i);
+          deposited++;
+          await new Promise(function(r){ setTimeout(r, 150); }); // rate limit
+        } catch(e) {
+          AG_LOG.warn('[Bank] Erro ao depositar slot ' + i + ': ' + e.message);
+        }
+      }
+
+      AG_LOG.info('[Bank] Depositou ' + deposited + ' slots. Saindo do bank...');
+      try { zo = false; } catch(_) {}
+      await new Promise(function(r){ setTimeout(r, 500); });
+
+      // 5. Sair do bank
+      try { zV(); } catch(e) { AG_LOG.warn('[Bank] Erro ao sair: ' + e.message); }
+      await new Promise(function(r){ setTimeout(r, 2000); });
+
+      // 6. Voltar ao realm anterior
+      if (savedRealm && savedRealm !== 'world' && savedRealm !== 'bankShop') {
+        AG_LOG.info('[Bank] Voltando para ' + savedRealm);
+        agNavTo(savedRealm);
+        var _waitRealm = 0;
+        while (D !== savedRealm && _waitRealm < 120) {
+          _waitRealm++;
+          await new Promise(function(r){ setTimeout(r, 500); });
+        }
+      }
+
+    } catch(e) {
+      AG_LOG.warn('[Bank] Erro geral: ' + e.message);
+    }
+
+    _agDepositRunning = false;
+    if (wasActive) {
+      await new Promise(function(r){ setTimeout(r, 1000); });
+      try { agStart(); } catch(_) {}
+      AG_LOG.info('[Bank] Farm retomado após depósito');
+    }
+  }
+
+  // Verifica inventário cheio a cada 10s
+  setInterval(function() {
+    if (!agDepositIfFull || !agActive || _agDepositRunning) return;
+    if (agIsInventoryFull()) {
+      agDoDepositToBank();
+    }
+  }, 10000);
+
 
     function agOpenBackpackHud() {
     // Remove existing if present
@@ -13819,6 +14035,7 @@ loadMySales();
           '<label class="ag-check-row"><input type="checkbox" id="ag-hunt-radius-check"><span class="ag-check-lbl">Safe Hunt (raio 5 sqms)</span></label>',
           '<label class="ag-check-row"><input type="checkbox" id="ag-hunt-kite-check"><span class="ag-check-lbl">&#127939; Kite (recuar ap&#243;s atacar)</span></label>',
           '<label class="ag-check-row"><input type="checkbox" id="ag-godmode-check"><span class="ag-check-lbl" style="color:#a78bfa">&#128737; God Mode</span></label>',
+          '<label class="ag-check-row"><input type="checkbox" id="ag-zombies-only-check"><span class="ag-check-lbl" style="color:#e74c3c">&#129503; Only Zombies</span></label>',
           '<div class="ag-sec">Potions</div>',
           '<label class="ag-check-row">',
             '<input type="checkbox" id="ag-potion-health-check">',
@@ -13945,6 +14162,7 @@ loadMySales();
             '<button class="ag-icon-btn" id="ag-calc-btn" title="Calculadora"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="2" stroke="#8a93a8" stroke-width="1.2" fill="none"/><rect x="5" y="5" width="8" height="2.5" rx="1" fill="#7eb8f7" opacity=".8"/><circle cx="5.5" cy="11" r="1" fill="#8a93a8"/><circle cx="9" cy="11" r="1" fill="#8a93a8"/><circle cx="12.5" cy="11" r="1" fill="#6ee7a0"/></svg></button>',
             '<button class="ag-icon-btn" id="ag-merch-btn" title="Merchant Gold"><img src="/assets/hud/resources/gold.png" width="20" height="20" style="image-rendering:pixelated;filter:drop-shadow(0 0 3px #f59e0b)" draggable="false"></button>',
             '<button class="ag-icon-btn" id="ag-daily-gold-btn" title="Lottery" style="border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.08);font-size:18px">&#127922;</button>',
+            '<button class="ag-icon-btn" id="ag-bank-btn" title="Bank Storage" style="font-size:16px">&#127974;</button>',
             '<button class="ag-icon-btn" id="ag-spin-hud-btn" title="Free Spin" style="font-size:18px">&#127922;</button>',
             '<button class="ag-icon-btn" id="ag-skip-tutorial-btn" title="Skip Tutorial" style="border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#fbbf24" stroke-width="1.3"/><text x="10" y="14.5" text-anchor="middle" font-size="10" font-weight="800" font-family="monospace" fill="#fbbf24">S</text></svg></button>',
           '</div>',
@@ -14413,6 +14631,19 @@ loadMySales();
         if (!list) return;
         var cards = Array.from(list.querySelectorAll('button.kintara-server-card'));
         if (!cards.length) return;
+
+        // Club filter
+        var _jcStartup = false;
+        try { var _ss = JSON.parse(localStorage.getItem('kintara_ag_startup') || '{}'); _jcStartup = _ss.joinClub === true; } catch(_) {}
+        function _isClubCard(c) {
+          var txt = (c.textContent || '').toLowerCase();
+          return txt.indexOf('members only') !== -1 || txt.indexOf('kintara club') !== -1 || txt.indexOf('tap to subscribe') !== -1;
+        }
+        if (!_jcStartup) {
+          cards = cards.filter(function(c) { return !_isClubCard(c); });
+        }
+        if (!cards.length) return;
+
         var saved = '';
         try { saved = localStorage.getItem('kintara_ag_preferred_server') || ''; } catch(_) {}
         var target = null;
@@ -16363,6 +16594,7 @@ loadMySales();
         ['ag-calc-btn',     'ag-calc-host'],
         ['ag-merch-btn',    'ag-merch-host'],
         ['ag-daily-gold-btn', 'ag-daily-gold-host'],
+        ['ag-bank-btn',     'ag-bank-host'],
         ['ag-spin-hud-btn', 'ag-spin-host'],
       ];
       btns.forEach(function(pair) {
@@ -16379,6 +16611,9 @@ loadMySales();
     $('ag-calc-btn').addEventListener('click',     function() { agOpenCalcHud();     agRefreshHudBtns(); });
     $('ag-merch-btn').addEventListener('click',    function() { agOpenMerchHud();    agRefreshHudBtns(); });
     $('ag-daily-gold-btn').addEventListener('click', function() { agOpenLotteryHud(); agRefreshHudBtns(); });
+    if ($('ag-bank-btn')) {
+      $('ag-bank-btn').addEventListener('click', function() { agOpenBankHud(); agRefreshHudBtns(); });
+    }
     if ($('ag-spin-hud-btn')) {
       $('ag-spin-hud-btn').addEventListener('click', function() { agOpenSpinHud(); });
     }
@@ -18136,6 +18371,7 @@ loadMySales();
       if (_hcfg.radius   && $('ag-hunt-radius-check'))   $('ag-hunt-radius-check').checked   = true;
       if (_hcfg.kite     && $('ag-hunt-kite-check'))     $('ag-hunt-kite-check').checked     = true;
       if (_hcfg.godMode  && $('ag-godmode-check'))        { $('ag-godmode-check').checked = true; window.__agGodMode = true; }
+      if (_hcfg.zombiesOnly && $('ag-zombies-only-check')) { $('ag-zombies-only-check').checked = true; agZombiesOnly = true; }
       if (_hcfg.health   && $('ag-potion-health-check'))  $('ag-potion-health-check').checked  = true;
       if (_hcfg.shield   && $('ag-potion-shield-check'))  $('ag-potion-shield-check').checked  = true;
       if (_hcfg.strength && $('ag-potion-strength-check')) $('ag-potion-strength-check').checked = true;
@@ -18148,6 +18384,7 @@ loadMySales();
           radius:      !!($('ag-hunt-radius-check')    && $('ag-hunt-radius-check').checked),
           kite:        !!($('ag-hunt-kite-check')      && $('ag-hunt-kite-check').checked),
           godMode:     !!($('ag-godmode-check')         && $('ag-godmode-check').checked),
+            zombiesOnly: !!($('ag-zombies-only-check') && $('ag-zombies-only-check').checked),
           health:      !!($('ag-potion-health-check')  && $('ag-potion-health-check').checked),
           shield:      !!($('ag-potion-shield-check')  && $('ag-potion-shield-check').checked),
           strength:    !!($('ag-potion-strength-check') && $('ag-potion-strength-check').checked),
@@ -18156,11 +18393,15 @@ loadMySales();
         }));
       } catch(_) {}
     }
-    ['ag-hunt-radius-check','ag-hunt-kite-check','ag-godmode-check','ag-potion-health-check','ag-potion-shield-check',
+    ['ag-hunt-radius-check','ag-hunt-kite-check','ag-godmode-check','ag-zombies-only-check','ag-potion-health-check','ag-potion-shield-check',
      'ag-potion-strength-check','ag-hunt-hp-thresh','ag-hunt-shield-thresh'].forEach(function(id) {
       if ($(id)) $(id).addEventListener('change', function(e) {
         agSaveHuntCfg();
         // GodMode toggle
+        if (id === 'ag-zombies-only-check') {
+          agZombiesOnly = e.target.checked;
+          AG_LOG.info('[Hunt] Only Zombies: ' + (agZombiesOnly ? 'ATIVADO' : 'DESATIVADO'));
+        }
         if (id === 'ag-godmode-check') {
           window.__agGodMode = e.target.checked;
           AG_LOG.info('[GodMode] ' + (window.__agGodMode ? 'ATIVADO' : 'DESATIVADO'));
