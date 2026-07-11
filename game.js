@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.99';
+  const AG_VERSION          = 'v2.00';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -13568,7 +13568,7 @@ loadMySales();
     // Drag (usa setPointerCapture para funcionar com o bloqueio de eventos do host)
     var _bkDrag = null;
     panel.addEventListener('pointerdown', function(e) {
-      if (e.target.id === 'bk-cl' || e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') return;
+      if (e.target.id === 'bk-cl' || e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL' || e.target.tagName === 'BUTTON') return;
       var r = host.getBoundingClientRect();
       _bkDrag = {dx: e.clientX-r.left, dy: e.clientY-r.top};
       panel.setPointerCapture(e.pointerId);
