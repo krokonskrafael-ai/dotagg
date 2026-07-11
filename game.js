@@ -6506,11 +6506,47 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
   // 8. FPS/Ping HUD Overlay
   var _agHudEl=null, _agHudFrames=0, _agHudFps=0, _agHudPing=0, _agHudRaf=null, _agHudLast=performance.now();
-  // Ping via WebSocket hook
+  // Ping via WebSocket hook + GodMode damage interception
   (function(){
     var _OWS=window.WebSocket;
     window.WebSocket=function(url,proto){ var ws=proto?new _OWS(url,proto):new _OWS(url); var _sent=0;
       var _os=ws.send.bind(ws); ws.send=function(d){_sent=performance.now();return _os(d);};
+      // Hook onmessage via addEventListener para interceptar ANTES dos handlers do jogo
+      var _origAddEL = ws.addEventListener.bind(ws);
+      var _gameMessageHandlers = [];
+      ws.addEventListener = function(type, fn, opts) {
+        if (type === 'message') {
+          // Wrapper: filtra mensagens de dano quando GodMode ativo
+          var wrappedFn = function(evt) {
+            if (window.__agGodMode && evt.data && typeof evt.data === 'string') {
+              try {
+                // Mensagens de presenceHub são JSON com campos como php, psc, wmb
+                if (evt.data.charAt(0) === '{') {
+                  var parsed = JSON.parse(evt.data);
+                  var dominated = false;
+                  // Remover campos de dano: php (playerHp), psc (playerShieldCharges), wmb (wildMobAck)
+                  if ('php' in parsed || 'psc' in parsed || 'wmb' in parsed) {
+                    delete parsed.php;
+                    delete parsed.psc;
+                    delete parsed.wmb;
+                    dominated = true;
+                  }
+                  if (dominated) {
+                    // Re-despachar com dados limpos (sem dano)
+                    var cleanEvt = new MessageEvent('message', { data: JSON.stringify(parsed) });
+                    fn.call(ws, cleanEvt);
+                    return;
+                  }
+                }
+              } catch(_) {}
+            }
+            fn.call(ws, evt);
+          };
+          _gameMessageHandlers.push({orig: fn, wrapped: wrappedFn});
+          return _origAddEL(type, wrappedFn, opts);
+        }
+        return _origAddEL(type, fn, opts);
+      };
       ws.addEventListener('message',function(){if(_sent>0){var rtt=performance.now()-_sent;_agHudPing=_agHudPing===0?rtt:_agHudPing*0.8+rtt*0.2;_sent=0;}});
       return ws;
     }; Object.assign(window.WebSocket,_OWS); window.WebSocket.prototype=_OWS.prototype;
@@ -6623,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.88';
+  const AG_VERSION          = 'v1.89';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -9191,26 +9227,8 @@ loadMySales();
   let agHuntActive      = false;
   let agHuntTarget      = null;
   window.__agGodMode  = false; // GodMode — bloqueia dano de mobs
-  // GodMode loop: mantém HP e Shield no máximo enquanto ativo
-  (function() {
-    // GodMode: hook nas funções de dano + RAF loop para garantir HP/Shield máximo
-    // 1. Hook nLe (applyWildMbAckFromPresenceHub) — dano remoto
-    var _origNLe = nLe;
-    try {
-      nLe = function(e) {
-        if (window.__agGodMode) return; // ignora dano
-        return _origNLe.apply(this, arguments);
-      };
-    } catch(_) {}
-    // 2. RAF loop — reseta HP/Shield a cada frame (backup + cobre dano por contato)
-    (function _godLoop() {
-      if (window.__agGodMode) {
-        try { if ((wo|0) < 100) wo = 100; } catch(_) {}
-        try { if ((Bo|0) < 5)   Bo = 5;   } catch(_) {}
-      }
-      requestAnimationFrame(_godLoop);
-    })();
-  })();
+  // GodMode: NÃO forçar valores de HP/Shield (isso corrompe o visual).
+  // Em vez disso, interceptar mensagens de dano no WebSocket antes do jogo processá-las.
   let agHuntTargetAt    = 0;     // timestamp de quando setou o alvo (início do path)
   let agHuntCombatAt    = null;  // timestamp de quando chegou adjacente e começou a bater
   let agHuntTrackTimer  = null;
@@ -12931,9 +12949,9 @@ loadMySales();
         // Daily quests
         var questDone = 0, questTotal = 3, questDetails = [];
         try {
-          var kcQ = (typeof rd !== 'undefined' && rd.quests) ? rd.quests : [];
-          var yaC = (typeof Sa !== 'undefined' && Sa.claimed) ? Sa.claimed : {};
-          var yaP = (typeof Sa !== 'undefined' && Sa.prog) ? Sa.prog : {};
+          var kcQ = (typeof yl !== 'undefined' && yl.quests) ? yl.quests : [];
+          var yaC = (typeof Eo !== 'undefined' && Eo.claimed) ? Eo.claimed : {};
+          var yaP = (typeof Eo !== 'undefined' && Eo.prog) ? Eo.prog : {};
           questTotal = Math.max(3, kcQ.length);
           for (var i = 0; i < kcQ.length; i++) {
             var U = kcQ[i];
@@ -13295,9 +13313,9 @@ loadMySales();
       if (!questsEl) return;
       try {
         var questDone = 0, questTotal = 3, questDetails = [];
-        var kcQ = (typeof rd !== 'undefined' && rd.quests) ? rd.quests : [];
-        var yaC = (typeof Sa !== 'undefined' && Sa.claimed) ? Sa.claimed : {};
-        var yaP = (typeof Sa !== 'undefined' && Sa.prog)    ? Sa.prog    : {};
+        var kcQ = (typeof yl !== 'undefined' && yl.quests) ? yl.quests : [];
+        var yaC = (typeof Eo !== 'undefined' && Eo.claimed) ? Eo.claimed : {};
+        var yaP = (typeof Eo !== 'undefined' && Eo.prog)    ? Eo.prog    : {};
         questTotal = Math.max(3, kcQ.length);
         for (var i = 0; i < kcQ.length; i++) {
           var U = kcQ[i];
@@ -15295,8 +15313,8 @@ loadMySales();
     // ── Verificar daily quests antes de criar ordens ────────────────────────
     try {
       var _questDone = 0, _questTotal = 3;
-      var _kcQ = (typeof rd !== 'undefined' && rd.quests) ? rd.quests : [];
-      var _yaC = (typeof Sa !== 'undefined' && Sa.claimed) ? Sa.claimed : {};
+      var _kcQ = (typeof yl !== 'undefined' && yl.quests) ? yl.quests : [];
+      var _yaC = (typeof Eo !== 'undefined' && Eo.claimed) ? Eo.claimed : {};
       _questTotal = Math.max(3, _kcQ.length);
       for (var _qi = 0; _qi < _kcQ.length; _qi++) {
         if (_yaC[_kcQ[_qi].id]) _questDone++;
@@ -18484,7 +18502,7 @@ loadMySales();
           // Usar estado local ya (bundle minificado)
           var localDone = 0, localTotal = 0;
           try {
-            var claimed = ya && Sa.claimed;
+            var claimed = ya && Eo.claimed;
             if (claimed) {
               var keys = Object.keys(claimed);
               localTotal = keys.length;
@@ -18512,7 +18530,7 @@ loadMySales();
         } catch(e) {
           // Fallback: usar ya local
           try {
-            var claimed = ya && Sa.claimed || {};
+            var claimed = ya && Eo.claimed || {};
             var keys = Object.keys(claimed);
             var done = keys.filter(function(k){ return claimed[k]; }).length;
             return { done: done, total: Math.max(keys.length, 3), allDone: done >= 3 };
