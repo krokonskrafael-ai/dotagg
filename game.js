@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v2.00';
+  const AG_VERSION          = 'v2.01';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -13681,20 +13681,33 @@ loadMySales();
       await new Promise(function(r){ setTimeout(r, 500); });
 
       var deposited = 0;
+      var depositFailed = 0;
       for (var i = 0; i < qt.length; i++) {
         if (_agDepositCancelled) break;
         var slot = qt[i];
         if (!slot || (slot.count||0) <= 0) continue;
-        try {
-          ti('inv', i);
-          deposited++;
-          await new Promise(function(r){ setTimeout(r, 150); }); // rate limit
-        } catch(e) {
-          AG_LOG.warn('[Bank] Erro ao depositar slot ' + i + ': ' + e.message);
+        // Tenta até 3x por slot (R_e tem cooldown de 420ms)
+        var _transferred = false;
+        for (var _retry = 0; _retry < 3 && !_transferred && !_agDepositCancelled; _retry++) {
+          try {
+            zo = true; // garantir que modal flag está ativo
+            var _before = slot.count;
+            ti('inv', i);
+            // Verificar se realmente transferiu (count diminuiu ou slot ficou null)
+            var _after = qt[i] ? qt[i].count : 0;
+            if (_after < _before || !qt[i]) {
+              _transferred = true;
+              deposited++;
+            }
+          } catch(e) {
+            AG_LOG.warn('[Bank] Erro slot ' + i + ': ' + e.message);
+          }
+          await new Promise(function(r){ setTimeout(r, 500); }); // 500ms > cooldown de 420ms
         }
+        if (!_transferred && !_agDepositCancelled) depositFailed++;
       }
 
-      AG_LOG.info('[Bank] Depositou ' + deposited + ' slots' + (_agDepositCancelled ? ' (cancelado)' : '') + '. Saindo do bank...');
+      AG_LOG.info('[Bank] Depositou ' + deposited + ' slots, ' + depositFailed + ' falharam' + (_agDepositCancelled ? ' (cancelado)' : '') + '. Saindo do bank...');
       try { zo = false; } catch(_) {}
       await new Promise(function(r){ setTimeout(r, 500); });
 
