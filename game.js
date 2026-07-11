@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.89';
+  const AG_VERSION          = 'v1.90';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -9227,8 +9227,69 @@ loadMySales();
   let agHuntActive      = false;
   let agHuntTarget      = null;
   window.__agGodMode  = false; // GodMode — bloqueia dano de mobs
-  // GodMode: NÃO forçar valores de HP/Shield (isso corrompe o visual).
-  // Em vez disso, interceptar mensagens de dano no WebSocket antes do jogo processá-las.
+  // GodMode: intercepta dano de DUAS fontes:
+  // 1. Dano remoto (servidor → WS presenceHub): wrappea yt.onmessage para remover campos php/psc/wmb
+  // 2. Dano por contato (local, tickWildMobContactDamage): seta Cl=Infinity impedindo o hit
+  (function() {
+    var _godWsHooked = false;
+    var _origOnMessage = null;
+    setInterval(function() {
+      // (A) Hook no WebSocket existente (yt = presenceWs)
+      if (typeof yt !== 'undefined' && yt && !_godWsHooked) {
+        try {
+          _origOnMessage = yt.onmessage;
+          if (typeof _origOnMessage === 'function') {
+            yt.onmessage = function(evt) {
+              if (window.__agGodMode && evt.data && typeof evt.data === 'string') {
+                try {
+                  if (evt.data.charAt(0) === '{') {
+                    var parsed = JSON.parse(evt.data);
+                    if ('php' in parsed || 'psc' in parsed || 'wmb' in parsed) {
+                      delete parsed.php;
+                      delete parsed.psc;
+                      delete parsed.wmb;
+                      var cleanEvt = new MessageEvent('message', {data: JSON.stringify(parsed)});
+                      return _origOnMessage.call(yt, cleanEvt);
+                    }
+                  }
+                } catch(_) {}
+              }
+              return _origOnMessage.call(yt, evt);
+            };
+            _godWsHooked = true;
+          }
+        } catch(_) {}
+      }
+      // Se WS reconectou, precisa re-hookear
+      if (_godWsHooked && typeof yt !== 'undefined' && yt && yt.onmessage !== null && yt.onmessage !== undefined) {
+        try {
+          if (yt.onmessage.name !== '' && yt.onmessage !== _origOnMessage) {
+            // Game reassignou onmessage (reconexão) → re-hook
+            _origOnMessage = yt.onmessage;
+            yt.onmessage = function(evt) {
+              if (window.__agGodMode && evt.data && typeof evt.data === 'string') {
+                try {
+                  if (evt.data.charAt(0) === '{') {
+                    var parsed = JSON.parse(evt.data);
+                    if ('php' in parsed || 'psc' in parsed || 'wmb' in parsed) {
+                      delete parsed.php; delete parsed.psc; delete parsed.wmb;
+                      var cleanEvt = new MessageEvent('message', {data: JSON.stringify(parsed)});
+                      return _origOnMessage.call(yt, cleanEvt);
+                    }
+                  }
+                } catch(_) {}
+              }
+              return _origOnMessage.call(yt, evt);
+            };
+          }
+        } catch(_) {}
+      }
+      // (B) Bloquear dano por contato: manter Cl no futuro distante
+      if (window.__agGodMode) {
+        try { Cl = performance.now() + 999999; } catch(_) {}
+      }
+    }, 200);
+  })();
   let agHuntTargetAt    = 0;     // timestamp de quando setou o alvo (início do path)
   let agHuntCombatAt    = null;  // timestamp de quando chegou adjacente e começou a bater
   let agHuntTrackTimer  = null;
