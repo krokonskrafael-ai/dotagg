@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.92';
+  const AG_VERSION          = 'v1.96';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -13097,6 +13097,31 @@ loadMySales();
           }
         }
 
+        // Timer para próximo donate window (21:00-09:00 UTC)
+        if (phase !== 'entry_open' && entriesUsed === 0) {
+          var nowD = new Date();
+          var hNow = nowD.getUTCHours();
+          var nextOpen;
+          if (hNow >= 9 && hNow < 21) {
+            // Fora da janela (09:00-21:00 UTC) — próximo abre às 21:00 hoje
+            nextOpen = new Date(nowD);
+            nextOpen.setUTCHours(21, 0, 0, 0);
+          } else {
+            // Dentro da janela ou depois — se phase não é entry_open, próximo ciclo
+            nextOpen = new Date(nowD);
+            if (hNow >= 21) {
+              nextOpen.setUTCDate(nextOpen.getUTCDate() + 1);
+            }
+            nextOpen.setUTCHours(21, 0, 0, 0);
+          }
+          var msToOpen = nextOpen.getTime() - nowD.getTime();
+          if (msToOpen > 0) {
+            var tH = Math.floor(msToOpen / 3600000);
+            var tM = Math.floor((msToOpen % 3600000) / 60000);
+            capHtml += '<div style="font-size:9px;color:#f59e0b;margin-top:2px">🕘 Próximo donate em: <b>' + tH + 'h ' + tM + 'min</b></div>';
+          }
+        }
+
         if (holdPend) {
           capHtml += '<div style="font-size:9px;color:#f87171">⏸ KINS em hold (' + (dLot.holdHours||24) + 'h)</div>';
         }
@@ -13133,13 +13158,22 @@ loadMySales();
 
         // ── Botão ─────────────────────────────────────────────────────────
         var canEnter = phase === 'entry_open' && allDone && hasAll && entriesRem > 0 && !holdPend;
+        var canClaim = phase === 'claim_open';
         btn.disabled  = false;
-        btn.className = 'btn ' + (canEnter ? 'btn-ok' : 'btn-off');
-        btn.textContent = canEnter ? '🎟️ Comprar ticket (' + entriesRem + ' disp.)'
-                        : entriesRem <= 0 ? '✅ Tickets esgotados'
-                        : phase !== 'entry_open' ? '⏳ ' + phaseLabel
-                        : '🔄 Atualizar';
+        if (canClaim) {
+          btn.className = 'btn btn-ok';
+          btn.textContent = '🏆 Fazer Claim!';
+        } else if (canEnter) {
+          btn.className = 'btn btn-ok';
+          btn.textContent = '🎟️ Comprar ticket (' + entriesRem + ' disp.)';
+        } else {
+          btn.className = 'btn btn-off';
+          btn.textContent = entriesRem <= 0 && phase === 'entry_open' ? '✅ Tickets esgotados'
+                          : phase !== 'entry_open' ? '⏳ ' + phaseLabel
+                          : '🔄 Atualizar';
+        }
         btn._canEnter = canEnter;
+        btn._canClaim = canClaim;
 
       } catch(e) {
         questsEl.textContent = '✗ Erro: ' + e.message;
@@ -13301,11 +13335,11 @@ loadMySales();
         dgCleanup(wasActive, savedRealm); return;
       }
 
-      // 4. Comprar ticket via trade (usa o mesmo endpoint do gold trade — o servidor detecta a lottery)
+      // 4. Comprar ticket via lottery enter endpoint
       dgSetResult('🎟️ Comprando ticket…', '#8a93a8');
       try {
         try { cn({inventoryMutationFlush:true}); } catch(_) {}
-        var r = await fetch('/api/auth/merchant-trade-for-gold', {
+        var r = await fetch('/api/auth/merchant-lottery-enter', {
           method:'POST', credentials:'include',
           headers:{'Content-Type':'application/json'}, body:'{}',
         });
@@ -13334,10 +13368,42 @@ loadMySales();
       dgCleanup(wasActive, savedRealm);
     }
 
+    // ── Claim flow ────────────────────────────────────────────────────────
+    async function dgClaimFlow() {
+      if (_dgRunning) return;
+      _dgRunning = true;
+      dgSetResult('🏆 Fazendo claim…', '#fbbf24');
+      dgSetBtn('⏳ Claim…', false);
+      try {
+        var r = await fetch('/api/auth/merchant-lottery-claim', {
+          method: 'POST', credentials: 'include',
+          headers: {'Content-Type': 'application/json'}, body: '{}'
+        });
+        var d = await r.json().catch(function(){ return {}; });
+        if (r.ok && d.ok !== false) {
+          var won = d.goldAwarded || d.wonGold || d.gold || 0;
+          if (won > 0) {
+            dgSetResult('🎉 Claim: recebeu ' + won + ' gold!', '#6ee7a0');
+          } else {
+            dgSetResult('✅ Claim realizado (sem prêmio desta vez)', '#94a3b8');
+          }
+          AG_LOG.info('[Lottery] Claim realizado: ' + JSON.stringify(d));
+        } else {
+          var msg = d.error || d.message || 'Erro no claim';
+          dgSetResult('✗ ' + msg, '#f87171');
+        }
+      } catch(e) {
+        dgSetResult('✗ Erro: ' + e.message, '#f87171');
+      }
+      _dgRunning = false;
+      setTimeout(dgRender, 2000);
+    }
+
     $d('dg-btn').addEventListener('click', function() {
       if (_dgRunning) { _dgCancelled = true; return; }
       var btn = $d('dg-btn');
       if (btn && btn._canEnter) { dgDoTradeFlow(); }
+      else if (btn && btn._canClaim) { dgClaimFlow(); }
       else { dgRender(); }
     });
 
