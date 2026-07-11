@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v1.95';
+  const AG_VERSION          = 'v1.96';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -11940,28 +11940,28 @@ loadMySales();
         return { col: 2, row: 3 };
       }
       if (fromRealm === 'pond') {
-        if (typeof g6 !== 'undefined' && g6.size > 0) {
-          for (const k of g6) {
+        if (typeof Sf !== 'undefined' && Sf && Sf.size > 0) {
+          for (const k of Sf) {
             const [c, r] = k.split(',').map(Number);
             if (!isNaN(c) && !isNaN(r)) return { col: c, row: r };
           }
         }
       }
       if (fromRealm === 'eldergrove') {
-        if (typeof PS !== 'undefined' && PS.size > 0) {
-          for (const k of PS) {
+        if (typeof Qy !== 'undefined' && Qy && Qy.size > 0) {
+          for (const k of Qy) {
             const [c, r] = k.split(',').map(Number);
             if (!isNaN(c) && !isNaN(r)) return { col: c, row: r };
           }
         }
-        if (typeof rie !== 'undefined') {
-          const col = Array.isArray(rie) ? rie[0] : rie;
-          return { col, row: Aj };
+        if (typeof j_ !== 'undefined') {
+          const col = Array.isArray(j_) ? j_[0] : j_;
+          return { col, row: bI };
         }
       }
       if (fromRealm === 'wild' || fromRealm === 'wild_ext' || fromRealm === 'wild_exp') {
-        if (typeof VE !== 'undefined' && VE.size > 0) {
-          for (const k of VE) {
+        if (typeof Yu !== 'undefined' && Yu && Yu.size > 0) {
+          for (const k of Yu) {
             const [c, r] = k.split(',').map(Number);
             if (!isNaN(c) && !isNaN(r)) return { col: c, row: r };
           }
@@ -11969,24 +11969,24 @@ loadMySales();
       }
       if (fromRealm === 'beach') {
         // beachReturnSet (AE) = tiles da beach que levam de volta ao pond
-        if (typeof AE !== 'undefined' && AE.size > 0) {
-          for (const k of AE) {
+        if (typeof J2 !== 'undefined' && J2 && J2.size > 0) {
+          for (const k of J2) {
             const [c, r] = k.split(',').map(Number);
             if (!isNaN(c) && !isNaN(r)) return { col: c, row: r };
           }
         }
       }
       if (fromRealm === 'frostmere') {
-        if (typeof Tg !== 'undefined' && Tg.size > 0) {
-          for (const k of Tg) {
+        if (typeof $_ !== 'undefined' && $_ && $_.size > 0) {
+          for (const k of $_) {
             const [c, r] = k.split(',').map(Number);
             if (!isNaN(c) && !isNaN(r)) return { col: c, row: r };
           }
         }
       }
       if (fromRealm === 'ember') {
-        if (typeof z3 !== 'undefined' && z3.size > 0) {
-          for (const k of z3) {
+        if (typeof hM !== 'undefined' && hM && hM.size > 0) {
+          for (const k of hM) {
             const [c, r] = k.split(',').map(Number);
             if (!isNaN(c) && !isNaN(r)) return { col: c, row: r };
           }
