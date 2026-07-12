@@ -14722,8 +14722,7 @@ loadMySales();
             agAutoSellPendingStart = false;
             tog.dataset.on='false'; tog.innerHTML='&#9654; Ativar Auto-Venda';
           } else {
-            agAutoSellStart();
-            agRunAutoSell();
+            agAutoSellStart(); // já chama agRunAutoSell internamente
             tog.dataset.on='true'; tog.innerHTML='&#9646;&#9646; Parar Auto-Venda';
           }
         });
@@ -15874,9 +15873,15 @@ loadMySales();
     }
   }
 
+  var _agSellRunning = false;
   async function agRunAutoSell() {
+    if (_agSellRunning) { AG_LOG_SELL.info('já em execução — pulando'); return; }
     if (!agIsInGame()) return;
     if (!agAutoSellActive) return;
+    _agSellRunning = true;
+    try { await _agRunAutoSellInner(); } finally { _agSellRunning = false; }
+  }
+  async function _agRunAutoSellInner() {
     const cfg = agLoadAutoSellConfig();
     if (!cfg.enabled) return;
     const items = cfg.items || {};
@@ -15926,6 +15931,7 @@ loadMySales();
 
     for (const itemType of activeItems) {
       await agRunAutoSellForItem(itemType, items[itemType]);
+      await new Promise(function(r){setTimeout(r,1000);}); // delay entre itens para evitar 409 Conflict
     }
 
     // ── Processar pets/cosmetics/mounts ativos ────────────────────────────
@@ -16273,8 +16279,7 @@ loadMySales();
       } else {
         hudSaveGlobal();
         const c = agLoadAutoSellConfig(); c.enabled = true; agSaveAutoSellConfig(c);
-        agAutoSellStart();
-        agRunAutoSell();
+        agAutoSellStart(); // já chama agRunAutoSell internamente
         $a('as-toggle').dataset.on = 'true';
         $a('as-toggle').innerHTML = '&#9646;&#9646; Parar Auto-Venda';
       }
@@ -19520,8 +19525,7 @@ loadMySales();
         var st = $('as-status'); if (st) st.textContent = 'Desativado';
       } else {
         saveSellGlobalConfig(true);
-        agAutoSellStart();
-        agRunAutoSell();
+        agAutoSellStart(); // já chama agRunAutoSell internamente
         updateSellBtn(true);
       }
     });
