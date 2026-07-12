@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v2.03';
+  const AG_VERSION          = 'v2.04';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -14567,8 +14567,15 @@ loadMySales();
         tog.dataset.on = agAutoSellActive ? 'true' : 'false';
         tog.innerHTML = agAutoSellActive ? '&#9646;&#9646; Parar Auto-Venda' : '&#9654; Ativar Auto-Venda';
         tog.addEventListener('click', function() {
-          if (agAutoSellActive) { agAutoSellStop(); tog.dataset.on='false'; tog.innerHTML='&#9654; Ativar Auto-Venda'; }
-          else { agAutoSellStart(); tog.dataset.on='true'; tog.innerHTML='&#9646;&#9646; Parar Auto-Venda'; }
+          if (agAutoSellActive) {
+            agAutoSellStop();
+            agAutoSellPendingStart = false; // impede re-ativação automática
+            tog.dataset.on='false'; tog.innerHTML='&#9654; Ativar Auto-Venda';
+          } else {
+            agAutoSellStart(); // inicia com timer
+            agRunAutoSell();   // executa venda AGORA
+            tog.dataset.on='true'; tog.innerHTML='&#9646;&#9646; Parar Auto-Venda';
+          }
         });
       }
       // Sell only Daily Done checkbox
@@ -16054,6 +16061,7 @@ loadMySales();
     $a('as-toggle').addEventListener('click', function() {
       if (agAutoSellActive) {
         agAutoSellStop();
+        agAutoSellPendingStart = false;
         $a('as-toggle').dataset.on = 'false';
         $a('as-toggle').innerHTML = '&#9654; Ativar Auto-Venda';
         $a('as-status').textContent = 'Desativado';
@@ -16062,6 +16070,7 @@ loadMySales();
         hudSaveGlobal();
         const c = agLoadAutoSellConfig(); c.enabled = true; agSaveAutoSellConfig(c);
         agAutoSellStart();
+        agRunAutoSell();
         $a('as-toggle').dataset.on = 'true';
         $a('as-toggle').innerHTML = '&#9646;&#9646; Parar Auto-Venda';
       }
@@ -19301,12 +19310,14 @@ loadMySales();
     if ($('as-toggle')) $('as-toggle').addEventListener('click', function() {
       if (agAutoSellActive) {
         agAutoSellStop();
+        agAutoSellPendingStart = false;
         saveSellGlobalConfig(false);
         updateSellBtn(false);
         var st = $('as-status'); if (st) st.textContent = 'Desativado';
       } else {
         saveSellGlobalConfig(true);
         agAutoSellStart();
+        agRunAutoSell();
         updateSellBtn(true);
       }
     });
