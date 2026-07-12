@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v2.04';
+  const AG_VERSION          = 'v2.05';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -14564,16 +14564,20 @@ loadMySales();
       // Sync toggle button
       var tog = sh.getElementById('as-toggle');
       if (tog) {
+        // Remove listeners antigos clonando o botão
+        var newTog = tog.cloneNode(true);
+        tog.parentNode.replaceChild(newTog, tog);
+        tog = newTog;
         tog.dataset.on = agAutoSellActive ? 'true' : 'false';
         tog.innerHTML = agAutoSellActive ? '&#9646;&#9646; Parar Auto-Venda' : '&#9654; Ativar Auto-Venda';
         tog.addEventListener('click', function() {
           if (agAutoSellActive) {
             agAutoSellStop();
-            agAutoSellPendingStart = false; // impede re-ativação automática
+            agAutoSellPendingStart = false;
             tog.dataset.on='false'; tog.innerHTML='&#9654; Ativar Auto-Venda';
           } else {
-            agAutoSellStart(); // inicia com timer
-            agRunAutoSell();   // executa venda AGORA
+            agAutoSellStart();
+            agRunAutoSell();
             tog.dataset.on='true'; tog.innerHTML='&#9646;&#9646; Parar Auto-Venda';
           }
         });
@@ -14581,6 +14585,9 @@ loadMySales();
       // Sell only Daily Done checkbox
       var dailyChk = sh.getElementById('as-daily-check');
       if (dailyChk) {
+        var newDailyChk = dailyChk.cloneNode(true);
+        dailyChk.parentNode.replaceChild(newDailyChk, dailyChk);
+        dailyChk = newDailyChk;
         try { agSellOnlyDailyDone = localStorage.getItem('ag_sell_daily_check') !== '0'; } catch(_) {}
         dailyChk.checked = agSellOnlyDailyDone;
         dailyChk.addEventListener('change', function() {
