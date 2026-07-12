@@ -12922,7 +12922,7 @@ loadMySales();
       result.textContent = 'Processando...';
       result.style.color = '#8a93a8';
       try {
-        await Vo({ inventoryMutationFlush: true });
+        await Vo({marketplaceFlush:!0});
         var res  = await fetch('/api/auth/merchant-trade-for-gold', {
           method: 'POST', credentials: 'include',
           headers: { 'Content-Type': 'application/json' }, body: '{}',
@@ -15665,7 +15665,7 @@ loadMySales();
   // Cancela um anuncio pelo id
   async function agCancelListing(listingId) {
     try {
-      await Vo({ inventoryMutationFlush: true }).catch(() => {});
+      await Vo({marketplaceFlush:!0}).catch(() => {});
       const r = await fetch('/api/marketplace/cancel', {
         method: 'POST',
         credentials: 'include',
@@ -15809,87 +15809,68 @@ loadMySales();
       priceUsd = Math.max(0.01, Math.floor(rawFixedTotal * 100) / 100 - 0.01);
     }
 
-    // Post sell
-    try {
-      agAutoSellUpdateStatus('[' + itemType + '] Anunciando ' + sellQty + '...');
-      // Pega o primeiro slot para saber o slotIndex — quantidade vem do sellQty (total do inventário)
-      let freshSlotIndex = -1;
+    // Post sell — tenta até 3 slots diferentes em caso de slot_mismatch
+    const finalPriceUsd = Math.round(priceUsd * 100) / 100;
+    var _triedSlots = new Set();
+    var _sellOk = false;
+    for (var _attempt = 0; _attempt < 3 && !_sellOk; _attempt++) {
       try {
-        await Vo({ inventoryMutationFlush: true });
+        // Flush e encontrar slot fresco (diferente dos já tentados)
+        await Vo({marketplaceFlush:!0}).catch(function(){});
+        await new Promise(function(r){setTimeout(r,300);});
+        let freshSlotIndex = -1;
         for (let i = 0; i < 24; i++) {
           const s = qt[i];
-          if (s && s.type === itemType) { freshSlotIndex = i; break; }
+          if (s && s.type === itemType && (s.count||0) > 0 && !_triedSlots.has(i)) { freshSlotIndex = i; break; }
         }
-      } catch(_) { freshSlotIndex = slotIndex; }
-      if (freshSlotIndex === -1) {
-        agAutoSellUpdateStatus('[' + itemType + '] Slot nao encontrado');
-        return;
-      }
-      const finalPriceUsd = Math.round(priceUsd * 100) / 100;
-      agAutoSellUpdateStatus('[' + itemType + '] Anunciando ' + sellQty + ' @ $' + finalPriceUsd + ' (slot ' + freshSlotIndex + ')...');
-      const r = await fetch('/api/marketplace/sell', {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          itemType, slotKind: 'inv', slotIndex: freshSlotIndex,
-          quantity: sellQty, currency: 'token',
-          priceUsd: finalPriceUsd,
-        }),
-      });
-      const d = await r.json().catch(() => ({}));
-      if (d.ok) {
-        // Aplicar backpack atualizado do servidor (mantém inventário sincronizado)
-        if (d.backpack) { try { await J8(d.backpack, d.stateSeq); } catch(_) {} }
-        AG_LOG_SELL.info('[' + itemType + '] ✓ anunciado ' + sellQty + ' por $' + finalPriceUsd.toFixed(2));
-        agAutoSellUpdateStatus('✓ [' + itemType + '] ' + sellQty + ' por $' + finalPriceUsd.toFixed(2));
-        // Invalida o cache — o novo anúncio precisa aparecer na próxima checagem
-        _agMyListingsCache = null;
-        _agMyListingsCacheTs = 0;
-        // Anúncio novo criado com sucesso — agora pode cancelar o antigo (que não era mais o floor)
-        if (_pendingCancelId != null) {
-          agAutoSellUpdateStatus('[' + itemType + '] Cancelando anúncio antigo #' + _pendingCancelId + '...');
-          const cancelOk = await agCancelListing(_pendingCancelId);
-          if (cancelOk) {
-            AG_LOG_SELL.info('[' + itemType + '] ✓ anuncio antigo #' + _pendingCancelId + ' cancelado');
-          } else {
-            AG_LOG_SELL.warn('[' + itemType + '] falha ao cancelar anuncio antigo #' + _pendingCancelId + ' — verifique manualmente');
-            agAutoSellUpdateStatus('[' + itemType + '] ⚠️ Anuncio antigo #' + _pendingCancelId + ' nao cancelado');
+        if (freshSlotIndex === -1) {
+          AG_LOG_SELL.warn('[' + itemType + '] Nenhum slot disponível (tentados: ' + Array.from(_triedSlots) + ')');
+          agAutoSellUpdateStatus('[' + itemType + '] Slot não encontrado');
+          break;
+        }
+        _triedSlots.add(freshSlotIndex);
+        // O slotIndex é só referência — o servidor deduz do total do inventário
+        var actualQty = sellQty;
+        var actualPrice = finalPriceUsd;
+        agAutoSellUpdateStatus('[' + itemType + '] Anunciando ' + actualQty + ' @ $' + actualPrice + ' (slot ' + freshSlotIndex + ', tentativa ' + (_attempt+1) + ')...');
+        AG_LOG_SELL.info('[' + itemType + '] sell attempt ' + (_attempt+1) + ': slot=' + freshSlotIndex + ' qty=' + actualQty + ' price=$' + actualPrice);
+        const r = await fetch('/api/marketplace/sell', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            itemType, slotKind: 'inv', slotIndex: freshSlotIndex,
+            quantity: actualQty, currency: 'token',
+            priceUsd: actualPrice,
+          }),
+        });
+        const d = await r.json().catch(() => ({}));
+        if (d.ok) {
+          if (d.backpack) { try { await J8(d.backpack, d.stateSeq); } catch(_) {} }
+          AG_LOG_SELL.info('[' + itemType + '] ✓ anunciado ' + actualQty + ' por $' + actualPrice.toFixed(2));
+          agAutoSellUpdateStatus('✓ [' + itemType + '] ' + actualQty + ' por $' + actualPrice.toFixed(2));
+          _agMyListingsCache = null; _agMyListingsCacheTs = 0;
+          _sellOk = true;
+          if (_pendingCancelId != null) {
+            agAutoSellUpdateStatus('[' + itemType + '] Cancelando anúncio antigo #' + _pendingCancelId + '...');
+            const cancelOk = await agCancelListing(_pendingCancelId);
+            if (cancelOk) AG_LOG_SELL.info('[' + itemType + '] ✓ antigo #' + _pendingCancelId + ' cancelado');
+            else AG_LOG_SELL.warn('[' + itemType + '] falha ao cancelar #' + _pendingCancelId);
           }
+        } else {
+          const errCode = d.error || d.err || '';
+          AG_LOG_SELL.warn('[' + itemType + '] erro attempt ' + (_attempt+1) + ': ' + errCode);
+          if (errCode === 'slot_mismatch') {
+            agAutoSellUpdateStatus('[' + itemType + '] slot_mismatch slot ' + freshSlotIndex + ' — tentando outro...');
+            continue; // tenta próximo slot
+          }
+          agAutoSellUpdateStatus('[' + itemType + '] Erro: ' + errCode);
+          break; // erro diferente — não retry
         }
-      } else {
-        const errCode = d.error || d.err || '';
-        AG_LOG_SELL.warn('[' + itemType + '] erro | ' + JSON.stringify(d));
-        agAutoSellUpdateStatus('[' + itemType + '] Erro: ' + errCode);
-        if (errCode === 'slot_mismatch') {
-          agAutoSellUpdateStatus('[' + itemType + '] slot_mismatch — re-sync slot...');
-          (async function() {
-            try {
-              await Vo({ inventoryMutationFlush: true });
-              let syncSlot = -1;
-              for (let i = 0; i < 24; i++) {
-                const s = qt[i];
-                if (s && s.type === itemType && (s.count || 0) >= 1) { syncSlot = i; break; }
-              }
-              if (syncSlot === -1) { agAutoSellUpdateStatus('[' + itemType + '] sem item para sync'); return; }
-              const rSync = await fetch('/api/marketplace/sell', {
-                method: 'POST', credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ itemType, slotKind: 'inv', slotIndex: syncSlot, quantity: 1, currency: 'token', priceUsd: 1.00 }),
-              });
-              const dSync = await rSync.json().catch(() => ({}));
-              if (dSync.ok) {
-                agAntiBotSyncGraceUntil = Date.now() + 90000;
-                agAutoSellUpdateStatus('[' + itemType + '] ✓ sync ok — retomando...');
-              } else {
-                agAutoSellUpdateStatus('[' + itemType + '] sync falhou: ' + (dSync.error||''));
-              }
-            } catch(e) { AG_LOG_SELL.warn('[' + itemType + '] sync erro: ' + e.message); }
-          })();
-        }
+      } catch(e) {
+        AG_LOG_SELL.warn('[' + itemType + '] erro de rede attempt ' + (_attempt+1), e);
+        agAutoSellUpdateStatus('[' + itemType + '] Erro de rede');
+        break;
       }
-    } catch(e) {
-      AG_LOG_SELL.warn('[' + itemType + '] erro de rede', e);
-      agAutoSellUpdateStatus('[' + itemType + '] Erro de rede');
     }
   }
 
@@ -15992,7 +15973,7 @@ loadMySales();
     agAutoSellUpdateStatus('[' + spec.icon + ' ' + agFormatItemName(spec.type) + '] Anunciando...');
 
     try {
-      await Vo({inventoryMutationFlush:true}).catch(function(){});
+      await Vo({marketplaceFlush:!0}).catch(function(){});
       var r = await fetch('/api/marketplace/sell', {
         method: 'POST', credentials: 'include',
         headers: {'Content-Type': 'application/json'},
@@ -20566,7 +20547,7 @@ loadMySales();
     AG_LOG.info('AutoGold: tentando comprar | modo=' + (merchantGoldCampaign && merchantGoldCampaign.mode) +
       ' stock=' + (merchantGoldCampaign && merchantGoldCampaign.goldStock));
 
-    Vo({ inventoryMutationFlush: true }).catch(function(){}).then(function() {
+    Vo({marketplaceFlush:!0}).catch(function(){}).then(function() {
       return fetch('/api/auth/merchant-trade-for-gold', {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
