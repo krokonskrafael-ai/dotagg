@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v2.05';
+  const AG_VERSION          = 'v2.04';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -8399,7 +8399,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     if (agMode === 'fish') { agTickFishing(); return; }
     try {
       // Se entrou em shack acidentalmente, move diretamente para tile de saída [0,4]
-      // O jogo chama Ane() automaticamente ao chegar lá (linha 98206 do game.js)
+      // O jogo chama WV() automaticamente ao chegar lá (linha 98206 do game.js)
       if (D==='shack') {
         (function(){try{qe=[],$e = !1,dt=0}catch(_){}})(); (function(){try{gn()}catch(_){};try{kn()}catch(_){}})();
         agLastKey = null; agLastApKey = null; agLastApKeyAt = 0; agApproachAt = null;
@@ -8407,8 +8407,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         // Se ja esta na tile de saida, chama eee diretamente
         // Exit tiles do shack: [2,3], [0,4], [3,0], [3,1]
         if ((ce === 2 && de === 3) || (ce === 0 && de === 4) || (ce === 3 && (de === 0 || de === 1))) {
-          AG_LOG.warn('Shack: na tile de saida — chamando Ane()');
-          try { Ane(); } catch(e) { AG_LOG.warn('eee erro: ' + e.message); }
+          AG_LOG.warn('Shack: na tile de saida — chamando WV()');
+          try { WV(); } catch(e) { AG_LOG.warn('eee erro: ' + e.message); }
           agSchedule(1500); return;
         }
         AG_LOG.warn('Shack pos=[' + ce + ',' + de + '] U=' + $e + ' Y.len=' + qe.length + ' cols=' + wo + ' rows=' + ko);
@@ -8436,6 +8436,23 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         } catch(e) {
           AG_LOG.warn('Shack: erro: ' + e.message);
         }
+
+      // Se entrou no petShop acidentalmente, sai
+      if (D==='petShop') {
+        (function(){try{qe=[],$e = !1,dt=0}catch(_){}})(); (function(){try{gn()}catch(_){};try{kn()}catch(_){}})();
+        agSetStatus('⏸ Saindo do Pet Shop...');
+        // Exit tiles do petShop: [3,3], [3,4], [3,2]
+        if ((ce === 3 && (de === 3 || de === 4 || de === 2))) {
+          AG_LOG.warn('PetShop: na tile de saída — chamando oC()');
+          try { oC(); } catch(e) { AG_LOG.warn('exitPetShop erro: ' + e.message); }
+          agSchedule(1500); return;
+        }
+        try {
+          const path = Nl(ce, de, 3, 3);
+          if (path && path.length) { qe = path; $e = false; Hl(); }
+        } catch(_) {}
+        agSchedule(1500); return;
+      }
         agSchedule(1500); return;
       }
 
@@ -8619,6 +8636,34 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
   const AG_SELL_ITEMS = ['wood','stone','coal','metal','gold','fish','cooked_fish_meat'];
   const AG_SELL_ITEM_LABELS = { wood:'Wood', stone:'Stone', coal:'Coal', metal:'Metal', gold:'Gold', fish:'Fish', cooked_fish_meat:'Cooked Fish' };
+
+  // Escaneia pets/cosmetics/mounts e retorna lista de itens vendáveis
+  function agGetSpecialSellItems() {
+    var items = [];
+    var sources = [
+      {get: function(){try{return Oa;}catch(_){return[];}}, kind:'cosmetic', icon:'👗'},
+      {get: function(){try{return Va;}catch(_){return[];}}, kind:'pet',      icon:'🐾'},
+      {get: function(){try{return Ir;}catch(_){return[];}}, kind:'mount',    icon:'🐴'},
+    ];
+    sources.forEach(function(src) {
+      var arr = src.get();
+      if (!arr) return;
+      var seen = {};
+      for (var i = 0; i < arr.length; i++) {
+        var s = arr[i];
+        if (!s || (s.count||0) <= 0) continue;
+        if (!seen[s.type]) {
+          seen[s.type] = {type:s.type, kind:src.kind, icon:src.icon, count:0, firstIdx:i};
+        }
+        seen[s.type].count += s.count;
+      }
+      Object.values(seen).forEach(function(it) { items.push(it); });
+    });
+    return items;
+  }
+  function agFormatItemName(type) {
+    return type.replace(/_/g,' ').replace(/\b\w/g, function(c){return c.toUpperCase();});
+  }
 
   /** Retorna os tipos de AG_SELL_ITEMS que o jogador tem atualmente na backpack (inventorySlots apenas) */
   function agGetBackpackSellableTypes() {
@@ -11315,7 +11360,7 @@ loadMySales();
     } else {
       if (!R$()) return false;
     }
-    if (D === 'shack') return false;
+    if (D === 'shack' || D === 'petShop') return false;
     return true;
   }
 
@@ -11326,9 +11371,9 @@ loadMySales();
     if (agGameStateBlocksFarm()) return false;
     // Em modo pesca, verificar se o realm suporta pesca em vez de JY()
     if (agMode === 'fish') {
-      if (!AG_FISHING_REALMS.has(D) && D !== 'shack') return false;
+      if (!AG_FISHING_REALMS.has(D) && D !== 'shack' && D !== 'petShop') return false;
     } else {
-      if (!R$() && D !== 'shack') return false;
+      if (!R$() && D !== 'shack' && D !== 'petShop') return false;
     }
     return true;
   }
@@ -11789,8 +11834,8 @@ loadMySales();
     if (D==='shack') {
       agSetStatus('⏸ Saindo da casinha...');
       if (ce === 7 && de === 4) {
-        AG_LOG.warn('Shack: na tile de saida — Ane()');
-        try { Ane(); } catch(e) {}
+        AG_LOG.warn('Shack: na tile de saida — WV()');
+        try { WV(); } catch(e) {}
         return;
       }
       AG_LOG.warn('Shack: saindo via path para [' + 7 + ',' + 4 + '] pos=[' + ce + ',' + de + ']');
@@ -11814,6 +11859,19 @@ loadMySales();
         }
       } catch(e) { AG_LOG.warn('Shack erro: ' + e.message); }
       return; // nao tenta navegar enquanto ainda esta na shack
+    }
+    if (D==='petShop') {
+      agSetStatus('⏸ Saindo do Pet Shop...');
+      if (ce === 3 && (de === 3 || de === 4 || de === 2)) {
+        AG_LOG.warn('PetShop: na tile de saída — oC()');
+        try { oC(); } catch(e) {}
+        return;
+      }
+      try {
+        const path = Nl(ce, de, 3, 3);
+        if (path && path.length) { qe = path; $e = false; Hl(); }
+      } catch(_) {}
+      return; // nao tenta navegar enquanto ainda esta no petShop
     }
     const label = AG_REALM_LABELS[agFarmRealm] || agFarmRealm;
     AG_LOG.warn('Realm errado:', D, '→ indo para:', agFarmRealm);
@@ -11944,6 +12002,10 @@ loadMySales();
         // Exit tiles do shack: [2,3], [0,4], [3,0], [3,1]
         // Usar [2,3] -- mais acessível (adjacente ao spawn [2,2])
         return { col: 2, row: 3 };
+      }
+      if (fromRealm === 'petShop') {
+        // Exit tiles do petShop: [3,3], [3,4], [3,2]
+        return { col: 3, row: 3 };
       }
       if (fromRealm === 'pond') {
         if (typeof Sf !== 'undefined' && Sf && Sf.size > 0) {
@@ -12860,7 +12922,7 @@ loadMySales();
       result.textContent = 'Processando...';
       result.style.color = '#8a93a8';
       try {
-        await flushSaveInventoryImmediate({ inventoryMutationFlush: true });
+        await Vo({ inventoryMutationFlush: true });
         var res  = await fetch('/api/auth/merchant-trade-for-gold', {
           method: 'POST', credentials: 'include',
           headers: { 'Content-Type': 'application/json' }, body: '{}',
@@ -13352,8 +13414,7 @@ loadMySales();
         var d = await r.json().catch(function(){ return {}; });
         if (r.ok && d.ok !== false) {
           try {
-            if (d.backpack) { Nd(d.backpack); yn(); Ue(); }
-            else            { ui(); yn(); Ue(); }
+            if (d.backpack) { try { await J8(d.backpack, d.stateSeq); } catch(_) {} }
           } catch(e) { AG_LOG.warn('[Lottery] sync: ' + e.message); }
           dgSetResult('✓ Ticket comprado! Boa sorte! 🍀', '#6ee7a0');
           AG_LOG.info('[Lottery] Ticket comprado com sucesso');
@@ -14233,12 +14294,14 @@ loadMySales();
             '</select>',
           '</div>',
           '<div id="as-item-list" style="display:flex;flex-direction:column;gap:2px;margin-bottom:6px"></div>',
+          '<div style="font-size:8px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:.07em;margin:6px 0 4px">&#128142; Pets / Cosmetics / Mounts</div>',
+          '<div id="as-special-list" style="display:flex;flex-direction:column;gap:2px;margin-bottom:6px;max-height:200px;overflow-y:auto"></div>',
           '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">',
             '<span class="ag-lbl" style="flex:1">Blacklist:</span>',
             '<button id="as-blacklist-btn" style="font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#d4d8e2;cursor:pointer">&#9998; Editar</button>',
           '</div>',
           '<div id="as-blacklist-tags" style="display:flex;flex-wrap:wrap;gap:4px;min-height:16px;margin-bottom:5px"></div>',
-          '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin-bottom:6px;font-size:10px;color:#94a3b8"><input type="checkbox" id="as-daily-check" style="accent-color:#f97316" checked>Sell only Daily Done</label>',
+          '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin-bottom:6px;font-size:10px;color:#94a3b8"><input type="checkbox" id="as-daily-check" style="accent-color:#f97316">Sell only Daily Done</label>',
           '<button id="as-toggle" data-on="false" style="width:100%;padding:6px 0;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:6px;transition:background .15s">&#9654; Ativar Auto-Venda</button>',
           '<div id="as-status" style="font-size:10px;color:#8a93a8;min-height:13px;line-height:1.4">Desativado</div>',
           '<hr class="ag-div">',
@@ -14561,6 +14624,89 @@ loadMySales();
           setTimeout(function() { btn.innerHTML = '&#10003; Salvar'; btn.style.background = '#f97316'; }, 1200);
         });
       });
+
+      // ── Pets / Cosmetics / Mounts list (auto-sell style) ──────────────────
+      var specList = sh.getElementById('as-special-list');
+      if (specList) {
+        var specItems = agGetSpecialSellItems();
+        if (specItems.length === 0) {
+          specList.innerHTML = '<div style="font-size:9px;color:#556;text-align:center;padding:3px 0">Nenhum item especial no inventário</div>';
+        } else {
+          var specCfg = agLoadAutoSellConfig();
+          if (!specCfg.items) specCfg.items = {};
+          var inpSS = 'width:100%;box-sizing:border-box;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.16);border-radius:4px;color:#d4d8e2;font-size:10px;padding:2px 5px;outline:none;margin-top:1px';
+          var lblSS = 'font-size:9px;color:#8a93a8;display:block;margin-bottom:1px';
+          specList.innerHTML = specItems.map(function(it) {
+            var ic = specCfg.items[it.type] || agDefaultItemSellCfg();
+            var checked = ic.active ? 'checked' : '';
+            return '<div style="margin-bottom:2px">' +
+              '<div style="display:flex;align-items:center;gap:5px;padding:3px 5px;border-radius:4px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">' +
+                '<input type="checkbox" data-spec-item="' + it.type + '" style="width:12px;height:12px;accent-color:#a78bfa;cursor:pointer" ' + checked + '>' +
+                '<span style="flex:1;font-size:9px;color:' + (ic.active?'#d4d8e2':'#556') + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + it.icon + ' ' + agFormatItemName(it.type) + ' <span style="color:#64748b">x' + it.count + '</span></span>' +
+                '<button class="spec-cfg-btn" data-spec-cfg="' + it.type + '" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:3px;color:#8a93a8;font-size:9px;padding:1px 5px;cursor:pointer">&#9881;</button>' +
+              '</div>' +
+              '<div class="spec-item-cfg" data-spec-cfg-for="' + it.type + '" style="display:none;padding:4px 6px;background:rgba(167,139,250,0.04);border:1px solid rgba(167,139,250,0.12);border-radius:0 0 4px 4px;margin-top:-1px">' +
+                '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:8px;font-weight:700;color:#a78bfa">' + agFormatItemName(it.type) + '</span><button data-spec-cfg-close="' + it.type + '" style="background:none;border:none;color:#556;font-size:10px;cursor:pointer;padding:0">✕</button></div>' +
+                '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;margin-bottom:3px;font-size:9px"><input type="checkbox" data-spec-field="useFloor" data-spec-type="' + it.type + '" style="accent-color:#a78bfa"' + (ic.useFloor?' checked':'') + '>Floor Price (−$0.01)</label>' +
+                '<div data-spec-fixed-row="' + it.type + '" style="' + (ic.useFloor?'opacity:.3;pointer-events:none':'') + ';margin-bottom:3px"><label style="' + lblSS + '">Preço fixo $ (total)</label><input data-spec-field="fixedPrice" data-spec-type="' + it.type + '" type="number" step="0.01" min="0.01" placeholder="ex: 5.00" style="' + inpSS + '" value="' + (ic.fixedPrice||'') + '"></div>' +
+                '<button data-spec-save="' + it.type + '" data-spec-kind="' + it.kind + '" style="width:100%;padding:2px 0;border-radius:3px;border:none;background:#a78bfa;color:#fff;font-size:9px;font-weight:700;cursor:pointer">&#10003; Salvar</button>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+          // Checkbox handlers
+          specList.querySelectorAll('[data-spec-item]').forEach(function(el) {
+            el.addEventListener('change', function() {
+              var c2 = agLoadAutoSellConfig();
+              if (!c2.items) c2.items = {};
+              if (!c2.items[el.dataset.specItem]) c2.items[el.dataset.specItem] = agDefaultItemSellCfg();
+              c2.items[el.dataset.specItem].active = el.checked;
+              c2.items[el.dataset.specItem]._slotKind = specItems.find(function(x){return x.type===el.dataset.specItem;})?.kind || 'inv';
+              agSaveAutoSellConfig(c2);
+            });
+          });
+          // Gear toggle
+          specList.querySelectorAll('[data-spec-cfg]').forEach(function(el) {
+            el.addEventListener('click', function() {
+              var cfgDiv = specList.querySelector('[data-spec-cfg-for="' + el.dataset.specCfg + '"]');
+              if (!cfgDiv) return;
+              var open = cfgDiv.style.display !== 'none';
+              specList.querySelectorAll('.spec-item-cfg').forEach(function(d){d.style.display='none';});
+              if (!open) cfgDiv.style.display = '';
+            });
+          });
+          // Close buttons
+          specList.querySelectorAll('[data-spec-cfg-close]').forEach(function(el) {
+            el.addEventListener('click', function() {
+              var cfgDiv = specList.querySelector('[data-spec-cfg-for="' + el.dataset.specCfgClose + '"]');
+              if (cfgDiv) cfgDiv.style.display = 'none';
+            });
+          });
+          // Floor toggle
+          specList.querySelectorAll('[data-spec-field="useFloor"]').forEach(function(el) {
+            el.addEventListener('change', function() {
+              var fr = specList.querySelector('[data-spec-fixed-row="' + el.dataset.specType + '"]');
+              if (fr) { fr.style.opacity = el.checked ? '0.3' : '1'; fr.style.pointerEvents = el.checked ? 'none' : 'auto'; }
+            });
+          });
+          // Save
+          specList.querySelectorAll('[data-spec-save]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+              var t = btn.dataset.specSave;
+              var c2 = agLoadAutoSellConfig();
+              if (!c2.items) c2.items = {};
+              c2.items[t] = Object.assign(c2.items[t] || agDefaultItemSellCfg(), {
+                useFloor:   !!specList.querySelector('[data-spec-field="useFloor"][data-spec-type="' + t + '"]')?.checked,
+                fixedPrice: Number(specList.querySelector('[data-spec-field="fixedPrice"][data-spec-type="' + t + '"]')?.value) || 0,
+                _slotKind:  btn.dataset.specKind || 'inv',
+              });
+              agSaveAutoSellConfig(c2);
+              btn.textContent = '✓ Salvo!'; btn.style.background = '#27ae60';
+              setTimeout(function(){btn.innerHTML='&#10003; Salvar';btn.style.background='#a78bfa';},1200);
+            });
+          });
+        }
+      }
+
       // Sync toggle button
       var tog = sh.getElementById('as-toggle');
       if (tog) {
@@ -15451,7 +15597,7 @@ loadMySales();
 
   let agAutoSellTimer = null;
   let agAutoSellActive = false;
-  var agSellOnlyDailyDone = (function(){ try { return localStorage.getItem('ag_sell_daily_check') !== '0'; } catch(_) { return true; } })();
+  var agSellOnlyDailyDone = (function(){ try { var v = localStorage.getItem('ag_sell_daily_check'); return v === '1'; } catch(_) { return false; } })();
 
   function agAutoSellStart() {
     agAutoSellActive = true;
@@ -15519,7 +15665,7 @@ loadMySales();
   // Cancela um anuncio pelo id
   async function agCancelListing(listingId) {
     try {
-      await flushSaveInventoryImmediate({ inventoryMutationFlush: true }).catch(() => {});
+      await Vo({ inventoryMutationFlush: true }).catch(() => {});
       const r = await fetch('/api/marketplace/cancel', {
         method: 'POST',
         credentials: 'include',
@@ -15669,7 +15815,7 @@ loadMySales();
       // Pega o primeiro slot para saber o slotIndex — quantidade vem do sellQty (total do inventário)
       let freshSlotIndex = -1;
       try {
-        await flushSaveInventoryImmediate({ inventoryMutationFlush: true });
+        await Vo({ inventoryMutationFlush: true });
         for (let i = 0; i < 24; i++) {
           const s = qt[i];
           if (s && s.type === itemType) { freshSlotIndex = i; break; }
@@ -15692,6 +15838,8 @@ loadMySales();
       });
       const d = await r.json().catch(() => ({}));
       if (d.ok) {
+        // Aplicar backpack atualizado do servidor (mantém inventário sincronizado)
+        if (d.backpack) { try { await J8(d.backpack, d.stateSeq); } catch(_) {} }
         AG_LOG_SELL.info('[' + itemType + '] ✓ anunciado ' + sellQty + ' por $' + finalPriceUsd.toFixed(2));
         agAutoSellUpdateStatus('✓ [' + itemType + '] ' + sellQty + ' por $' + finalPriceUsd.toFixed(2));
         // Invalida o cache — o novo anúncio precisa aparecer na próxima checagem
@@ -15716,7 +15864,7 @@ loadMySales();
           agAutoSellUpdateStatus('[' + itemType + '] slot_mismatch — re-sync slot...');
           (async function() {
             try {
-              await flushSaveInventoryImmediate({ inventoryMutationFlush: true });
+              await Vo({ inventoryMutationFlush: true });
               let syncSlot = -1;
               for (let i = 0; i < 24; i++) {
                 const s = qt[i];
@@ -15797,6 +15945,74 @@ loadMySales();
 
     for (const itemType of activeItems) {
       await agRunAutoSellForItem(itemType, items[itemType]);
+    }
+
+    // ── Processar pets/cosmetics/mounts ativos ────────────────────────────
+    var specials = agGetSpecialSellItems();
+    for (var _si = 0; _si < specials.length; _si++) {
+      var spec = specials[_si];
+      var specCfg = items[spec.type];
+      if (!specCfg || !specCfg.active) continue;
+      await agRunAutoSellForSpecialItem(spec, specCfg);
+    }
+  }
+
+  // Vende um item especial (pet/cosmetic/mount)
+  async function agRunAutoSellForSpecialItem(spec, itemCfg) {
+    var useFloor = !!itemCfg.useFloor;
+    var fixedPrice = Number(itemCfg.fixedPrice) || 0;
+    var priceUsd = 0;
+
+    if (useFloor) {
+      var floorData = agGetCachedPrice(spec.type) || await agFetchFloor(spec.type);
+      if (!floorData || !floorData.price) {
+        AG_LOG_SELL.info('[' + spec.type + '] Sem floor price — pulando');
+        return;
+      }
+      priceUsd = Math.max(0.01, Math.floor(floorData.price * spec.count * 100) / 100 - 0.01);
+    } else {
+      if (!fixedPrice || fixedPrice < 0.01) {
+        AG_LOG_SELL.info('[' + spec.type + '] Sem preço configurado — pulando');
+        return;
+      }
+      priceUsd = Math.round(fixedPrice * 100) / 100;
+    }
+
+    // Encontrar o slot atual
+    var slotArr = spec.kind === 'cosmetic' ? Oa : spec.kind === 'pet' ? Va : Ir;
+    var slotIdx = -1;
+    try {
+      for (var i = 0; i < slotArr.length; i++) {
+        if (slotArr[i] && slotArr[i].type === spec.type && (slotArr[i].count||0) > 0) { slotIdx = i; break; }
+      }
+    } catch(_) {}
+    if (slotIdx < 0) { AG_LOG_SELL.info('[' + spec.type + '] Não encontrado no inventário'); return; }
+
+    AG_LOG_SELL.info('[' + spec.type + '] Vendendo ' + spec.count + 'x por $' + priceUsd.toFixed(2) + ' (slot ' + spec.kind + ':' + slotIdx + ')');
+    agAutoSellUpdateStatus('[' + spec.icon + ' ' + agFormatItemName(spec.type) + '] Anunciando...');
+
+    try {
+      await Vo({inventoryMutationFlush:true}).catch(function(){});
+      var r = await fetch('/api/marketplace/sell', {
+        method: 'POST', credentials: 'include',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          itemType: spec.type, slotKind: spec.kind, slotIndex: slotIdx,
+          quantity: slotArr[slotIdx].count || 1, currency: 'token',
+          priceUsd: priceUsd,
+        }),
+      });
+      var d = await r.json().catch(function(){return {};});
+      if (d.ok) {
+        if (d.backpack) { try { await J8(d.backpack, d.stateSeq); } catch(_) {} }
+        AG_LOG_SELL.info('[' + spec.type + '] ✓ Listado por $' + priceUsd.toFixed(2));
+        agAutoSellUpdateStatus('✓ ' + spec.icon + ' ' + agFormatItemName(spec.type) + ' $' + priceUsd.toFixed(2));
+      } else {
+        AG_LOG_SELL.warn('[' + spec.type + '] Erro: ' + JSON.stringify(d));
+        agAutoSellUpdateStatus('[' + spec.type + '] Erro: ' + (d.error || '?'));
+      }
+    } catch(e) {
+      AG_LOG_SELL.warn('[' + spec.type + '] Erro: ' + e.message);
     }
   }
 
@@ -20350,7 +20566,7 @@ loadMySales();
     AG_LOG.info('AutoGold: tentando comprar | modo=' + (merchantGoldCampaign && merchantGoldCampaign.mode) +
       ' stock=' + (merchantGoldCampaign && merchantGoldCampaign.goldStock));
 
-    flushSaveInventoryImmediate({ inventoryMutationFlush: true }).catch(function(){}).then(function() {
+    Vo({ inventoryMutationFlush: true }).catch(function(){}).then(function() {
       return fetch('/api/auth/merchant-trade-for-gold', {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -20360,7 +20576,7 @@ loadMySales();
     .then(function(d) {
       if (d.ok) {
         AG_LOG.info('AutoGold: ✓ +1 Gold recebido!');
-        if (d.backpack) { try { applyServerAuthoritativeBackpack(d.backpack, { flush: false, stateSeq: d.stateSeq }); } catch(_) {} }
+        if (d.backpack) { try { J8(d.backpack, d.stateSeq); } catch(_) {} }
         if (d.campaign) { try { applyMerchantGoldCampaignFromServer(d.campaign); } catch(_) {} }
         agAutoGoldBuying = false;
         // Tenta comprar mais se ainda tiver recursos
