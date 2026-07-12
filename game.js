@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v2.01';
+  const AG_VERSION          = 'v2.03';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -14238,6 +14238,7 @@ loadMySales();
             '<button id="as-blacklist-btn" style="font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#d4d8e2;cursor:pointer">&#9998; Editar</button>',
           '</div>',
           '<div id="as-blacklist-tags" style="display:flex;flex-wrap:wrap;gap:4px;min-height:16px;margin-bottom:5px"></div>',
+          '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin-bottom:6px;font-size:10px;color:#94a3b8"><input type="checkbox" id="as-daily-check" style="accent-color:#f97316" checked>Sell only Daily Done</label>',
           '<button id="as-toggle" data-on="false" style="width:100%;padding:6px 0;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;margin-bottom:6px;transition:background .15s">&#9654; Ativar Auto-Venda</button>',
           '<div id="as-status" style="font-size:10px;color:#8a93a8;min-height:13px;line-height:1.4">Desativado</div>',
           '<hr class="ag-div">',
@@ -14568,6 +14569,16 @@ loadMySales();
         tog.addEventListener('click', function() {
           if (agAutoSellActive) { agAutoSellStop(); tog.dataset.on='false'; tog.innerHTML='&#9654; Ativar Auto-Venda'; }
           else { agAutoSellStart(); tog.dataset.on='true'; tog.innerHTML='&#9646;&#9646; Parar Auto-Venda'; }
+        });
+      }
+      // Sell only Daily Done checkbox
+      var dailyChk = sh.getElementById('as-daily-check');
+      if (dailyChk) {
+        try { agSellOnlyDailyDone = localStorage.getItem('ag_sell_daily_check') !== '0'; } catch(_) {}
+        dailyChk.checked = agSellOnlyDailyDone;
+        dailyChk.addEventListener('change', function() {
+          agSellOnlyDailyDone = dailyChk.checked;
+          try { localStorage.setItem('ag_sell_daily_check', agSellOnlyDailyDone ? '1' : '0'); } catch(_) {}
         });
       }
       // blacklist btn
@@ -15426,6 +15437,7 @@ loadMySales();
 
   let agAutoSellTimer = null;
   let agAutoSellActive = false;
+  var agSellOnlyDailyDone = (function(){ try { return localStorage.getItem('ag_sell_daily_check') !== '0'; } catch(_) { return true; } })();
 
   function agAutoSellStart() {
     agAutoSellActive = true;
@@ -15731,28 +15743,29 @@ loadMySales();
       return;
     }
 
-    // ── Verificar daily quests antes de criar ordens ────────────────────────
-    try {
-      var _questDone = 0, _questTotal = 3;
-      var _kcQ = (typeof yl !== 'undefined' && yl.quests) ? yl.quests : [];
-      var _yaC = (typeof Eo !== 'undefined' && Eo.claimed) ? Eo.claimed : {};
-      _questTotal = Math.max(3, _kcQ.length);
-      for (var _qi = 0; _qi < _kcQ.length; _qi++) {
-        if (_yaC[_kcQ[_qi].id]) _questDone++;
+    // ── Verificar daily quests antes de criar ordens (se habilitado) ──────────
+    if (agSellOnlyDailyDone) {
+      try {
+        var _questDone = 0, _questTotal = 3;
+        var _kcQ = (typeof yl !== 'undefined' && yl.quests) ? yl.quests : [];
+        var _yaC = (typeof Eo !== 'undefined' && Eo.claimed) ? Eo.claimed : {};
+        _questTotal = Math.max(3, _kcQ.length);
+        for (var _qi = 0; _qi < _kcQ.length; _qi++) {
+          if (_yaC[_kcQ[_qi].id]) _questDone++;
+        }
+        if (_kcQ.length === 0) {
+          var _clKeys = Object.keys(_yaC);
+          _questTotal = Math.max(3, _clKeys.length);
+          _questDone  = _clKeys.filter(function(k){ return _yaC[k]; }).length;
+        }
+        if (_questDone < _questTotal) {
+          agAutoSellUpdateStatus('⏳ Quests ' + _questDone + '/' + _questTotal + ' — aguardando');
+          AG_LOG_SELL.warn('Daily quests incompletas (' + _questDone + '/' + _questTotal + ') — adiando sell');
+          return;
+        }
+      } catch(_) {
+        AG_LOG_SELL.warn('Não foi possível verificar daily quests, continuando...');
       }
-      if (_kcQ.length === 0) {
-        var _clKeys = Object.keys(_yaC);
-        _questTotal = Math.max(3, _clKeys.length);
-        _questDone  = _clKeys.filter(function(k){ return _yaC[k]; }).length;
-      }
-      if (_questDone < _questTotal) {
-        agAutoSellUpdateStatus('⏳ Quests ' + _questDone + '/' + _questTotal + ' — aguardando');
-        AG_LOG_SELL.warn('Daily quests incompletas (' + _questDone + '/' + _questTotal + ') — adiando sell');
-        return;
-      }
-    } catch(_) {
-      // Se não conseguiu verificar quests, loga mas continua (melhor tentar do que travar)
-      AG_LOG_SELL.warn('Não foi possível verificar daily quests, continuando...');
     }
 
     // Forçar refresh dos floors AGORA antes de criar anúncios
