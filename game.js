@@ -13956,8 +13956,6 @@ loadMySales();
   // ── Remote bank transfer (sem caminhar) ─────────────────────────────────
   async function agTryRemoteDeposit() {
     AG_LOG.info('[Bank] Tentando depósito REMOTO...');
-    var _wasActive = agActive;
-    if (_wasActive) try { agStop(); } catch(_) {}
     try {
       zo = true;
       var deposited = 0, failed = 0;
@@ -13992,8 +13990,6 @@ loadMySales();
 
   async function agTryRemoteWithdraw() {
     AG_LOG.info('[Bank] Tentando retirada REMOTA...');
-    var _wasActive = agActive;
-    if (_wasActive) try { agStop(); } catch(_) {}
     try {
       zo = true;
       var withdrawn = 0, failed = 0;
@@ -14047,12 +14043,16 @@ loadMySales();
     var savedRealm = D;
     AG_LOG.info('[Bank] Iniciando depósito no bank');
 
+    // Parar farm antes de qualquer operação
+    if (wasActive) try { agStop(); } catch(_) {}
+
     // Tentar remoto primeiro (se habilitado)
     if (agBankRemote) {
       var remoteOk = await agTryRemoteDeposit();
       if (remoteOk) {
         AG_LOG.info('[Bank] Depósito remoto OK!');
         _agDepositRunning = false;
+        if (wasActive) try { agStart(); } catch(_) {}
         agStorageForceRefresh();
         return;
       }
@@ -14060,8 +14060,7 @@ loadMySales();
     }
 
     try {
-      // 1. Parar farm
-      if (wasActive) try { agStop(); } catch(_) {}
+      // 1. Farm já parado acima
       await new Promise(function(r){ setTimeout(r, 300); });
 
       // 2. Se não está no world, ir ao world primeiro
@@ -14202,12 +14201,16 @@ loadMySales();
     var savedRealm = D;
     AG_LOG.info('[Bank] Iniciando retirada do bank');
 
+    // Parar farm antes de qualquer operação
+    if (wasActive) try { agStop(); } catch(_) {}
+
     // Tentar remoto primeiro (se habilitado)
     if (agBankRemote) {
       var remoteOk = await agTryRemoteWithdraw();
       if (remoteOk) {
         AG_LOG.info('[Bank] Retirada remota OK!');
         _agWithdrawRunning = false;
+        if (wasActive) try { agStart(); } catch(_) {}
         agStorageForceRefresh();
         return;
       }
