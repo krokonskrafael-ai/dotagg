@@ -13777,21 +13777,38 @@ loadMySales();
       else statusEl.textContent = '';
     }
 
-    // Buttons (clone to avoid duplicate handlers)
+    // Buttons — always reset content (clone preserves stale text)
     if (depBtn) {
-      var nb1 = depBtn.cloneNode(true); depBtn.parentNode.replaceChild(nb1, depBtn); depBtn = nb1;
-      if (_agDepositRunning || _agWithdrawRunning) {
-        depBtn.textContent = '✕ Cancelar'; depBtn.style.color = '#f87171'; depBtn.style.borderColor = 'rgba(248,113,113,0.3)'; depBtn.style.background = 'rgba(248,113,113,0.12)';
-        depBtn.addEventListener('click', function() { _agDepositCancelled = true; _agWithdrawCancelled = true; });
+      var nb1 = depBtn.cloneNode(false); // shallow clone (no children/text)
+      depBtn.parentNode.replaceChild(nb1, depBtn); depBtn = nb1;
+      if (_agDepositRunning) {
+        depBtn.innerHTML = '✕ Cancelar Depósito';
+        depBtn.style.cssText = 'flex:1;padding:4px 0;border-radius:5px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.12);color:#f87171;font-size:10px;font-weight:700;cursor:pointer';
+        depBtn.addEventListener('click', function() { _agDepositCancelled = true; });
+      } else if (_agWithdrawRunning) {
+        depBtn.innerHTML = '📦 Deposit';
+        depBtn.style.cssText = 'flex:1;padding:4px 0;border-radius:5px;border:1px solid rgba(110,231,160,0.15);background:rgba(110,231,160,0.06);color:#556;font-size:10px;font-weight:700;cursor:default;opacity:0.4';
+        depBtn.disabled = true;
       } else {
+        depBtn.innerHTML = '📦 Deposit';
+        depBtn.style.cssText = 'flex:1;padding:4px 0;border-radius:5px;border:1px solid rgba(110,231,160,0.3);background:rgba(110,231,160,0.12);color:#6ee7a0;font-size:10px;font-weight:700;cursor:pointer';
         depBtn.addEventListener('click', function() { _agDepositCancelled = false; agDoDepositToBank(); setTimeout(function(){try{agStorageRenderTab(sh);}catch(_){}},500); });
       }
     }
     if (withdrawBtn) {
-      var nb2 = withdrawBtn.cloneNode(true); withdrawBtn.parentNode.replaceChild(nb2, withdrawBtn); withdrawBtn = nb2;
-      if (_agDepositRunning || _agWithdrawRunning) {
-        withdrawBtn.style.display = 'none';
+      var nb2 = withdrawBtn.cloneNode(false);
+      withdrawBtn.parentNode.replaceChild(nb2, withdrawBtn); withdrawBtn = nb2;
+      if (_agWithdrawRunning) {
+        withdrawBtn.innerHTML = '✕ Cancelar Retirada';
+        withdrawBtn.style.cssText = 'flex:1;padding:4px 0;border-radius:5px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.12);color:#f87171;font-size:10px;font-weight:700;cursor:pointer';
+        withdrawBtn.addEventListener('click', function() { _agWithdrawCancelled = true; });
+      } else if (_agDepositRunning) {
+        withdrawBtn.innerHTML = '📩 Withdraw';
+        withdrawBtn.style.cssText = 'flex:1;padding:4px 0;border-radius:5px;border:1px solid rgba(147,197,253,0.15);background:rgba(147,197,253,0.06);color:#556;font-size:10px;font-weight:700;cursor:default;opacity:0.4';
+        withdrawBtn.disabled = true;
       } else {
+        withdrawBtn.innerHTML = '📩 Withdraw';
+        withdrawBtn.style.cssText = 'flex:1;padding:4px 0;border-radius:5px;border:1px solid rgba(147,197,253,0.3);background:rgba(147,197,253,0.12);color:#93c5fd;font-size:10px;font-weight:700;cursor:pointer';
         withdrawBtn.addEventListener('click', function() { _agWithdrawCancelled = false; agDoWithdrawFromBank(); setTimeout(function(){try{agStorageRenderTab(sh);}catch(_){}},500); });
       }
     }
