@@ -13956,6 +13956,8 @@ loadMySales();
   // ── Remote bank transfer (sem caminhar) ─────────────────────────────────
   async function agTryRemoteDeposit() {
     AG_LOG.info('[Bank] Tentando depósito REMOTO...');
+    var _wasActive = agActive;
+    if (_wasActive) try { agStop(); } catch(_) {}
     try {
       zo = true;
       var deposited = 0, failed = 0;
@@ -13990,6 +13992,8 @@ loadMySales();
 
   async function agTryRemoteWithdraw() {
     AG_LOG.info('[Bank] Tentando retirada REMOTA...');
+    var _wasActive = agActive;
+    if (_wasActive) try { agStop(); } catch(_) {}
     try {
       zo = true;
       var withdrawn = 0, failed = 0;
@@ -14049,7 +14053,8 @@ loadMySales();
       if (remoteOk) {
         AG_LOG.info('[Bank] Depósito remoto OK!');
         _agDepositRunning = false;
-        return; // sucesso remoto — não precisa caminhar
+        agStorageForceRefresh();
+        return;
       }
       AG_LOG.info('[Bank] Remoto falhou — fallback para modo presencial');
     }
@@ -14203,6 +14208,7 @@ loadMySales();
       if (remoteOk) {
         AG_LOG.info('[Bank] Retirada remota OK!');
         _agWithdrawRunning = false;
+        agStorageForceRefresh();
         return;
       }
       AG_LOG.info('[Bank] Remoto falhou — fallback para modo presencial');
