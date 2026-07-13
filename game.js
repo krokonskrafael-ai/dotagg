@@ -12976,6 +12976,185 @@ loadMySales();
   }
 
   // ── Backpack mini HUD ──────────────────────────────────────────────────────
+  // ── Lottery Auto Delivery ──────────────────────────────────────────────────
+  var agLotteryAutoDelivery = (function(){ try { return localStorage.getItem('ag_lottery_auto') === '1'; } catch(_) { return false; } })();
+  var _agLotteryAutoTimer = null;
+
+  function agLotteryRenderTab(sh) {
+    var statusEl = sh.getElementById('ag-lottery-status');
+    var infoEl = sh.getElementById('ag-lottery-info');
+    var autoChk = sh.getElementById('ag-lottery-auto');
+    if (!statusEl) return;
+
+    if (autoChk) {
+      autoChk.checked = agLotteryAutoDelivery;
+      // Clone to avoid duplicate handlers
+      var newChk = autoChk.cloneNode(true);
+      autoChk.parentNode.replaceChild(newChk, autoChk);
+      newChk.checked = agLotteryAutoDelivery;
+      newChk.addEventListener('change', function() {
+        agLotteryAutoDelivery = newChk.checked;
+        try { localStorage.setItem('ag_lottery_auto', newChk.checked ? '1' : '0'); } catch(_) {}
+        agLotteryStartAutoTimer();
+      });
+    }
+
+    // Fetch status
+    statusEl.textContent = '🔄 Verificando...';
+    fetch('/api/auth/merchant-lottery-status', {credentials:'include'})
+      .then(function(r){return r.json();})
+      .then(function(d) {
+        var phase = d.phase || '?';
+        var entryCap = d.entryCap || 0;
+        var entriesUsed = d.entriesUsed || 0;
+        var entriesRem = d.entriesRemaining || 0;
+        var poolGold = d.poolGold || 0;
+        var drawAtMs = d.drawAtMs || 0;
+
+        var TICKET_COST = (d.cost && d.cost.length > 0) ? d.cost : [
+          {type:'wood', amount:2600}, {type:'stone', amount:1400},
+          {type:'coal', amount:800}, {type:'cooked_fish_meat', amount:40}
+        ];
+        var COST_LABELS = {wood:'Wood', stone:'Stone', coal:'Coal', cooked_fish_meat:'Cooked Fish'};
+
+        // Phase label
+        var phaseColor = phase==='entry_open'?'#6ee7a0':phase==='claim_open'?'#fbbf24':'#8a93a8';
+        var phaseLabel = phase==='entry_open'?'🎰 Inscrições abertas':phase==='draw_pending'?'⏳ Aguardando sorteio':phase==='claim_open'?'🏆 Claim disponível':phase;
+        statusEl.innerHTML = '<span style="color:'+phaseColor+';font-weight:700">'+phaseLabel+'</span>' +
+          ' | 🎟️ '+entriesUsed+'/'+entryCap+(entriesRem>0?' <span style="color:#6ee7a0">('+entriesRem+' disp)</span>':'');
+
+        // Resources + quests check
+        var hasAll = true;
+        var html = '<div style="margin-top:4px">';
+        html += '<div style="font-size:9px;color:#64748b;font-weight:700;margin-bottom:2px">CUSTO / TICKET:</div>';
+        TICKET_COST.forEach(function(item) {
+          var have = 0;
+          try { have = Kn(item.type)|0; } catch(_) {}
+          var ok = have >= item.amount;
+          if (!ok) hasAll = false;
+          html += '<div style="display:flex;justify-content:space-between;font-size:9px;color:'+(ok?'#6ee7a0':'#f87171')+'"><span>'+(COST_LABELS[item.type]||item.type)+'</span><span>'+have.toLocaleString()+'/'+item.amount.toLocaleString()+'</span></div>';
+        });
+
+        // Quests
+        var questDone=0, questTotal=3;
+        try {
+          var kcQ = (typeof yl!=='undefined'&&yl.quests)?yl.quests:[];
+          var yaC = (typeof Eo!=='undefined'&&Eo.claimed)?Eo.claimed:{};
+          questTotal = Math.max(3, kcQ.length);
+          for (var i=0;i<kcQ.length;i++) if (yaC[kcQ[i].id]) questDone++;
+          if (kcQ.length===0) { var ck=Object.keys(yaC); questTotal=Math.max(3,ck.length); questDone=ck.filter(function(k){return yaC[k];}).length; }
+        } catch(_){}
+        var allQuests = questDone >= questTotal;
+        html += '<div style="margin-top:3px;font-size:9px;color:'+(allQuests?'#6ee7a0':'#f59e0b')+'">'+(allQuests?'✅':'⏳')+' Quests: '+questDone+'/'+questTotal+'</div>';
+
+        // Gold value + profit
+        html += '<div style="margin-top:3px">';
+        html += '<div style="font-size:9px;color:#64748b;font-weight:700">POOL: <span style="color:#fbbf24">'+poolGold+' gold</span></div>';
+        try {
+          var goldFloor = agGetCachedPrice('gold');
+          if (goldFloor && goldFloor.price) {
+            var goldVal = poolGold * goldFloor.price;
+            html += '<div style="font-size:9px;color:#d4d8e2">Gold value: <b style="color:#fbbf24">$'+goldVal.toFixed(4)+'</b></div>';
+            // Ticket cost in USD
+            var ticketCostUsd = 0;
+            TICKET_COST.forEach(function(item) {
+              var f = agGetCachedPrice(item.type);
+              if (f && f.price) ticketCostUsd += item.amount * f.price;
+            });
+            if (ticketCostUsd > 0) {
+              html += '<div style="font-size:9px;color:#d4d8e2">Custo ticket: <b>$'+ticketCostUsd.toFixed(4)+'</b></div>';
+              var profit = goldVal - ticketCostUsd;
+              html += '<div style="font-size:9px;color:'+(profit>=0?'#6ee7a0':'#f87171')+';font-weight:700">'+(profit>=0?'📈 PROFIT':'📉 WASTE')+': $'+Math.abs(profit).toFixed(4)+'</div>';
+            }
+          }
+        } catch(_){}
+        html += '</div>';
+
+        // Timer
+        if (phase !== 'entry_open' && entriesUsed === 0) {
+          var nowD = new Date();
+          var hNow = nowD.getUTCHours();
+          var nextOpen = new Date(nowD);
+          if (hNow >= 9 && hNow < 21) nextOpen.setUTCHours(21,0,0,0);
+          else { if (hNow >= 21) nextOpen.setUTCDate(nextOpen.getUTCDate()+1); nextOpen.setUTCHours(21,0,0,0); }
+          var msTo = nextOpen.getTime() - nowD.getTime();
+          if (msTo > 0) html += '<div style="font-size:9px;color:#f59e0b;margin-top:2px">🕘 Próximo donate: <b>'+Math.floor(msTo/3600000)+'h '+Math.floor((msTo%3600000)/60000)+'min</b></div>';
+        }
+        if (drawAtMs > Date.now()) {
+          var dm = Math.round((drawAtMs-Date.now())/60000);
+          html += '<div style="font-size:9px;color:#94a3b8">⏰ Sorteio em: '+(dm>60?Math.floor(dm/60)+'h ':'')+(dm%60)+'min</div>';
+        }
+
+        // Auto delivery status
+        if (agLotteryAutoDelivery) {
+          var canDeliver = phase === 'entry_open' && allQuests && hasAll && entriesRem > 0;
+          html += '<div style="margin-top:3px;padding:3px 6px;border-radius:4px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);font-size:9px;color:#fbbf24">' +
+            (canDeliver ? '🚀 Auto delivery PRONTO — próximo tick entregará' : '⏸ Auto delivery aguardando condições') + '</div>';
+        }
+
+        infoEl.innerHTML = html;
+      })
+      .catch(function(e) { statusEl.textContent = '✗ Erro: ' + e.message; });
+  }
+
+  // Auto Delivery timer — checa a cada 60s e entrega se condições OK
+  function agLotteryStartAutoTimer() {
+    if (_agLotteryAutoTimer) { clearInterval(_agLotteryAutoTimer); _agLotteryAutoTimer = null; }
+    if (!agLotteryAutoDelivery) return;
+    _agLotteryAutoTimer = setInterval(async function() {
+      if (!agLotteryAutoDelivery) { clearInterval(_agLotteryAutoTimer); _agLotteryAutoTimer=null; return; }
+      try {
+        var r = await fetch('/api/auth/merchant-lottery-status', {credentials:'include'});
+        var d = await r.json().catch(function(){return {};});
+        if (d.phase !== 'entry_open' || (d.entriesRemaining||0) <= 0) return;
+        // Check quests
+        var qDone=0, qTotal=3;
+        try { var kcQ=(typeof yl!=='undefined'&&yl.quests)?yl.quests:[]; var yaC=(typeof Eo!=='undefined'&&Eo.claimed)?Eo.claimed:{}; qTotal=Math.max(3,kcQ.length); for(var i=0;i<kcQ.length;i++) if(yaC[kcQ[i].id]) qDone++; } catch(_){}
+        if (qDone < qTotal) return;
+        // Check resources
+        var COST = (d.cost&&d.cost.length>0)?d.cost:[{type:'wood',amount:2600},{type:'stone',amount:1400},{type:'coal',amount:800},{type:'cooked_fish_meat',amount:40}];
+        var hasAll = true;
+        COST.forEach(function(c) { try { if ((Kn(c.type)|0) < c.amount) hasAll=false; } catch(_){ hasAll=false; } });
+        if (!hasAll) return;
+        // All conditions met — comprar todos os tickets possíveis
+        var ticketsAvail = d.entriesRemaining || 0;
+        var ticketsBought = 0;
+        for (var _ti = 0; _ti < ticketsAvail; _ti++) {
+          // Verificar se ainda tem recursos para este ticket
+          var _stillHas = true;
+          COST.forEach(function(c) { try { if ((Kn(c.type)|0) < c.amount) _stillHas=false; } catch(_){ _stillHas=false; } });
+          if (!_stillHas) {
+            AG_LOG.info('[Lottery] Sem recursos para ticket ' + (_ti+1) + ' — parando');
+            break;
+          }
+          AG_LOG.info('[Lottery] Auto delivery: comprando ticket ' + (_ti+1) + '/' + ticketsAvail + '...');
+          try { await Vo({marketplaceFlush:!0}); } catch(_) {}
+          var re = await fetch('/api/auth/merchant-lottery-enter', {
+            method:'POST', credentials:'include',
+            headers:{'Content-Type':'application/json'}, body:'{}'
+          });
+          var de = await re.json().catch(function(){return {};});
+          if (de.ok !== false && re.ok) {
+            if (de.backpack) { try { await J8(de.backpack, de.stateSeq); } catch(_) {} }
+            ticketsBought++;
+            AG_LOG.info('[Lottery] ✓ Ticket ' + ticketsBought + ' entregue!');
+          } else {
+            AG_LOG.warn('[Lottery] Ticket ' + (_ti+1) + ' falhou: ' + JSON.stringify(de));
+            break; // para no primeiro erro
+          }
+          // Delay de 2s entre tickets
+          if (_ti < ticketsAvail - 1) {
+            await new Promise(function(rv){setTimeout(rv,2000);});
+          }
+        }
+        if (ticketsBought > 0) {
+          AG_LOG.info('[Lottery] Auto delivery: ' + ticketsBought + ' ticket(s) entregue(s)!');
+        }
+      } catch(e) { AG_LOG.warn('[Lottery] Auto delivery erro: ' + e.message); }
+    }, 60000);
+  }
+  agLotteryStartAutoTimer(); // inicia se estava salvo
+
   function agOpenLotteryHud() {
     if (document.getElementById('ag-daily-gold-host')) {
       document.getElementById('ag-daily-gold-host').remove(); try { agRefreshHudBtns(); } catch(_) {} return;
@@ -13539,6 +13718,96 @@ loadMySales();
   var agDepositIfFull = false; // [x] Deposit if Full Inventory
   var _agDepositRunning = false;
   var _agDepositCancelled = false;
+
+  // ── Storage Tab (no painel principal) ──────────────────────────────────────
+  var _agStorageTabTimer = null;
+
+  function agStorageRenderTab(sh) {
+    var listEl = sh.getElementById('ag-storage-list');
+    var statusEl = sh.getElementById('ag-storage-status');
+    var depFullChk = sh.getElementById('ag-dep-full-tab');
+    var remoteChk = sh.getElementById('ag-remote-tab');
+    var depBtn = sh.getElementById('ag-dep-btn');
+    var withdrawBtn = sh.getElementById('ag-withdraw-btn');
+    if (!listEl) return;
+
+    // Render bank contents
+    var LABELS = {wood:'Wood',stone:'Stone',coal:'Coal',metal:'Metal',gold:'Gold',fish:'Fish',cooked_fish_meat:'Cooked Fish'};
+    var items = {};
+    try {
+      for (var i = 0; i < vs.length; i++) {
+        var s = vs[i];
+        if (s && s.type && (s.count||0) > 0) items[s.type] = (items[s.type]||0) + s.count;
+      }
+    } catch(_) {}
+    var keys = Object.keys(items).sort();
+    if (keys.length === 0) {
+      listEl.innerHTML = '<div style="font-size:10px;color:#556;text-align:center;padding:8px 0">Vazio ou não carregado<br><span style="font-size:8px;color:#445">Abra o baú no jogo para sincronizar</span></div>';
+    } else {
+      var html = '';
+      keys.forEach(function(k) {
+        html += '<div style="display:flex;justify-content:space-between;font-size:10px;padding:1px 0"><span style="color:#94a3b8">'+(LABELS[k]||k)+'</span><span style="font-weight:700;color:#fbbf24">'+items[k].toLocaleString()+'</span></div>';
+      });
+      html += '<div style="font-size:8px;color:#556;text-align:center;margin-top:2px">'+keys.length+' tipo(s) · '+vs.length+' slots</div>';
+      listEl.innerHTML = html;
+    }
+
+    // Checkboxes (clone to avoid duplicate handlers)
+    if (depFullChk) {
+      var nc1 = depFullChk.cloneNode(true); depFullChk.parentNode.replaceChild(nc1, depFullChk); depFullChk = nc1;
+      depFullChk.checked = agDepositIfFull;
+      depFullChk.addEventListener('change', function() {
+        agDepositIfFull = depFullChk.checked;
+        try { localStorage.setItem('kintara_ag_deposit_full', agDepositIfFull?'1':'0'); } catch(_) {}
+      });
+    }
+    if (remoteChk) {
+      var nc2 = remoteChk.cloneNode(true); remoteChk.parentNode.replaceChild(nc2, remoteChk); remoteChk = nc2;
+      remoteChk.checked = agBankRemote;
+      remoteChk.addEventListener('change', function() {
+        agBankRemote = remoteChk.checked;
+        try { localStorage.setItem('kintara_ag_bank_remote', agBankRemote?'1':'0'); } catch(_) {}
+      });
+    }
+
+    // Status
+    if (statusEl) {
+      if (_agDepositRunning) statusEl.innerHTML = '<span style="color:#fbbf24">⏳ Depositando...</span>';
+      else if (_agWithdrawRunning) statusEl.innerHTML = '<span style="color:#93c5fd">⏳ Retirando...</span>';
+      else statusEl.textContent = '';
+    }
+
+    // Buttons (clone to avoid duplicate handlers)
+    if (depBtn) {
+      var nb1 = depBtn.cloneNode(true); depBtn.parentNode.replaceChild(nb1, depBtn); depBtn = nb1;
+      if (_agDepositRunning || _agWithdrawRunning) {
+        depBtn.textContent = '✕ Cancelar'; depBtn.style.color = '#f87171'; depBtn.style.borderColor = 'rgba(248,113,113,0.3)'; depBtn.style.background = 'rgba(248,113,113,0.12)';
+        depBtn.addEventListener('click', function() { _agDepositCancelled = true; _agWithdrawCancelled = true; });
+      } else {
+        depBtn.addEventListener('click', function() { _agDepositCancelled = false; agDoDepositToBank(); setTimeout(function(){try{agStorageRenderTab(sh);}catch(_){}},500); });
+      }
+    }
+    if (withdrawBtn) {
+      var nb2 = withdrawBtn.cloneNode(true); withdrawBtn.parentNode.replaceChild(nb2, withdrawBtn); withdrawBtn = nb2;
+      if (_agDepositRunning || _agWithdrawRunning) {
+        withdrawBtn.style.display = 'none';
+      } else {
+        withdrawBtn.addEventListener('click', function() { _agWithdrawCancelled = false; agDoWithdrawFromBank(); setTimeout(function(){try{agStorageRenderTab(sh);}catch(_){}},500); });
+      }
+    }
+
+    // Auto-refresh timer
+    if (_agStorageTabTimer) clearInterval(_agStorageTabTimer);
+    _agStorageTabTimer = setInterval(function() {
+      var panel = document.getElementById('ag-panel-host');
+      if (!panel) { clearInterval(_agStorageTabTimer); _agStorageTabTimer=null; return; }
+      var sh2 = panel.shadowRoot;
+      if (!sh2) return;
+      var activePane = sh2.querySelector('.ag-pane.active');
+      if (!activePane || activePane.dataset.pane !== 'storage') { clearInterval(_agStorageTabTimer); _agStorageTabTimer=null; return; }
+      try { agStorageRenderTab(sh2); } catch(_) {}
+    }, 5000);
+  }
 
   function agOpenBankHud() {
     if (document.getElementById('ag-bank-host')) {
@@ -14407,7 +14676,9 @@ loadMySales();
         '<button class="ag-tab active" data-tab="farm">&#127807; Farm</button>',
         '<button class="ag-tab" data-tab="hunt">&#9876; Hunt</button>',
         '<button class="ag-tab" data-tab="boss">&#128375; Boss</button>',
+        '<button class="ag-tab" data-tab="lottery">&#127922; Lottery</button>',
         '<button class="ag-tab" data-tab="sell">&#128181; AutoVenda</button>',
+        '<button class="ag-tab" data-tab="storage">&#127974; Storage</button>',
         '<button class="ag-tab" data-tab="merchant">&#127881; Merchant</button>',
         '<button class="ag-tab" data-tab="maps">&#127760; Mapa</button>',
         '<button class="ag-tab" data-tab="minihud">&#128202; HUDs</button>',
@@ -14521,6 +14792,27 @@ loadMySales();
           '</div>',
           '<button id="ag-boss-btn" data-on="false" style="width:100%;padding:6px 0;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:#1e293b;color:#8a93a8;margin-bottom:5px">&#9654; Iniciar Boss Hunt</button>',
           '<div id="ag-boss-status" style="font-size:10px;color:#8a93a8;min-height:14px">Desligado</div>',
+        '</div>',
+
+        // ══════════════════════════════ LOTTERY ═══════════════════════════════
+        '<div class="ag-pane" data-pane="lottery">',
+          '<div class="ag-sec" style="color:#fbbf24">&#127922; Lottery</div>',
+          '<label class="ag-check-row"><input type="checkbox" id="ag-lottery-auto"><span class="ag-check-lbl" style="color:#fbbf24">&#127922; Auto Delivery</span></label>',
+          '<div id="ag-lottery-status" style="font-size:10px;color:#8a93a8;min-height:14px;margin-top:4px">&#128260; Verificando...</div>',
+          '<div id="ag-lottery-info" style="font-size:10px;margin-top:4px"></div>',
+        '</div>',
+
+        // ══════════════════════════════ STORAGE ═══════════════════════════════
+        '<div class="ag-pane" data-pane="storage">',
+          '<div class="ag-sec" style="color:#7eb8f7">&#127974; Bank Storage</div>',
+          '<div id="ag-storage-list" style="margin-bottom:6px"></div>',
+          '<label class="ag-check-row"><input type="checkbox" id="ag-dep-full-tab" style="accent-color:#f97316"><span class="ag-check-lbl">Deposit if Full Inventory</span></label>',
+          '<label class="ag-check-row"><input type="checkbox" id="ag-remote-tab" style="accent-color:#3b82f6"><span class="ag-check-lbl" style="color:#93c5fd">⚡ Remote Deposit/Withdraw</span></label>',
+          '<div style="display:flex;gap:4px;margin-top:6px">',
+            '<button id="ag-dep-btn" class="ag-btn-sm" style="flex:1;padding:4px 0;border-radius:5px;border:1px solid rgba(110,231,160,0.3);background:rgba(110,231,160,0.12);color:#6ee7a0;font-size:10px;font-weight:700;cursor:pointer">&#128230; Deposit</button>',
+            '<button id="ag-withdraw-btn" class="ag-btn-sm" style="flex:1;padding:4px 0;border-radius:5px;border:1px solid rgba(147,197,253,0.3);background:rgba(147,197,253,0.12);color:#93c5fd;font-size:10px;font-weight:700;cursor:pointer">&#128229; Withdraw</button>',
+          '</div>',
+          '<div id="ag-storage-status" style="font-size:9px;color:#8a93a8;min-height:12px;margin-top:4px;text-align:center"></div>',
         '</div>',
 
         // ══════════════════════════════ AUTO-VENDA ═══════════════════════════════
@@ -14752,6 +15044,8 @@ loadMySales();
       try { localStorage.setItem('ag_active_tab', tabName); } catch(_) {}
       // Popular sell pane quando ativado
       if (tabName === 'sell') { try { agBuildSellPaneItems(shadow); } catch(_) {} }
+      if (tabName === 'lottery') { try { agLotteryRenderTab(shadow); } catch(_) {} }
+      if (tabName === 'storage') { try { agStorageRenderTab(shadow); } catch(_) {} }
     }
     shadow.querySelectorAll('#ag-tab-grid .ag-tab').forEach(function(tab) {
       tab.addEventListener('click', function() { agSwitchTab(tab.dataset.tab); });
@@ -15979,9 +16273,9 @@ loadMySales();
                 }
               }
             } else {
-              AG_LOG_SELL.info('[' + itemType + '] Anuncio #' + ce.id + ' ja e floor — sem acao');
-              agAutoSellUpdateStatus('✓ [' + itemType + '] Floor — aguardando');
-              return;
+              // Anúncio já é floor — mas pode ter estoque extra para segundo anúncio
+              AG_LOG_SELL.info('[' + itemType + '] Anuncio #' + ce.id + ' ja e floor — verificando estoque extra');
+              // Não retorna — continua para ver se tem mais estoque para um segundo anúncio
             }
           }
         } else {
