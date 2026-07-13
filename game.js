@@ -13597,11 +13597,17 @@ loadMySales();
       html += '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;margin-top:5px;font-size:9px;color:#94a3b8">' +
         '<input type="checkbox" id="bk-dep-full" style="accent-color:#f97316"' + (agDepositIfFull ? ' checked' : '') + '>' +
         'Deposit if Full Inventory</label>';
-      if (_agDepositRunning) {
-        html += '<div style="font-size:9px;color:#fbbf24;text-align:center;margin-top:3px">⏳ Depositando...</div>';
-        html += '<button id="bk-dep-now" style="width:100%;margin-top:4px;padding:4px 0;border-radius:5px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.15);color:#f87171;font-size:9px;font-weight:700;cursor:pointer">✕ Cancelar</button>';
+      html += '<label style="display:flex;align-items:center;gap:4px;cursor:pointer;margin-top:3px;font-size:9px;color:#93c5fd">' +
+        '<input type="checkbox" id="bk-remote" style="accent-color:#3b82f6"' + (agBankRemote ? ' checked' : '') + '>' +
+        '⚡ Remote Deposit/Withdraw</label>';
+      if (_agDepositRunning || _agWithdrawRunning) {
+        html += '<div style="font-size:9px;color:#fbbf24;text-align:center;margin-top:3px">⏳ ' + (_agWithdrawRunning ? 'Retirando...' : 'Depositando...') + '</div>';
+        html += '<button id="bk-cancel" style="width:100%;margin-top:4px;padding:4px 0;border-radius:5px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.15);color:#f87171;font-size:9px;font-weight:700;cursor:pointer">✕ Cancelar</button>';
       } else {
-        html += '<button id="bk-dep-now" style="width:100%;margin-top:5px;padding:4px 0;border-radius:5px;border:1px solid rgba(110,231,160,0.3);background:rgba(110,231,160,0.12);color:#6ee7a0;font-size:9px;font-weight:700;cursor:pointer">&#128230; Deposit Now</button>';
+        html += '<div style="display:flex;gap:4px;margin-top:5px">';
+        html += '<button id="bk-dep-now" style="flex:1;padding:4px 0;border-radius:5px;border:1px solid rgba(110,231,160,0.3);background:rgba(110,231,160,0.12);color:#6ee7a0;font-size:9px;font-weight:700;cursor:pointer">&#128230; Deposit</button>';
+        html += '<button id="bk-withdraw" style="flex:1;padding:4px 0;border-radius:5px;border:1px solid rgba(147,197,253,0.3);background:rgba(147,197,253,0.12);color:#93c5fd;font-size:9px;font-weight:700;cursor:pointer">&#128229; Withdraw</button>';
+        html += '</div>';
       }
       panel.innerHTML = html;
       // Event handlers
@@ -13612,17 +13618,29 @@ loadMySales();
         agDepositIfFull = dep.checked;
         try { localStorage.setItem('kintara_ag_deposit_full', agDepositIfFull ? '1' : '0'); } catch(_) {}
       });
+      var remChk = shadow.getElementById('bk-remote');
+      if (remChk) remChk.addEventListener('change', function() {
+        agBankRemote = remChk.checked;
+        try { localStorage.setItem('kintara_ag_bank_remote', agBankRemote ? '1' : '0'); } catch(_) {}
+      });
+      var cancelBtn = shadow.getElementById('bk-cancel');
+      if (cancelBtn) cancelBtn.addEventListener('click', function() {
+        _agDepositCancelled = true;
+        _agWithdrawCancelled = true;
+        AG_LOG.info('[Bank] Operação cancelada pelo usuário');
+        render();
+      });
       var depNow = shadow.getElementById('bk-dep-now');
       if (depNow) depNow.addEventListener('click', function() {
-        if (_agDepositRunning) {
-          _agDepositCancelled = true;
-          AG_LOG.info('[Bank] Depósito cancelado pelo usuário');
-          render();
-        } else {
-          _agDepositCancelled = false;
-          agDoDepositToBank();
-          render();
-        }
+        _agDepositCancelled = false;
+        agDoDepositToBank();
+        render();
+      });
+      var withdrawBtn = shadow.getElementById('bk-withdraw');
+      if (withdrawBtn) withdrawBtn.addEventListener('click', function() {
+        _agWithdrawCancelled = false;
+        agDoWithdrawFromBank();
+        render();
       });
     }
 
@@ -13657,6 +13675,80 @@ loadMySales();
   // ── Deposit if Full: transfere recursos do inventário pro bank ────────────
   // Carrega config salva
   try { agDepositIfFull = localStorage.getItem('kintara_ag_deposit_full') === '1'; } catch(_) {}
+  var agBankRemote = (function(){ try { return localStorage.getItem('kintara_ag_bank_remote') === '1'; } catch(_) { return false; } })();
+
+  // ── Remote bank transfer (sem caminhar) ─────────────────────────────────
+  async function agTryRemoteDeposit() {
+    AG_LOG.info('[Bank] Tentando depósito REMOTO...');
+    try {
+      zo = true;
+      var deposited = 0, failed = 0;
+      for (var i = 0; i < qt.length; i++) {
+        var slot = qt[i];
+        if (!slot || (slot.count||0) <= 0) continue;
+        var ok = false;
+        for (var r = 0; r < 3 && !ok; r++) {
+          try {
+            zo = true;
+            var before = slot.count;
+            ti('inv', i);
+            var after = qt[i] ? qt[i].count : 0;
+            if (after < before || !qt[i]) { ok = true; deposited++; }
+          } catch(_) {}
+          await new Promise(function(rv){setTimeout(rv,500);});
+        }
+        if (!ok) failed++;
+      }
+      zo = false;
+      // Flush para sincronizar com servidor
+      try { await Vo({marketplaceFlush:!0}); } catch(_) {}
+      AG_LOG.info('[Bank] Remoto: depositou ' + deposited + ', falhou ' + failed);
+      if (deposited > 0) return true;
+      return false;
+    } catch(e) {
+      AG_LOG.warn('[Bank] Remoto deposit erro: ' + e.message);
+      try { zo = false; } catch(_) {}
+      return false;
+    }
+  }
+
+  async function agTryRemoteWithdraw() {
+    AG_LOG.info('[Bank] Tentando retirada REMOTA...');
+    try {
+      zo = true;
+      var withdrawn = 0, failed = 0;
+      var MIN_FREE = 2;
+      for (var i = 0; i < vs.length; i++) {
+        var bankSlot = vs[i];
+        if (!bankSlot || (bankSlot.count||0) <= 0) continue;
+        if (agCountFreeInvSlots() <= MIN_FREE) {
+          AG_LOG.info('[Bank] Remoto: inventário quase cheio (' + agCountFreeInvSlots() + ' livres)');
+          break;
+        }
+        var ok = false;
+        for (var r = 0; r < 3 && !ok; r++) {
+          try {
+            zo = true;
+            var before = bankSlot.count;
+            nWe(i);
+            var after = vs[i] ? vs[i].count : 0;
+            if (after < before || !vs[i]) { ok = true; withdrawn++; }
+          } catch(_) {}
+          await new Promise(function(rv){setTimeout(rv,500);});
+        }
+        if (!ok) failed++;
+      }
+      zo = false;
+      try { await Vo({marketplaceFlush:!0}); } catch(_) {}
+      AG_LOG.info('[Bank] Remoto: retirou ' + withdrawn + ', falhou ' + failed);
+      if (withdrawn > 0) return true;
+      return false;
+    } catch(e) {
+      AG_LOG.warn('[Bank] Remoto withdraw erro: ' + e.message);
+      try { zo = false; } catch(_) {}
+      return false;
+    }
+  }
 
   function agIsInventoryFull() {
     try {
@@ -13674,6 +13766,17 @@ loadMySales();
     var wasActive = agActive;
     var savedRealm = D;
     AG_LOG.info('[Bank] Iniciando depósito no bank');
+
+    // Tentar remoto primeiro (se habilitado)
+    if (agBankRemote) {
+      var remoteOk = await agTryRemoteDeposit();
+      if (remoteOk) {
+        AG_LOG.info('[Bank] Depósito remoto OK!');
+        _agDepositRunning = false;
+        return; // sucesso remoto — não precisa caminhar
+      }
+      AG_LOG.info('[Bank] Remoto falhou — fallback para modo presencial');
+    }
 
     try {
       // 1. Parar farm
@@ -13796,6 +13899,144 @@ loadMySales();
       await new Promise(function(r){ setTimeout(r, 1000); });
       try { agStart(); } catch(_) {}
       AG_LOG.info('[Bank] Farm retomado após depósito');
+    }
+  }
+
+  // ── Withdraw: retira itens do bank para o inventário ─────────────────────
+  var _agWithdrawRunning = false;
+  var _agWithdrawCancelled = false;
+
+  function agCountFreeInvSlots() {
+    var free = 0;
+    try { for (var i = 0; i < qt.length; i++) { if (!qt[i] || (qt[i].count||0) <= 0) free++; } } catch(_) {}
+    return free;
+  }
+
+  async function agDoWithdrawFromBank() {
+    if (_agWithdrawRunning || _agDepositRunning) return;
+    _agWithdrawRunning = true;
+    _agWithdrawCancelled = false;
+    var wasActive = agActive;
+    var savedRealm = D;
+    AG_LOG.info('[Bank] Iniciando retirada do bank');
+
+    // Tentar remoto primeiro (se habilitado)
+    if (agBankRemote) {
+      var remoteOk = await agTryRemoteWithdraw();
+      if (remoteOk) {
+        AG_LOG.info('[Bank] Retirada remota OK!');
+        _agWithdrawRunning = false;
+        return;
+      }
+      AG_LOG.info('[Bank] Remoto falhou — fallback para modo presencial');
+    }
+
+    try {
+      // 1. Parar farm
+      if (wasActive) try { agStop(); } catch(_) {}
+      await new Promise(function(r){ setTimeout(r, 300); });
+
+      // 2. Ir ao world se necessário
+      if (D !== 'world' && D !== 'bankShop') {
+        AG_LOG.info('[Bank] Saindo para world...');
+        var _navAttempts = 0;
+        while (D !== 'world' && D !== 'bankShop' && _navAttempts < 120 && !_agWithdrawCancelled) {
+          _navAttempts++;
+          try {
+            var exit = agNavGetExitTile(D);
+            if (exit && !$e && qe.length === 0) {
+              var path = Nl(ce, de, exit.col, exit.row);
+              if (path && path.length > 0) { qe = path; Hl(); }
+            }
+          } catch(_) {}
+          await new Promise(function(r){ setTimeout(r, 500); });
+        }
+        if (_agWithdrawCancelled || (D !== 'world' && D !== 'bankShop')) {
+          AG_LOG.warn('[Bank] Cancelado ou não chegou ao world');
+          _agWithdrawRunning = false;
+          if (wasActive) try { agStart(); } catch(_) {}
+          return;
+        }
+      }
+
+      // 3. Caminhar até o bank e entrar
+      if (D !== 'bankShop') {
+        AG_LOG.info('[Bank] Caminhando até o bank...');
+        var _bankWalk = 0;
+        while (_bankWalk < 80 && !_agWithdrawCancelled) {
+          _bankWalk++;
+          if (Math.abs(ce - dS) + Math.abs(de - uS) <= 2) break;
+          if (!$e && qe.length === 0) {
+            try { var _p = Nl(ce, de, dS, uS); if (_p && _p.length > 0) { qe = _p; Hl(); } } catch(_) {}
+          }
+          await new Promise(function(r){ setTimeout(r, 500); });
+        }
+        if (_agWithdrawCancelled) { _agWithdrawRunning = false; if (wasActive) try{agStart();}catch(_){} return; }
+        AG_LOG.info('[Bank] Entrando no bank...');
+        try { F3(); } catch(_) {}
+        await new Promise(function(r){ setTimeout(r, 3000); });
+        if (D !== 'bankShop') { try { F3(); } catch(_) {} await new Promise(function(r){setTimeout(r,2000);}); }
+        if (D !== 'bankShop') {
+          AG_LOG.warn('[Bank] Não entrou no bankShop');
+          _agWithdrawRunning = false;
+          if (wasActive) try { agStart(); } catch(_) {}
+          return;
+        }
+      }
+
+      // 4. Retirar itens do bank (manter 2 slots livres no inventário)
+      AG_LOG.info('[Bank] Retirando itens do storage...');
+      try { zo = true; } catch(_) {}
+      await new Promise(function(r){ setTimeout(r, 500); });
+
+      var withdrawn = 0;
+      var MIN_FREE_SLOTS = 2;
+      for (var i = 0; i < vs.length; i++) {
+        if (_agWithdrawCancelled) break;
+        var bankSlot = vs[i];
+        if (!bankSlot || (bankSlot.count||0) <= 0) continue;
+        // Verificar espaço no inventário (manter 2 slots livres)
+        if (agCountFreeInvSlots() <= MIN_FREE_SLOTS) {
+          AG_LOG.info('[Bank] Inventário quase cheio (' + agCountFreeInvSlots() + ' livres) — parando');
+          break;
+        }
+        var _transferred = false;
+        for (var _retry = 0; _retry < 3 && !_transferred && !_agWithdrawCancelled; _retry++) {
+          try {
+            zo = true;
+            var _before = bankSlot.count;
+            nWe(i); // invDoubleClickBankToInv
+            var _after = vs[i] ? vs[i].count : 0;
+            if (_after < _before || !vs[i]) { _transferred = true; withdrawn++; }
+          } catch(_) {}
+          await new Promise(function(r){ setTimeout(r, 500); });
+        }
+      }
+
+      AG_LOG.info('[Bank] Retirou ' + withdrawn + ' slots' + (_agWithdrawCancelled ? ' (cancelado)' : '') + '. Saindo...');
+      try { zo = false; } catch(_) {}
+      await new Promise(function(r){ setTimeout(r, 500); });
+
+      // 5. Sair do bank
+      try { zV(); } catch(_) {}
+      await new Promise(function(r){ setTimeout(r, 2000); });
+
+      // 6. Voltar ao realm anterior
+      if (savedRealm && savedRealm !== 'world' && savedRealm !== 'bankShop') {
+        AG_LOG.info('[Bank] Voltando para ' + savedRealm);
+        agNavTo(savedRealm);
+        var _wr = 0;
+        while (D !== savedRealm && _wr < 120) { _wr++; await new Promise(function(r){setTimeout(r,500);}); }
+      }
+    } catch(e) {
+      AG_LOG.warn('[Bank] Erro withdraw: ' + e.message);
+    }
+
+    _agWithdrawRunning = false;
+    if (wasActive) {
+      await new Promise(function(r){ setTimeout(r, 1000); });
+      try { agStart(); } catch(_) {}
+      AG_LOG.info('[Bank] Farm retomado após retirada');
     }
   }
 
