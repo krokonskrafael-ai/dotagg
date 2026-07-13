@@ -13810,10 +13810,16 @@ loadMySales();
   }
 
   function agStorageForceRefresh() {
-    try {
-      var panel = document.getElementById('ag-panel-host');
-      if (panel && panel.shadowRoot) agStorageRenderTab(panel.shadowRoot);
-    } catch(_) {}
+    function _doRefresh() {
+      try {
+        var panel = document.getElementById('ag-panel-host');
+        if (panel && panel.shadowRoot) agStorageRenderTab(panel.shadowRoot);
+      } catch(_) {}
+    }
+    _doRefresh();
+    // Retry após 500ms para garantir que o estado está atualizado
+    setTimeout(_doRefresh, 500);
+    setTimeout(_doRefresh, 2000);
   }
 
   function agOpenBankHud() {
