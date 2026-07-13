@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v2.04';
+  const AG_VERSION          = 'v2.30';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -12999,6 +12999,26 @@ loadMySales();
       });
     }
 
+    // Deliver Now button
+    var deliverBtn = sh.getElementById('ag-lottery-deliver');
+    if (deliverBtn) {
+      var nb = deliverBtn.cloneNode(false);
+      deliverBtn.parentNode.replaceChild(nb, deliverBtn);
+      if (_agLotteryDelivering) {
+        nb.innerHTML = '⏳ Entregando...';
+        nb.style.opacity = '0.5';
+        nb.disabled = true;
+      } else {
+        nb.innerHTML = '&#127922; Deliver Now';
+        nb.addEventListener('click', function() {
+          nb.innerHTML = '⏳ Verificando...'; nb.disabled = true;
+          agLotteryDoDeliveryCheck().then(function() {
+            try { agLotteryRenderTab(sh); } catch(_) {}
+          });
+        });
+      }
+    }
+
     // Fetch status
     statusEl.textContent = '🔄 Verificando...';
     fetch('/api/auth/merchant-lottery-status', {credentials:'include'})
@@ -13101,57 +13121,137 @@ loadMySales();
   function agLotteryStartAutoTimer() {
     if (_agLotteryAutoTimer) { clearInterval(_agLotteryAutoTimer); _agLotteryAutoTimer = null; }
     if (!agLotteryAutoDelivery) return;
-    _agLotteryAutoTimer = setInterval(async function() {
+    _agLotteryAutoTimer = setInterval(function() {
       if (!agLotteryAutoDelivery) { clearInterval(_agLotteryAutoTimer); _agLotteryAutoTimer=null; return; }
-      try {
-        var r = await fetch('/api/auth/merchant-lottery-status', {credentials:'include'});
-        var d = await r.json().catch(function(){return {};});
-        if (d.phase !== 'entry_open' || (d.entriesRemaining||0) <= 0) return;
-        // Check quests
-        var qDone=0, qTotal=3;
-        try { var kcQ=(typeof yl!=='undefined'&&yl.quests)?yl.quests:[]; var yaC=(typeof Eo!=='undefined'&&Eo.claimed)?Eo.claimed:{}; qTotal=Math.max(3,kcQ.length); for(var i=0;i<kcQ.length;i++) if(yaC[kcQ[i].id]) qDone++; } catch(_){}
-        if (qDone < qTotal) return;
-        // Check resources
-        var COST = (d.cost&&d.cost.length>0)?d.cost:[{type:'wood',amount:2600},{type:'stone',amount:1400},{type:'coal',amount:800},{type:'cooked_fish_meat',amount:40}];
-        var hasAll = true;
-        COST.forEach(function(c) { try { if ((Kn(c.type)|0) < c.amount) hasAll=false; } catch(_){ hasAll=false; } });
-        if (!hasAll) return;
-        // All conditions met — comprar todos os tickets possíveis
-        var ticketsAvail = d.entriesRemaining || 0;
-        var ticketsBought = 0;
-        for (var _ti = 0; _ti < ticketsAvail; _ti++) {
-          // Verificar se ainda tem recursos para este ticket
-          var _stillHas = true;
-          COST.forEach(function(c) { try { if ((Kn(c.type)|0) < c.amount) _stillHas=false; } catch(_){ _stillHas=false; } });
-          if (!_stillHas) {
-            AG_LOG.info('[Lottery] Sem recursos para ticket ' + (_ti+1) + ' — parando');
-            break;
-          }
-          AG_LOG.info('[Lottery] Auto delivery: comprando ticket ' + (_ti+1) + '/' + ticketsAvail + '...');
-          try { await Vo({marketplaceFlush:!0}); } catch(_) {}
-          var re = await fetch('/api/auth/merchant-lottery-enter', {
-            method:'POST', credentials:'include',
-            headers:{'Content-Type':'application/json'}, body:'{}'
-          });
-          var de = await re.json().catch(function(){return {};});
-          if (de.ok !== false && re.ok) {
-            if (de.backpack) { try { await J8(de.backpack, de.stateSeq); } catch(_) {} }
-            ticketsBought++;
-            AG_LOG.info('[Lottery] ✓ Ticket ' + ticketsBought + ' entregue!');
-          } else {
-            AG_LOG.warn('[Lottery] Ticket ' + (_ti+1) + ' falhou: ' + JSON.stringify(de));
-            break; // para no primeiro erro
-          }
-          // Delay de 2s entre tickets
-          if (_ti < ticketsAvail - 1) {
-            await new Promise(function(rv){setTimeout(rv,2000);});
-          }
-        }
-        if (ticketsBought > 0) {
-          AG_LOG.info('[Lottery] Auto delivery: ' + ticketsBought + ' ticket(s) entregue(s)!');
-        }
-      } catch(e) { AG_LOG.warn('[Lottery] Auto delivery erro: ' + e.message); }
+      agLotteryDoDeliveryCheck();
     }, 60000);
+  }
+
+  var _agLotteryDelivering = false;
+  async function agLotteryDoDeliveryCheck() {
+    if (_agLotteryDelivering) { AG_LOG.info('[Lottery] Já em execução — pulando check'); return; }
+    _agLotteryDelivering = true;
+    AG_LOG.info('[Lottery] ── Verificando condições de delivery ──');
+    try {
+      var r = await fetch('/api/auth/merchant-lottery-status', {credentials:'include'});
+      var d = await r.json().catch(function(){return {};});
+      var phase = d.phase || '?';
+      var entriesRem = d.entriesRemaining || 0;
+      AG_LOG.info('[Lottery] Phase: ' + phase + ' | Tickets disponíveis: ' + entriesRem);
+      if (phase !== 'entry_open') { AG_LOG.info('[Lottery] ✗ Phase não é entry_open — aguardando'); _agLotteryDelivering=false; return; }
+      if (entriesRem <= 0) { AG_LOG.info('[Lottery] ✗ Sem tickets disponíveis'); _agLotteryDelivering=false; return; }
+      // Check quests
+      var qDone=0, qTotal=3;
+      try { var kcQ=(typeof yl!=='undefined'&&yl.quests)?yl.quests:[]; var yaC=(typeof Eo!=='undefined'&&Eo.claimed)?Eo.claimed:{}; qTotal=Math.max(3,kcQ.length); for(var i=0;i<kcQ.length;i++) if(yaC[kcQ[i].id]) qDone++; } catch(_){}
+      AG_LOG.info('[Lottery] Quests: ' + qDone + '/' + qTotal);
+      if (qDone < qTotal) { AG_LOG.info('[Lottery] ✗ Quests incompletas'); _agLotteryDelivering=false; return; }
+      // Check resources
+      var COST = (d.cost&&d.cost.length>0)?d.cost:[{type:'wood',amount:2600},{type:'stone',amount:1400},{type:'coal',amount:800},{type:'cooked_fish_meat',amount:40}];
+      var hasAll = true;
+      var resLog = [];
+      COST.forEach(function(c) { var have=0; try{have=Kn(c.type)|0;}catch(_){} resLog.push(c.type+': '+have+'/'+c.amount+(have>=c.amount?' ✓':' ✗')); if(have<c.amount) hasAll=false; });
+      AG_LOG.info('[Lottery] Recursos: ' + resLog.join(' | '));
+      if (!hasAll) { AG_LOG.info('[Lottery] ✗ Recursos insuficientes'); _agLotteryDelivering=false; return; }
+
+      // ── Todas condições OK — iniciar fluxo de entrega ──
+      AG_LOG.info('[Lottery] ✓ Condições OK — indo ao merchant...');
+      var wasActive = agActive;
+      var savedRealm = D;
+      if (wasActive) try { agStop(); } catch(_) {}
+      await new Promise(function(rv){setTimeout(rv,300);});
+
+      // 1. Ir ao world
+      if (D !== 'world') {
+        AG_LOG.info('[Lottery] Saindo para world...');
+        var _navAt = 0;
+        while (D !== 'world' && _navAt < 120) {
+          _navAt++;
+          try {
+            var exit = agNavGetExitTile(D);
+            if (exit && !$e && qe.length === 0) {
+              var path = Nl(ce, de, exit.col, exit.row);
+              if (path && path.length > 0) { qe = path; Hl(); }
+            }
+          } catch(_) {}
+          await new Promise(function(rv){setTimeout(rv,500);});
+        }
+        if (D !== 'world') { AG_LOG.warn('[Lottery] Não chegou ao world'); _agLotteryCleanup(wasActive, savedRealm); return; }
+      }
+
+      // 2. Caminhar até o merchant (21, 12)
+      var MERCH_COL = 21, MERCH_ROW = 12;
+      AG_LOG.info('[Lottery] Caminhando até o merchant...');
+      try { qe=[]; $e=!1; dt=0; } catch(_) {}
+      try { gn(); } catch(_) {}
+      try { kn(); } catch(_) {}
+      await new Promise(function(rv){setTimeout(rv,2000);});
+
+      function _walkToMerch() {
+        var candidates = [[MERCH_COL,MERCH_ROW]];
+        for (var dr=-2;dr<=2;dr++) for (var dc=-2;dc<=2;dc++) if(dr||dc) candidates.push([MERCH_COL+dc,MERCH_ROW+dr]);
+        candidates.sort(function(a,b){return(Math.abs(a[0]-MERCH_COL)+Math.abs(a[1]-MERCH_ROW))-(Math.abs(b[0]-MERCH_COL)+Math.abs(b[1]-MERCH_ROW));});
+        for (var ci=0;ci<candidates.length;ci++) {
+          try { var p=Nl(ce,de,candidates[ci][0],candidates[ci][1]); if(p&&p.length>0){qe=p;if(!$e)Hl();return true;} } catch(_){}
+        }
+        return false;
+      }
+
+      var pathOk = false;
+      for (var pt=0;pt<10;pt++) { if(_walkToMerch()){pathOk=true;break;} await new Promise(function(rv){setTimeout(rv,2000);}); }
+      if (!pathOk) { AG_LOG.warn('[Lottery] Sem caminho ao merchant'); _agLotteryCleanup(wasActive, savedRealm); return; }
+
+      // Aguardar chegada
+      var _wk=0;
+      while (_wk<80) {
+        await new Promise(function(rv){setTimeout(rv,500);});
+        _wk++;
+        if (Math.abs(ce-MERCH_COL)+Math.abs(de-MERCH_ROW) <= 2) break;
+        if (_wk%8===0 && !$e && qe.length===0) _walkToMerch();
+      }
+      if (Math.abs(ce-MERCH_COL)+Math.abs(de-MERCH_ROW) > 3) { AG_LOG.warn('[Lottery] Não chegou ao merchant'); _agLotteryCleanup(wasActive, savedRealm); return; }
+
+      // 3. Comprar tickets
+      AG_LOG.info('[Lottery] No merchant — comprando tickets...');
+      var ticketsAvail = entriesRem;
+      var ticketsBought = 0;
+      for (var _ti = 0; _ti < ticketsAvail; _ti++) {
+        var _stillHas = true;
+        COST.forEach(function(c) { try { if ((Kn(c.type)|0) < c.amount) _stillHas=false; } catch(_){ _stillHas=false; } });
+        if (!_stillHas) { AG_LOG.info('[Lottery] Sem recursos para ticket ' + (_ti+1)); break; }
+        AG_LOG.info('[Lottery] Comprando ticket ' + (_ti+1) + '/' + ticketsAvail + '...');
+        try { await Vo({marketplaceFlush:!0}); } catch(_) {}
+        var re = await fetch('/api/auth/merchant-lottery-enter', {
+          method:'POST', credentials:'include',
+          headers:{'Content-Type':'application/json'}, body:'{}'
+        });
+        var de2 = await re.json().catch(function(){return {};});
+        if (de2.ok !== false && re.ok) {
+          if (de2.backpack) { try { await J8(de2.backpack, de2.stateSeq); } catch(_) {} }
+          ticketsBought++;
+          AG_LOG.info('[Lottery] ✓ Ticket ' + ticketsBought + ' entregue!');
+        } else {
+          AG_LOG.warn('[Lottery] Ticket ' + (_ti+1) + ' falhou: ' + JSON.stringify(de2));
+          break;
+        }
+        if (_ti < ticketsAvail - 1) await new Promise(function(rv){setTimeout(rv,2000);});
+      }
+      if (ticketsBought > 0) AG_LOG.info('[Lottery] ── ' + ticketsBought + ' ticket(s) entregue(s)! ──');
+      else AG_LOG.info('[Lottery] ── Nenhum ticket entregue ──');
+
+      // 4. Cleanup: voltar ao realm e retomar farm
+      _agLotteryCleanup(wasActive, savedRealm);
+    } catch(e) { AG_LOG.warn('[Lottery] Delivery erro: ' + e.message); _agLotteryDelivering=false; }
+  }
+
+  function _agLotteryCleanup(wasActive, savedRealm) {
+    _agLotteryDelivering = false;
+    if (savedRealm && savedRealm !== 'world' && D !== savedRealm) {
+      AG_LOG.info('[Lottery] Voltando para ' + savedRealm);
+      agNavTo(savedRealm);
+    }
+    if (wasActive) {
+      setTimeout(function() { try { agStart(); } catch(_) {} AG_LOG.info('[Lottery] Farm retomado'); }, 2000);
+    }
   }
   agLotteryStartAutoTimer(); // inicia se estava salvo
 
@@ -14838,7 +14938,8 @@ loadMySales();
         // ══════════════════════════════ LOTTERY ═══════════════════════════════
         '<div class="ag-pane" data-pane="lottery">',
           '<div class="ag-sec" style="color:#fbbf24">&#127922; Lottery</div>',
-          '<label class="ag-check-row"><input type="checkbox" id="ag-lottery-auto"><span class="ag-check-lbl" style="color:#fbbf24">&#127922; Auto Delivery</span></label>',
+          '<label class="ag-check-row"><input type="checkbox" id="ag-lottery-auto"><span class="ag-check-lbl" style="color:#fbbf24">&#127922; Auto Delivery (60s)</span></label>',
+          '<button id="ag-lottery-deliver" style="width:100%;margin-top:4px;padding:4px 0;border-radius:5px;border:1px solid rgba(251,191,36,0.3);background:rgba(251,191,36,0.12);color:#fbbf24;font-size:10px;font-weight:700;cursor:pointer">&#127922; Deliver Now</button>',
           '<div id="ag-lottery-status" style="font-size:10px;color:#8a93a8;min-height:14px;margin-top:4px">&#128260; Verificando...</div>',
           '<div id="ag-lottery-info" style="font-size:10px;margin-top:4px"></div>',
         '</div>',
