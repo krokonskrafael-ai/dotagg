@@ -13809,6 +13809,13 @@ loadMySales();
     }, 5000);
   }
 
+  function agStorageForceRefresh() {
+    try {
+      var panel = document.getElementById('ag-panel-host');
+      if (panel && panel.shadowRoot) agStorageRenderTab(panel.shadowRoot);
+    } catch(_) {}
+  }
+
   function agOpenBankHud() {
     if (document.getElementById('ag-bank-host')) {
       document.getElementById('ag-bank-host').remove(); return;
@@ -14164,6 +14171,7 @@ loadMySales();
     }
 
     _agDepositRunning = false;
+    agStorageForceRefresh();
     if (wasActive) {
       await new Promise(function(r){ setTimeout(r, 1000); });
       try { agStart(); } catch(_) {}
@@ -14302,6 +14310,7 @@ loadMySales();
     }
 
     _agWithdrawRunning = false;
+    agStorageForceRefresh();
     if (wasActive) {
       await new Promise(function(r){ setTimeout(r, 1000); });
       try { agStart(); } catch(_) {}
@@ -15339,7 +15348,7 @@ loadMySales();
     $('ag-camera-btn').addEventListener('click', function(e) {
       e.stopPropagation();
       it.centerCamera = !it.centerCamera;
-      _();
+      Ht();
       agUpdateCamBtn();
     });
     agUpdateCamBtn();
@@ -17876,7 +17885,7 @@ loadMySales();
         if (!agIsInGame()) return;
         if (!it.centerCamera) {
           it.centerCamera = true;
-          _();
+          Ht();
           AG_LOG.debug('Center Cam: reativado');
         }
         // Zoom para o mais afastado ao ativar Center Cam
