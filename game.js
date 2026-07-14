@@ -8185,18 +8185,43 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     } catch(_) { return false; }
   }
 
+  // Stealth Fish: bloqueia envio de presença (outros jogadores não recebem atualizações)
+  // O personagem "congela" na última posição vista e desaparece após timeout do servidor.
+  var _agOrigWsSend = null;
   function agStartStealthLoop() {
     if (_agStealthLoop) return;
-    AG_LOG.info('[Fish] Stealth: ativado — personagem underground');
-    _agStealthLoop = setInterval(function() {
-      if (!agStealthFish || !agActive || agMode !== 'fish') { agStopStealthLoop(); return; }
-      try { E.position.y = -100; } catch(_) {}
-    }, 16); // every frame (~60fps)
+    AG_LOG.info('[Fish] Stealth: ativado — bloqueando presença');
+    // Hook WS send para bloquear mensagens de posição
+    try {
+      if (typeof yt !== 'undefined' && yt) {
+        _agOrigWsSend = yt.send.bind(yt);
+        yt.send = function(data) {
+          if (agStealthFish && typeof data === 'string') {
+            try {
+              if (data.charAt(0) === '{') {
+                var parsed = JSON.parse(data);
+                if (parsed.t === 'pos') return; // bloqueia presença
+              }
+            } catch(_) {}
+          }
+          return _agOrigWsSend(data);
+        };
+      }
+    } catch(_) {}
+    _agStealthLoop = 1; // flag ativo (não precisa de interval)
   }
   function agStopStealthLoop() {
-    if (_agStealthLoop) { clearInterval(_agStealthLoop); _agStealthLoop = null; }
-    try { E.position.y = 0.25; } catch(_) {} // restore ground level
-    AG_LOG.info('[Fish] Stealth: desativado — posição restaurada');
+    _agStealthLoop = null;
+    // Restaurar WS send original
+    try {
+      if (_agOrigWsSend && typeof yt !== 'undefined' && yt) {
+        yt.send = _agOrigWsSend;
+        _agOrigWsSend = null;
+        // Enviar posição imediatamente para reaparecer
+        try { sendPresenceUpdate(true); } catch(_) {}
+      }
+    } catch(_) {}
+    AG_LOG.info('[Fish] Stealth: desativado — presença restaurada');
   }
 
   function agTickFishing() {
