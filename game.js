@@ -7319,6 +7319,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         const tracked =
           (agMode === 'tree'       && type === 'wood')  ||
           (agMode === 'rock'       && (type === 'stone' || type === 'coal' || type === 'metal')) ||
+          (agMode === 'hunt'      && (type === 'brute_horn')) ||
           (agMode === 'rock_stone' && type === 'stone') ||
           (agMode === 'rock_coal'  && type === 'coal')  ||
           (agMode === 'fish'       && type === 'fish') ||
@@ -8092,12 +8093,13 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     const cells = agGetFishableWaterCells();
     if (!cells || cells.size === 0) return null;
     // uHe = distância máxima (Chebyshev) para pescar — mesmo critério do bundle (bHe)
-    // Pesca de longa distância: sem limite de distância (LFe não valida no servidor)
+    // Pesca normal: máximo 4 tiles de distância (validação nativa do jogo)
+    var _maxDist = 4;
     let best = null, bestDist = Infinity;
     for (const key of cells) {
       const [c, r] = key.split(',').map(Number);
       const d = Math.max(Math.abs(ce-c), Math.abs(de - r));
-      if (d < bestDist) { bestDist = d; best = { col: c, row: r }; }
+      if (d <= _maxDist && d < bestDist) { bestDist = d; best = { col: c, row: r }; }
     }
     AG_LOG.debug('[Fish] best=' + JSON.stringify(best));
     return best;
@@ -8185,59 +8187,11 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     } catch(_) { return false; }
   }
 
-  // Stealth Fish: modifica a posição na presença para parecer estar ao lado do tile de água.
-  // O servidor recebe act:"fish" + posição válida → XP funciona.
-  // Outros jogadores veem o personagem na água (posição fake), não na posição real.
-  var _agOrigWsSend = null;
-  var _agStealthFishTile = null; // {col, row} do tile que está pescando
-  function agStartStealthLoop() {
-    if (_agStealthLoop) return;
-    AG_LOG.info('[Fish] Stealth: ativado — spoofing posição na presença');
-    try {
-      if (typeof yt !== 'undefined' && yt) {
-        _agOrigWsSend = yt.send.bind(yt);
-        yt.send = function(data) {
-          if (_agStealthFishTile && typeof data === 'string') {
-            try {
-              if (data.charAt(0) === '{') {
-                var parsed = JSON.parse(data);
-                if (parsed.t === 'pos') {
-                  // SEMPRE spoofar posição quando pescando de longe
-                  // (necessário para grant-fish-xp aceitar)
-                  var offX = 0, offZ = 0;
-                  try { offX = Qn(); offZ = Jn(); } catch(_) {}
-                  parsed.x = offX + _agStealthFishTile.col - 1;
-                  parsed.z = offZ + _agStealthFishTile.row;
-                  parsed.y = 0.25;
-                  // Se stealth, reduzir frequência (1 a cada 5s)
-                  if (agStealthFish) {
-                    var now = Date.now();
-                    if (!agStartStealthLoop._lastSend) agStartStealthLoop._lastSend = 0;
-                    if (now - agStartStealthLoop._lastSend < 5000) return; // pula
-                    agStartStealthLoop._lastSend = now;
-                  }
-                  data = JSON.stringify(parsed);
-                }
-              }
-            } catch(_) {}
-          }
-          return _agOrigWsSend(data);
-        };
-      }
-    } catch(_) {}
-    _agStealthLoop = 1;
-  }
-  function agStopStealthLoop() {
-    _agStealthLoop = null;
-    _agStealthFishTile = null;
-    try {
-      if (_agOrigWsSend && typeof yt !== 'undefined' && yt) {
-        yt.send = _agOrigWsSend;
-        _agOrigWsSend = null;
-      }
-    } catch(_) {}
-    AG_LOG.info('[Fish] Stealth: desativado — posição real restaurada');
-  }
+  // Long-range fish: o farmer CAMINHA até o tile encontrado, então pesca normalmente.
+  // Stealth: reduz frequência da presença quando ativo (pesca normalmente).
+  var _agStealthFishTile = null;
+  function agStartStealthLoop() { _agStealthLoop = 1; }
+  function agStopStealthLoop() { _agStealthLoop = null; _agStealthFishTile = null; }
 
   function agTickFishing() {
     if (!agActive) return;
@@ -8269,8 +8223,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
     const phase = ws;
     if ((agLastFishPhase === 'reel' || agLastFishPhase === 'strike') && phase === 'idle') {
-      // peixe capturado — cleanup hook de posição e aguarda relançar
-      _agStealthFishTile = null; // libera spoof até próximo lançamento
+      // peixe capturado — aguarda relançar
       agLastFishPhase = phase;
       const waitMs = 200 + Math.random() * 200; // delay mínimo após captura
       agSetStatus('🐟 Peixe! Aguardando ' + Math.round(waitMs/100)/10 + 's…');
