@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v2.34';
+  const AG_VERSION          = 'v2.04';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -8197,17 +8197,25 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       if (typeof yt !== 'undefined' && yt) {
         _agOrigWsSend = yt.send.bind(yt);
         yt.send = function(data) {
-          if (agStealthFish && _agStealthFishTile && typeof data === 'string') {
+          if (_agStealthFishTile && typeof data === 'string') {
             try {
               if (data.charAt(0) === '{') {
                 var parsed = JSON.parse(data);
                 if (parsed.t === 'pos') {
-                  // Spoofar posição para ficar adjacente ao tile de pesca
+                  // SEMPRE spoofar posição quando pescando de longe
+                  // (necessário para grant-fish-xp aceitar)
                   var offX = 0, offZ = 0;
                   try { offX = Qn(); offZ = Jn(); } catch(_) {}
-                  parsed.x = offX + _agStealthFishTile.col;
-                  parsed.z = offZ + _agStealthFishTile.row - 1; // 1 tile acima da água
-                  parsed.y = 0.25; // ground level
+                  parsed.x = offX + _agStealthFishTile.col - 1;
+                  parsed.z = offZ + _agStealthFishTile.row;
+                  parsed.y = 0.25;
+                  // Se stealth, reduzir frequência (1 a cada 5s)
+                  if (agStealthFish) {
+                    var now = Date.now();
+                    if (!agStartStealthLoop._lastSend) agStartStealthLoop._lastSend = 0;
+                    if (now - agStartStealthLoop._lastSend < 5000) return; // pula
+                    agStartStealthLoop._lastSend = now;
+                  }
                   data = JSON.stringify(parsed);
                 }
               }
@@ -8261,7 +8269,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
     const phase = ws;
     if ((agLastFishPhase === 'reel' || agLastFishPhase === 'strike') && phase === 'idle') {
-      // peixe capturado — aguarda 1-2s antes de lançar de novo
+      // peixe capturado — cleanup hook de posição e aguarda relançar
+      _agStealthFishTile = null; // libera spoof até próximo lançamento
       agLastFishPhase = phase;
       const waitMs = 200 + Math.random() * 200; // delay mínimo após captura
       agSetStatus('🐟 Peixe! Aguardando ' + Math.round(waitMs/100)/10 + 's…');
