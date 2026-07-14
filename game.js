@@ -6445,7 +6445,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     // Setar oL diretamente — g$=1 (afastado), Qie=1.5 (próximo)
     z = Math.round(Math.max(1.0, Math.min(1.5, z || 1.0)) * 100) / 100;
     try {
-      oL = z;
+      YU = z;
       h(); // applyCamera — aplica o zoom instantaneamente
     } catch(_) {}
     _agZoomSteps = Math.round((z - 1.0) / 0.1);
@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v2.30';
+  const AG_VERSION          = 'v2.04';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -8092,15 +8092,12 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     const cells = agGetFishableWaterCells();
     if (!cells || cells.size === 0) return null;
     // uHe = distância máxima (Chebyshev) para pescar — mesmo critério do bundle (bHe)
-    var _maxDist = 2; // distância máxima Chebyshev para pesca (configurado)
-    // Log de diagnóstico para beach
-    AG_LOG.debug('[Fish] vhe cells=' + cells.size + ' playerPos=' + ce + ',' + de + ' maxDist=' + _maxDist + ' realm=' + D);
+    // Pesca de longa distância: sem limite de distância (LFe não valida no servidor)
     let best = null, bestDist = Infinity;
     for (const key of cells) {
       const [c, r] = key.split(',').map(Number);
-      const d = Math.max(Math.abs(ce-c), Math.abs(de - r)); // Chebyshev
-      AG_LOG.debug('[Fish] tile ' + key + ' d=' + d + ' maxDist=' + _maxDist + ' ok=' + (d <= _maxDist));
-      if (d <= _maxDist && d < bestDist) { bestDist = d; best = { col: c, row: r }; }
+      const d = Math.max(Math.abs(ce-c), Math.abs(de - r));
+      if (d < bestDist) { bestDist = d; best = { col: c, row: r }; }
     }
     AG_LOG.debug('[Fish] best=' + JSON.stringify(best));
     return best;
@@ -8138,6 +8135,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
   let agLastFishPhase = 'idle';
   let agAutoCookFish = false; // Auto Cook Fish checkbox
+  var agStealthFish = false; // Stealth Fish - underground position
+  var _agStealthLoop = null;
 
 
 
@@ -8184,6 +8183,20 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         return false;
       }
     } catch(_) { return false; }
+  }
+
+  function agStartStealthLoop() {
+    if (_agStealthLoop) return;
+    AG_LOG.info('[Fish] Stealth: ativado — personagem underground');
+    _agStealthLoop = setInterval(function() {
+      if (!agStealthFish || !agActive || agMode !== 'fish') { agStopStealthLoop(); return; }
+      try { E.position.y = -100; } catch(_) {}
+    }, 16); // every frame (~60fps)
+  }
+  function agStopStealthLoop() {
+    if (_agStealthLoop) { clearInterval(_agStealthLoop); _agStealthLoop = null; }
+    try { E.position.y = 0.25; } catch(_) {} // restore ground level
+    AG_LOG.info('[Fish] Stealth: desativado — posição restaurada');
   }
 
   function agTickFishing() {
@@ -9331,11 +9344,15 @@ loadMySales();
           }
         } catch(_) {}
       }
-      // (B) Bloquear dano por contato: manter Cl no futuro distante
+      // (B) Bloquear dano por contato + backup HP/Shield
       if (window.__agGodMode) {
         try { Cl = performance.now() + 999999; } catch(_) {}
+        try { Gs = 'idle'; Us = 0; } catch(_) {} // reset mob contact state
+        // Backup: se HP caiu, resetar (cobre edge cases)
+        try { if (typeof wo !== 'undefined' && (wo|0) < 100) wo = 100; } catch(_) {}
+        try { if (typeof Bo !== 'undefined' && (Bo|0) < 5) Bo = 5; } catch(_) {}
       }
-    }, 200);
+    }, 50);
   })();
   let agHuntTargetAt    = 0;     // timestamp de quando setou o alvo (início do path)
   let agHuntCombatAt    = null;  // timestamp de quando chegou adjacente e começou a bater
@@ -9402,9 +9419,12 @@ loadMySales();
       // Only Zombies: usa getRadarBlips do sistema de mobs para checar isDragon
       if (agZombiesOnly && kind === 'wild') {
         try {
-          var _blips = mr()?.getRadarBlips();
-          if (_blips && _blips[i] && _blips[i].dragon) continue;
-        } catch(_) {}
+          var _sys = mr();
+          if (_sys && typeof _sys.getRadarBlips === 'function') {
+            var _blips = _sys.getRadarBlips();
+            if (_blips && _blips[i] && _blips[i].dragon) { continue; }
+          }
+        } catch(e) { AG_LOG.debug('[Hunt] ZombieOnly check erro: ' + e.message); }
       }
       const tc = Math.round(foot.x - offX);
       const tr = Math.round(foot.z - offZ);
@@ -13255,6 +13275,31 @@ loadMySales();
   }
   agLotteryStartAutoTimer(); // inicia se estava salvo
 
+  // ── Skip Tutorial automático ──────────────────────────────────────────────
+  async function agSkipTutorial() {
+    AG_LOG.info('[Tutorial] Iniciando skip automático...');
+    for (var step = 0; step <= 28; step++) {
+      AG_LOG.info('[Tutorial] Avançando step ' + step + '/28...');
+      try {
+        var r = await fetch('/api/auth/tutorial-progress', {
+          method: 'POST', credentials: 'include',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({action: 'advance', fromStep: step})
+        });
+        var d = await r.json().catch(function(){return {};});
+        if (!r.ok || d.ok === false) {
+          AG_LOG.info('[Tutorial] Step ' + step + ': ' + (d.error || 'skip') + ' — continuando');
+        } else {
+          AG_LOG.info('[Tutorial] Step ' + step + ' ✓');
+        }
+      } catch(e) { AG_LOG.warn('[Tutorial] Step ' + step + ' erro: ' + e.message); }
+      await new Promise(function(rv){setTimeout(rv,500);});
+    }
+    AG_LOG.info('[Tutorial] ✓ Tutorial completo! F5 para aplicar.');
+  }
+  // Expor globalmente para uso manual: agSkipTutorial()
+  window.agSkipTutorial = agSkipTutorial;
+
   function agOpenLotteryHud() {
     if (document.getElementById('ag-daily-gold-host')) {
       document.getElementById('ag-daily-gold-host').remove(); try { agRefreshHudBtns(); } catch(_) {} return;
@@ -14852,6 +14897,12 @@ loadMySales();
               '&#128293; Auto Cook Fish',
             '</label>',
           '</div>',
+          '<div class="ag-row" id="ag-stealth-fish-row" style="display:none">',
+            '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:#93c5fd">',
+              '<input type="checkbox" id="ag-stealth-fish" style="width:12px;height:12px;cursor:pointer">',
+              '&#128123; Stealth Fish (underground)',
+            '</label>',
+          '</div>',
           '<div class="ag-srv-row">',
             '<span class="ag-lbl">Server:</span>',
             '<select id="ag-server-sel" style="flex:1;min-width:0;max-width:155px"><option value="">&#8212; auto &#8212;</option></select>',
@@ -15089,6 +15140,8 @@ loadMySales();
 
         // ══════════════════════════════ CONFIGS ══════════════════════════════════
         '<div class="ag-pane" data-pane="cfg">',
+          '<div class="ag-sec">Tutorial</div>',
+          '<button id="ag-skip-tutorial" style="width:100%;padding:4px 0;border-radius:5px;border:1px solid rgba(251,191,36,0.3);background:rgba(251,191,36,0.1);color:#fbbf24;font-size:10px;font-weight:700;cursor:pointer;margin-bottom:8px">&#128218; Skip Tutorial (avança todos os steps)</button>',
           '<div class="ag-sec">Captcha Solver</div>',
           '<div class="ag-row">',
             '<span class="ag-lbl" style="white-space:nowrap">Provedor:</span>',
@@ -15524,6 +15577,8 @@ loadMySales();
       // Mostrar/esconder Auto Cook Fish
       var fishCookRow = $('ag-fish-cook-row');
       if (fishCookRow) fishCookRow.style.display = agMode === 'fish' ? '' : 'none';
+      var stealthRow = $('ag-stealth-fish-row');
+      if (stealthRow) stealthRow.style.display = agMode === 'fish' ? '' : 'none';
     });
 
     // Auto Cook Fish checkbox
@@ -15536,6 +15591,21 @@ loadMySales();
       });
     }
     // Estado inicial do row
+    // Stealth Fish checkbox
+    var stealthChk = $('ag-stealth-fish');
+    if (stealthChk) {
+      try { agStealthFish = localStorage.getItem('ag_stealth_fish') === '1'; } catch(_) {}
+      stealthChk.checked = agStealthFish;
+      stealthChk.addEventListener('change', function() {
+        agStealthFish = stealthChk.checked;
+        try { localStorage.setItem('ag_stealth_fish', agStealthFish ? '1' : '0'); } catch(_) {}
+        if (agStealthFish && agActive && agMode === 'fish') agStartStealthLoop();
+        else agStopStealthLoop();
+      });
+    }
+    var stealthRowInit = $('ag-stealth-fish-row');
+    if (stealthRowInit) stealthRowInit.style.display = agMode === 'fish' ? '' : 'none';
+
     var fishCookRowInit = $('ag-fish-cook-row');
     if (fishCookRowInit) fishCookRowInit.style.display = agMode === 'fish' ? '' : 'none';
 
@@ -18024,7 +18094,7 @@ loadMySales();
         // Zoom para o mais afastado ao ativar Center Cam
         try {
           if (typeof kintaraCameraZoom !== 'undefined' && typeof KINTARA_ZOOM_MIN !== 'undefined') {
-            kintaraCameraZoom = KINTARA_ZOOM_MIN;
+            YU = MY;
             if (typeof applyCamera === 'function') applyCamera();
             AG_LOG.debug('Center Cam: zoom afastado ao minimo (mais longe)');
           }
@@ -19220,6 +19290,16 @@ loadMySales();
           if (st) { st.textContent = '❌ Erro: ' + e.message; st.style.color = '#f87171'; }
         }
         btn.disabled = false; btn.textContent = '🐢 Testar';
+      });
+    }
+
+    // ── Skip Tutorial button ──────────────────────────────────────────────────
+    if ($('ag-skip-tutorial')) {
+      $('ag-skip-tutorial').addEventListener('click', async function() {
+        var btn = $('ag-skip-tutorial');
+        btn.textContent = '⏳ Skipping...'; btn.disabled = true;
+        await agSkipTutorial();
+        btn.textContent = '✓ Done! F5 para aplicar'; btn.style.color = '#6ee7a0';
       });
     }
 
