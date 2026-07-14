@@ -6659,7 +6659,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v2.04';
+  const AG_VERSION          = 'v2.34';
   const AG_TICK_MS          = 250; // reduzido para detectar fim de coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -8185,22 +8185,31 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     } catch(_) { return false; }
   }
 
-  // Stealth Fish: bloqueia envio de presença (outros jogadores não recebem atualizações)
-  // O personagem "congela" na última posição vista e desaparece após timeout do servidor.
+  // Stealth Fish: modifica a posição na presença para parecer estar ao lado do tile de água.
+  // O servidor recebe act:"fish" + posição válida → XP funciona.
+  // Outros jogadores veem o personagem na água (posição fake), não na posição real.
   var _agOrigWsSend = null;
+  var _agStealthFishTile = null; // {col, row} do tile que está pescando
   function agStartStealthLoop() {
     if (_agStealthLoop) return;
-    AG_LOG.info('[Fish] Stealth: ativado — bloqueando presença');
-    // Hook WS send para bloquear mensagens de posição
+    AG_LOG.info('[Fish] Stealth: ativado — spoofing posição na presença');
     try {
       if (typeof yt !== 'undefined' && yt) {
         _agOrigWsSend = yt.send.bind(yt);
         yt.send = function(data) {
-          if (agStealthFish && typeof data === 'string') {
+          if (agStealthFish && _agStealthFishTile && typeof data === 'string') {
             try {
               if (data.charAt(0) === '{') {
                 var parsed = JSON.parse(data);
-                if (parsed.t === 'pos') return; // bloqueia presença
+                if (parsed.t === 'pos') {
+                  // Spoofar posição para ficar adjacente ao tile de pesca
+                  var offX = 0, offZ = 0;
+                  try { offX = Qn(); offZ = Jn(); } catch(_) {}
+                  parsed.x = offX + _agStealthFishTile.col;
+                  parsed.z = offZ + _agStealthFishTile.row - 1; // 1 tile acima da água
+                  parsed.y = 0.25; // ground level
+                  data = JSON.stringify(parsed);
+                }
               }
             } catch(_) {}
           }
@@ -8208,20 +8217,18 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         };
       }
     } catch(_) {}
-    _agStealthLoop = 1; // flag ativo (não precisa de interval)
+    _agStealthLoop = 1;
   }
   function agStopStealthLoop() {
     _agStealthLoop = null;
-    // Restaurar WS send original
+    _agStealthFishTile = null;
     try {
       if (_agOrigWsSend && typeof yt !== 'undefined' && yt) {
         yt.send = _agOrigWsSend;
         _agOrigWsSend = null;
-        // Enviar posição imediatamente para reaparecer
-        try { sendPresenceUpdate(true); } catch(_) {}
       }
     } catch(_) {}
-    AG_LOG.info('[Fish] Stealth: desativado — presença restaurada');
+    AG_LOG.info('[Fish] Stealth: desativado — posição real restaurada');
   }
 
   function agTickFishing() {
