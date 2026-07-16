@@ -8198,6 +8198,10 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
   function agStartStealthLoop() {
     if (_agStealthActive) return;
+    // IMPORTANTE: forçar envio de presença válida ANTES de bloquear
+    // Assim o servidor tem a posição perto da água (para validar o catch)
+    try { sendPresenceUpdate(true); } catch(_) {}
+    agInstallStealthFetchHook();
     _agStealthActive = true;
     _agStealthLoop = 1;
     // Hook no WS send para bloquear APENAS presença de posição
@@ -8213,9 +8217,22 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
           }
           return _agOrigWsSend(data);
         };
-        AG_LOG.info('[Fish] Stealth: presença bloqueada — invisível em ~2s');
+        AG_LOG.info('[Fish] Stealth: última posição válida enviada, presença bloqueada — invisível em ~2s');
       }
     } catch(e) { AG_LOG.warn('[Fish] Stealth erro: ' + e.message); }
+  }
+
+  // Antes de cada catch, reenviar posição válida (garante que servidor aceita XP)
+  // sem revelar posição por muito tempo (1 frame apenas)
+  function agStealthResendValidPosition() {
+    if (!_agStealthActive || !_agOrigWsSend) return;
+    try {
+      // Temporariamente desbloquear para enviar 1 presença válida
+      var wasActive = _agStealthActive;
+      _agStealthActive = false;
+      sendPresenceUpdate(true);
+      _agStealthActive = wasActive;
+    } catch(_) {}
   }
 
   function agStopStealthLoop() {
@@ -8237,6 +8254,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   // Envia presença raramente (a cada 2.5s = 60 frames > 50 threshold de hide).
   // Entre envios, outros jogadores acumulam misses e escondem o personagem.
   window.__agKeepInvisible = false;
+  window.__agKeepInvisibleHard = false;
   var _agKeepInvOrigSend = null;
   var _agKeepInvLastSend = 0;
   var _agKeepInvInterval = 2500; // ms entre envios de presença
@@ -8251,18 +8269,55 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
             try {
               var p = JSON.parse(data);
               if (p.t === 'pos') {
-                // Throttle: só envia posição a cada 2.5s
+                // Modo HARD: bloqueia tudo (invisível total, servidor mantém última pos)
+                if (window.__agKeepInvisibleHard) return;
+                // Modo normal: throttle de 2.5s
                 var now = Date.now();
-                if (now - _agKeepInvLastSend < _agKeepInvInterval) return; // bloqueia
+                if (now - _agKeepInvLastSend < _agKeepInvInterval) return;
                 _agKeepInvLastSend = now;
               }
             } catch(_) {}
           }
           return _agKeepInvOrigSend(data);
         };
-        AG_LOG.info('[Invisible] Keep Invisible ATIVADO — presença throttled 2.5s');
+        agInstallHardModeFetchHook();
+        AG_LOG.info('[Invisible] Keep Invisible ATIVADO' + (window.__agKeepInvisibleHard ? ' (HARD — bloqueio total)' : ' (throttle 2.5s)'));
       }
     } catch(e) { AG_LOG.warn('[Invisible] Erro: ' + e.message); }
+  }
+
+  // Hook fetch: em modo HARD, sincroniza posição antes de ações validadas
+  var _agHardFetchHooked = false;
+  function agInstallHardModeFetchHook() {
+    if (_agHardFetchHooked) return;
+    _agHardFetchHooked = true;
+    var _of = window.fetch;
+    window.fetch = function(url, opts) {
+      if (window.__agKeepInvisibleHard && typeof url === 'string') {
+        // Ações que o servidor valida por posição
+        if (url.indexOf('grant-fish-xp') !== -1 ||
+            url.indexOf('harvest') !== -1 ||
+            url.indexOf('gather') !== -1 ||
+            url.indexOf('grant-') !== -1) {
+          agInvisibleSyncPositionOnce();
+        }
+      }
+      return _of.apply(window, arguments);
+    };
+  }
+
+  // Sincroniza posição 1x quando necessário (para ações validadas pelo servidor)
+  function agInvisibleSyncPositionOnce() {
+    if (!_agKeepInvOrigSend) return;
+    try {
+      var wasHard = window.__agKeepInvisibleHard;
+      var wasInv = window.__agKeepInvisible;
+      window.__agKeepInvisibleHard = false;
+      window.__agKeepInvisible = false;
+      sendPresenceUpdate(true);
+      window.__agKeepInvisible = wasInv;
+      window.__agKeepInvisibleHard = wasHard;
+    } catch(_) {}
   }
 
   function agStopKeepInvisible() {
@@ -8311,6 +8366,21 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     } catch(e) { AG_LOG.warn('[GhostFish] Erro presença: ' + e.message); }
   }
 
+  // Hook fetch para reenviar posição válida antes do grant-fish-xp (stealth)
+  var _agStealthFetchHooked = false;
+  function agInstallStealthFetchHook() {
+    if (_agStealthFetchHooked) return;
+    _agStealthFetchHooked = true;
+    var _origF = window.fetch;
+    window.fetch = function(url, opts) {
+      if (_agStealthActive && typeof url === 'string' && url.indexOf('grant-fish-xp') !== -1) {
+        // Reenviar posição válida para o catch validar
+        agStealthResendValidPosition();
+      }
+      return _origF.apply(window, arguments);
+    };
+  }
+
   var _agGhostWsOrigSend = null;
   function agInstallGhostFishHook() {
     if (_agGhostFetchHooked) return;
@@ -8330,11 +8400,12 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
                 p.x = offX + _agGhostFishTile.col - 1;
                 p.y = 0.25;
                 p.z = offZ + _agGhostFishTile.row;
-                // Garantir que act:fish e fc/fr estão corretos
+                // Garantir que act:fish, fc/fr e fph estão corretos
                 if (!p.act) p.act = 'fish';
                 if (p.act === 'fish') {
                   p.fc = _agGhostFishTile.col;
                   p.fr = _agGhostFishTile.row;
+                  if (p.fph == null) p.fph = 2; // reel phase (peixe fisgado)
                 }
                 data = JSON.stringify(p);
               }
@@ -8352,6 +8423,19 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       _agGhostWsOrigSend = null;
     }
     _agGhostFetchHooked = false;
+    if (_agGhostPresenceTimer) { clearInterval(_agGhostPresenceTimer); _agGhostPresenceTimer = null; }
+  }
+
+  // Loop que força envio contínuo de presença durante ghost fish
+  // (o jogo não envia presença quando parado, mas o servidor precisa da posição válida)
+  var _agGhostPresenceTimer = null;
+  function agStartGhostPresenceLoop() {
+    if (_agGhostPresenceTimer) return;
+    _agGhostPresenceTimer = setInterval(function() {
+      if (!agGhostFish || agMode !== 'fish' || !_agGhostFishTile) return;
+      // Forçar envio de presença (será reescrita pelo hook para posição válida)
+      try { sendPresenceUpdate(true); } catch(_) {}
+    }, 200); // 5x por segundo
   }
 
     function agTickFishing() {
@@ -15322,6 +15406,7 @@ loadMySales();
         '<div class="ag-pane" data-pane="cfg">',
           '<div class="ag-sec">Invisibilidade</div>',
           '<label class="ag-check-row"><input type="checkbox" id="ag-keep-invisible"><span class="ag-check-lbl" style="color:#93c5fd">&#128123; Keep Invisible (sempre)</span></label>',
+          '<label class="ag-check-row" style="margin-left:16px"><input type="checkbox" id="ag-keep-invisible-hard"><span class="ag-check-lbl" style="color:#c084fc;font-size:9px">&#9889; Modo HARD (bloqueio total)</span></label>',
           '<div style="font-size:8px;color:#64748b;margin-bottom:8px">Envia presença a cada 2.5s — fica invisível para outros mesmo andando</div>',
           '<div class="ag-sec">Tutorial</div>',
           '<button id="ag-skip-tutorial" style="width:100%;padding:4px 0;border-radius:5px;border:1px solid rgba(251,191,36,0.3);background:rgba(251,191,36,0.1);color:#fbbf24;font-size:10px;font-weight:700;cursor:pointer;margin-bottom:8px">&#128218; Skip Tutorial (avança todos os steps)</button>',
@@ -19502,6 +19587,21 @@ loadMySales();
         try { localStorage.setItem('ag_keep_invisible', window.__agKeepInvisible ? '1' : '0'); } catch(_) {}
         if (window.__agKeepInvisible) agStartKeepInvisible();
         else agStopKeepInvisible();
+      });
+    }
+    if ($('ag-keep-invisible-hard')) {
+      try { window.__agKeepInvisibleHard = localStorage.getItem('ag_keep_invisible_hard') === '1'; } catch(_) {}
+      $('ag-keep-invisible-hard').checked = window.__agKeepInvisibleHard;
+      $('ag-keep-invisible-hard').addEventListener('change', function(e) {
+        window.__agKeepInvisibleHard = e.target.checked;
+        try { localStorage.setItem('ag_keep_invisible_hard', window.__agKeepInvisibleHard ? '1' : '0'); } catch(_) {}
+        // Se ativar hard sem keep invisible, ativar keep invisible também
+        if (window.__agKeepInvisibleHard && !window.__agKeepInvisible) {
+          window.__agKeepInvisible = true;
+          try { localStorage.setItem('ag_keep_invisible', '1'); } catch(_) {}
+          if ($('ag-keep-invisible')) $('ag-keep-invisible').checked = true;
+          agStartKeepInvisible();
+        }
       });
     }
 
