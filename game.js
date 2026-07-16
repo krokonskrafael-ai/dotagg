@@ -8311,21 +8311,47 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     } catch(e) { AG_LOG.warn('[GhostFish] Erro presença: ' + e.message); }
   }
 
+  var _agGhostWsOrigSend = null;
   function agInstallGhostFishHook() {
     if (_agGhostFetchHooked) return;
     _agGhostFetchHooked = true;
-    var _origFetch = window.fetch;
-    window.fetch = function(url, opts) {
-      if (agGhostFish && typeof url === 'string' && url.indexOf('grant-fish-xp') !== -1) {
-        // Antes do grant-fish-xp: enviar posição válida
-        agSendValidFishPresence();
-        // Também enviar durante o retry (500ms depois)
-        setTimeout(agSendValidFishPresence, 400);
-        setTimeout(agSendValidFishPresence, 550);
+    // Hook no WS send: reescreve TODA presença durante ghost fish
+    // para sempre mostrar posição válida perto da água.
+    try {
+      if (typeof yt !== 'undefined' && yt) {
+        _agGhostWsOrigSend = yt.send.bind(yt);
+        yt.send = function(data) {
+          if (agGhostFish && _agGhostFishTile && typeof data === 'string' && data.charAt(0) === '{') {
+            try {
+              var p = JSON.parse(data);
+              if (p.t === 'pos') {
+                // Reescrever posição para adjacente ao tile de pesca
+                var offX = Qn(), offZ = Jn();
+                p.x = offX + _agGhostFishTile.col - 1;
+                p.y = 0.25;
+                p.z = offZ + _agGhostFishTile.row;
+                // Garantir que act:fish e fc/fr estão corretos
+                if (!p.act) p.act = 'fish';
+                if (p.act === 'fish') {
+                  p.fc = _agGhostFishTile.col;
+                  p.fr = _agGhostFishTile.row;
+                }
+                data = JSON.stringify(p);
+              }
+            } catch(_) {}
+          }
+          return _agGhostWsOrigSend(data);
+        };
+        AG_LOG.info('[GhostFish] WS hook instalado — presença reescrita continuamente');
       }
-      return _origFetch.apply(window, arguments);
-    };
-    AG_LOG.info('[GhostFish] Fetch hook instalado');
+    } catch(e) { AG_LOG.warn('[GhostFish] Hook erro: ' + e.message); }
+  }
+  function agRemoveGhostFishHook() {
+    if (_agGhostWsOrigSend && typeof yt !== 'undefined' && yt) {
+      try { yt.send = _agGhostWsOrigSend; } catch(_) {}
+      _agGhostWsOrigSend = null;
+    }
+    _agGhostFetchHooked = false;
   }
 
     function agTickFishing() {
