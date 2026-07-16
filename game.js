@@ -8280,30 +8280,32 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
           }
           return _agKeepInvOrigSend(data);
         };
-        agInstallHardModeFetchHook();
         AG_LOG.info('[Invisible] Keep Invisible ATIVADO' + (window.__agKeepInvisibleHard ? ' (HARD — bloqueio total)' : ' (throttle 2.5s)'));
+        // Loop de sync de posição a cada 3s (mantém servidor atualizado sem revelar continuamente)
+        agStartInvisiblePositionSync();
       }
     } catch(e) { AG_LOG.warn('[Invisible] Erro: ' + e.message); }
   }
 
-  // Hook fetch: em modo HARD, sincroniza posição antes de ações validadas
-  var _agHardFetchHooked = false;
-  function agInstallHardModeFetchHook() {
-    if (_agHardFetchHooked) return;
-    _agHardFetchHooked = true;
-    var _of = window.fetch;
-    window.fetch = function(url, opts) {
-      if (window.__agKeepInvisibleHard && typeof url === 'string') {
-        // Ações que o servidor valida por posição
-        if (url.indexOf('grant-fish-xp') !== -1 ||
-            url.indexOf('harvest') !== -1 ||
-            url.indexOf('gather') !== -1 ||
-            url.indexOf('grant-') !== -1) {
+  // Loop periódico: sincroniza posição a cada 3s no modo HARD
+  // Assim o servidor tem posição atualizada para validar ações (coleta, pesca)
+  // mas outros jogadores ainda te escondem (3s > 2s do miss-snap threshold)
+  var _agInvisSyncTimer = null;
+  function agStartInvisiblePositionSync() {
+    if (_agInvisSyncTimer) return;
+    _agInvisSyncTimer = setInterval(function() {
+      if (!window.__agKeepInvisible) { clearInterval(_agInvisSyncTimer); _agInvisSyncTimer = null; return; }
+      if (window.__agKeepInvisibleHard) {
+        // APENAS pesca precisa de sync de posição (combate/coleta carregam posição própria).
+        // Hunt: wild_died/wild/die enviam col,row na mensagem → 100% invisível OK.
+        // Coleta: client-side + save-backpack (sem posição) → 100% invisível OK.
+        // Pesca: grant-fish-xp SEM posição → precisa de presença válida.
+        if (agMode === 'fish') {
           agInvisibleSyncPositionOnce();
         }
+        // Fora de pesca: NÃO sincroniza → invisibilidade 100% real
       }
-      return _of.apply(window, arguments);
-    };
+    }, 3000);
   }
 
   // Sincroniza posição 1x quando necessário (para ações validadas pelo servidor)
@@ -8321,6 +8323,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   }
 
   function agStopKeepInvisible() {
+    if (_agInvisSyncTimer) { clearInterval(_agInvisSyncTimer); _agInvisSyncTimer = null; }
     try {
       if (_agKeepInvOrigSend && typeof yt !== 'undefined' && yt) {
         yt.send = _agKeepInvOrigSend;
