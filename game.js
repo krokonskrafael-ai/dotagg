@@ -8093,8 +8093,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     const cells = agGetFishableWaterCells();
     if (!cells || cells.size === 0) return null;
     // uHe = distância máxima (Chebyshev) para pescar — mesmo critério do bundle (bHe)
-    // Pesca normal: máximo 4 tiles de distância (validação nativa do jogo)
-    var _maxDist = 4;
+    // Ghost Fish: sem limite. Normal: máximo 4 tiles.
+    var _maxDist = agGhostFish ? 9999 : 4;
     let best = null, bestDist = Infinity;
     for (const key of cells) {
       const [c, r] = key.split(',').map(Number);
@@ -8189,11 +8189,146 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
   // Long-range fish: o farmer CAMINHA até o tile encontrado, então pesca normalmente.
   // Stealth: reduz frequência da presença quando ativo (pesca normalmente).
+  // Stealth Fish: bloqueia presença após lançar a linha.
+  // O jogo esconde players que perdem 50 snapshots de presença (~2s).
+  // O servidor mantém a última posição válida → fish XP continua funcionando.
   var _agStealthFishTile = null;
-  function agStartStealthLoop() { _agStealthLoop = 1; }
-  function agStopStealthLoop() { _agStealthLoop = null; _agStealthFishTile = null; }
+  var _agOrigWsSend = null;
+  var _agStealthActive = false;
 
-  function agTickFishing() {
+  function agStartStealthLoop() {
+    if (_agStealthActive) return;
+    _agStealthActive = true;
+    _agStealthLoop = 1;
+    // Hook no WS send para bloquear APENAS presença de posição
+    try {
+      if (typeof yt !== 'undefined' && yt && !_agOrigWsSend) {
+        _agOrigWsSend = yt.send.bind(yt);
+        yt.send = function(data) {
+          if (_agStealthActive && typeof data === 'string' && data.charAt(0) === '{') {
+            try {
+              var p = JSON.parse(data);
+              if (p.t === 'pos') return; // bloqueia → outros escondem após 50 misses
+            } catch(_) {}
+          }
+          return _agOrigWsSend(data);
+        };
+        AG_LOG.info('[Fish] Stealth: presença bloqueada — invisível em ~2s');
+      }
+    } catch(e) { AG_LOG.warn('[Fish] Stealth erro: ' + e.message); }
+  }
+
+  function agStopStealthLoop() {
+    _agStealthActive = false;
+    _agStealthLoop = null;
+    _agStealthFishTile = null;
+    // Restaurar WS send (só se Keep Invisible não estiver ativo)
+    try {
+      if (_agOrigWsSend && typeof yt !== 'undefined' && yt && !window.__agKeepInvisible) {
+        yt.send = _agOrigWsSend;
+        _agOrigWsSend = null;
+        try { sendPresenceUpdate(true); } catch(_) {} // reaparecer imediatamente
+      }
+    } catch(_) {}
+    AG_LOG.info('[Fish] Stealth: presença restaurada');
+  }
+
+  // ── Keep Invisible: mantém invisível mesmo andando ────────────────────────
+  // Envia presença raramente (a cada 2.5s = 60 frames > 50 threshold de hide).
+  // Entre envios, outros jogadores acumulam misses e escondem o personagem.
+  window.__agKeepInvisible = false;
+  var _agKeepInvOrigSend = null;
+  var _agKeepInvLastSend = 0;
+  var _agKeepInvInterval = 2500; // ms entre envios de presença
+
+  function agStartKeepInvisible() {
+    if (_agKeepInvOrigSend) return;
+    try {
+      if (typeof yt !== 'undefined' && yt) {
+        _agKeepInvOrigSend = yt.send.bind(yt);
+        yt.send = function(data) {
+          if (window.__agKeepInvisible && typeof data === 'string' && data.charAt(0) === '{') {
+            try {
+              var p = JSON.parse(data);
+              if (p.t === 'pos') {
+                // Throttle: só envia posição a cada 2.5s
+                var now = Date.now();
+                if (now - _agKeepInvLastSend < _agKeepInvInterval) return; // bloqueia
+                _agKeepInvLastSend = now;
+              }
+            } catch(_) {}
+          }
+          return _agKeepInvOrigSend(data);
+        };
+        AG_LOG.info('[Invisible] Keep Invisible ATIVADO — presença throttled 2.5s');
+      }
+    } catch(e) { AG_LOG.warn('[Invisible] Erro: ' + e.message); }
+  }
+
+  function agStopKeepInvisible() {
+    try {
+      if (_agKeepInvOrigSend && typeof yt !== 'undefined' && yt) {
+        yt.send = _agKeepInvOrigSend;
+        _agKeepInvOrigSend = null;
+        try { sendPresenceUpdate(true); } catch(_) {}
+      }
+    } catch(_) {}
+    AG_LOG.info('[Invisible] Keep Invisible DESATIVADO');
+  }
+
+  // ── Ghost Fish: pesca invisível de qualquer distância ─────────────────────
+  // O jogador fica LONGE da água (invisível). Quando o jogo tenta dar fish XP,
+  // interceptamos e enviamos UMA presença com posição válida (perto da água).
+  // A retry do yje() (500ms após "not_in_pond") valida contra essa posição.
+  var agGhostFish = false;
+  var _agGhostFetchHooked = false;
+  var _agGhostFishTile = null;
+
+  function agSendValidFishPresence() {
+    // Envia UMA presença com posição adjacente ao tile de pesca
+    if (!_agGhostFishTile) return;
+    try {
+      if (typeof yt !== 'undefined' && yt && yt.readyState === WebSocket.OPEN) {
+        var offX = 0, offZ = 0;
+        try { offX = Qn(); offZ = Jn(); } catch(_) {}
+        var msg = {
+          t: 'pos',
+          region: (typeof worldChatRegionKey === 'function') ? worldChatRegionKey() : D,
+          x: offX + _agGhostFishTile.col - 1,
+          y: 0.25,
+          z: offZ + _agGhostFishTile.row,
+          ry: 0, mov: false,
+          act: 'fish',
+          fc: _agGhostFishTile.col,
+          fr: _agGhostFishTile.row,
+          fph: 2 // reel phase
+        };
+        // Enviar direto (bypass do hook de invisibilidade)
+        var send = _agKeepInvOrigSend || _agOrigWsSend || yt.send.bind(yt);
+        send(JSON.stringify(msg));
+        AG_LOG.info('[GhostFish] Presença válida enviada para catch');
+      }
+    } catch(e) { AG_LOG.warn('[GhostFish] Erro presença: ' + e.message); }
+  }
+
+  function agInstallGhostFishHook() {
+    if (_agGhostFetchHooked) return;
+    _agGhostFetchHooked = true;
+    var _origFetch = window.fetch;
+    window.fetch = function(url, opts) {
+      if (agGhostFish && typeof url === 'string' && url.indexOf('grant-fish-xp') !== -1) {
+        // Antes do grant-fish-xp: enviar posição válida
+        agSendValidFishPresence();
+        // Também enviar durante o retry (500ms depois)
+        setTimeout(agSendValidFishPresence, 400);
+        setTimeout(agSendValidFishPresence, 550);
+      }
+      return _origFetch.apply(window, arguments);
+    };
+    AG_LOG.info('[GhostFish] Fetch hook instalado');
+  }
+
+    function agTickFishing() {
     if (!agActive) return;
     if (!agFishingAllowed()) {
       // Navega automaticamente para Pond se estiver no World
@@ -8223,7 +8358,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
     const phase = ws;
     if ((agLastFishPhase === 'reel' || agLastFishPhase === 'strike') && phase === 'idle') {
-      // peixe capturado — aguarda relançar
+      // peixe capturado — mantém stealth ativo para continuar invisível
       agLastFishPhase = phase;
       const waitMs = 200 + Math.random() * 200; // delay mínimo após captura
       agSetStatus('🐟 Peixe! Aguardando ' + Math.round(waitMs/100)/10 + 's…');
@@ -8785,6 +8920,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   function agStop() {
     agActive=false; clearTimeout(agTickTimer); agStopRateTimer();
     if (agFishPollTimer) { clearInterval(agFishPollTimer); agFishPollTimer = null; }
+    try { if (_agStealthActive) agStopStealthLoop(); } catch(_) {}
     agUninstallResourceCounter();
     agUninstallResourceEventMonitor();
     agStopRealmCheck();
@@ -13952,6 +14088,23 @@ loadMySales();
       }
     }
 
+    // Open Bank Modal button (native manual deposit/withdraw)
+    var openModalBtn = sh.getElementById('ag-open-bank-modal');
+    if (openModalBtn) {
+      var nbm = openModalBtn.cloneNode(true);
+      openModalBtn.parentNode.replaceChild(nbm, openModalBtn);
+      nbm.addEventListener('click', function() {
+        try {
+          Q3e(); // openBankStorageModal — abre o modal nativo do banco
+          AG_LOG.info('[Bank] Modal do banco aberto (manual)');
+          if (statusEl) statusEl.textContent = '✓ Modal aberto — deposite manualmente';
+        } catch(e) {
+          AG_LOG.warn('[Bank] Erro ao abrir modal: ' + e.message);
+          if (statusEl) statusEl.textContent = '✗ Erro ao abrir modal';
+        }
+      });
+    }
+
     // Auto-refresh timer
     if (_agStorageTabTimer) clearInterval(_agStorageTabTimer);
     _agStorageTabTimer = setInterval(function() {
@@ -14897,6 +15050,12 @@ loadMySales();
               '&#128123; Stealth Fish (underground)',
             '</label>',
           '</div>',
+          '<div class="ag-row" id="ag-ghost-fish-row" style="display:none">',
+            '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:#c084fc">',
+              '<input type="checkbox" id="ag-ghost-fish" style="width:12px;height:12px;cursor:pointer">',
+              '&#128104; Ghost Fish (longe + invisível)',
+            '</label>',
+          '</div>',
           '<div class="ag-srv-row">',
             '<span class="ag-lbl">Server:</span>',
             '<select id="ag-server-sel" style="flex:1;min-width:0;max-width:155px"><option value="">&#8212; auto &#8212;</option></select>',
@@ -14999,6 +15158,7 @@ loadMySales();
             '<button id="ag-dep-btn" class="ag-btn-sm" style="flex:1;padding:4px 0;border-radius:5px;border:1px solid rgba(110,231,160,0.3);background:rgba(110,231,160,0.12);color:#6ee7a0;font-size:10px;font-weight:700;cursor:pointer">&#128230; Deposit</button>',
             '<button id="ag-withdraw-btn" class="ag-btn-sm" style="flex:1;padding:4px 0;border-radius:5px;border:1px solid rgba(147,197,253,0.3);background:rgba(147,197,253,0.12);color:#93c5fd;font-size:10px;font-weight:700;cursor:pointer">&#128229; Withdraw</button>',
           '</div>',
+          '<button id="ag-open-bank-modal" style="width:100%;margin-top:6px;padding:5px 0;border-radius:5px;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.12);color:#a78bfa;font-size:10px;font-weight:700;cursor:pointer">&#128451; Abrir Modal do Banco (manual)</button>',
           '<div id="ag-storage-status" style="font-size:9px;color:#8a93a8;min-height:12px;margin-top:4px;text-align:center"></div>',
         '</div>',
 
@@ -15134,6 +15294,9 @@ loadMySales();
 
         // ══════════════════════════════ CONFIGS ══════════════════════════════════
         '<div class="ag-pane" data-pane="cfg">',
+          '<div class="ag-sec">Invisibilidade</div>',
+          '<label class="ag-check-row"><input type="checkbox" id="ag-keep-invisible"><span class="ag-check-lbl" style="color:#93c5fd">&#128123; Keep Invisible (sempre)</span></label>',
+          '<div style="font-size:8px;color:#64748b;margin-bottom:8px">Envia presença a cada 2.5s — fica invisível para outros mesmo andando</div>',
           '<div class="ag-sec">Tutorial</div>',
           '<button id="ag-skip-tutorial" style="width:100%;padding:4px 0;border-radius:5px;border:1px solid rgba(251,191,36,0.3);background:rgba(251,191,36,0.1);color:#fbbf24;font-size:10px;font-weight:700;cursor:pointer;margin-bottom:8px">&#128218; Skip Tutorial (avança todos os steps)</button>',
           '<div class="ag-sec">Captcha Solver</div>',
@@ -15573,6 +15736,8 @@ loadMySales();
       if (fishCookRow) fishCookRow.style.display = agMode === 'fish' ? '' : 'none';
       var stealthRow = $('ag-stealth-fish-row');
       if (stealthRow) stealthRow.style.display = agMode === 'fish' ? '' : 'none';
+      var ghostRow = $('ag-ghost-fish-row');
+      if (ghostRow) ghostRow.style.display = agMode === 'fish' ? '' : 'none';
     });
 
     // Auto Cook Fish checkbox
@@ -15599,6 +15764,20 @@ loadMySales();
     }
     var stealthRowInit = $('ag-stealth-fish-row');
     if (stealthRowInit) stealthRowInit.style.display = agMode === 'fish' ? '' : 'none';
+
+    // Ghost Fish checkbox
+    var ghostChk = $('ag-ghost-fish');
+    if (ghostChk) {
+      try { agGhostFish = localStorage.getItem('ag_ghost_fish') === '1'; } catch(_) {}
+      ghostChk.checked = agGhostFish;
+      ghostChk.addEventListener('change', function() {
+        agGhostFish = ghostChk.checked;
+        try { localStorage.setItem('ag_ghost_fish', agGhostFish ? '1' : '0'); } catch(_) {}
+        if (agGhostFish) agInstallGhostFishHook();
+      });
+    }
+    var ghostRowInit = $('ag-ghost-fish-row');
+    if (ghostRowInit) ghostRowInit.style.display = agMode === 'fish' ? '' : 'none';
 
     var fishCookRowInit = $('ag-fish-cook-row');
     if (fishCookRowInit) fishCookRowInit.style.display = agMode === 'fish' ? '' : 'none';
@@ -19284,6 +19463,19 @@ loadMySales();
           if (st) { st.textContent = '❌ Erro: ' + e.message; st.style.color = '#f87171'; }
         }
         btn.disabled = false; btn.textContent = '🐢 Testar';
+      });
+    }
+
+    // ── Keep Invisible checkbox ──────────────────────────────────────────────
+    if ($('ag-keep-invisible')) {
+      try { window.__agKeepInvisible = localStorage.getItem('ag_keep_invisible') === '1'; } catch(_) {}
+      $('ag-keep-invisible').checked = window.__agKeepInvisible;
+      if (window.__agKeepInvisible) agStartKeepInvisible();
+      $('ag-keep-invisible').addEventListener('change', function(e) {
+        window.__agKeepInvisible = e.target.checked;
+        try { localStorage.setItem('ag_keep_invisible', window.__agKeepInvisible ? '1' : '0'); } catch(_) {}
+        if (window.__agKeepInvisible) agStartKeepInvisible();
+        else agStopKeepInvisible();
       });
     }
 
