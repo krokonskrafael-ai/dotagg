@@ -8255,6 +8255,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   // Entre envios, outros jogadores acumulam misses e escondem o personagem.
   window.__agKeepInvisible = false;
   window.__agKeepInvisibleHard = false;
+  window.__agInvisDebug = false;
   window.__agFishUnderground = true; // tenta Y=-3 na pesca (harmless se ignorado)
   window.__agFishFarPos = false; // experimental: x/z longe, fc/fr real
   var _agKeepInvOrigSend = null;
@@ -8269,8 +8270,12 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     try {
       var _origProtoSend = WebSocket.prototype.send;
       WebSocket.prototype.send = function(data) {
-        // Só filtra se invisível E o socket é o presenceWs (yt)
-        if (window.__agKeepInvisible && this === yt && typeof data === 'string' && data.charAt(0) === '{') {
+        // Debug: contar sends interceptados
+        if (window.__agInvisDebug && typeof data === 'string' && data.indexOf('"pos"') !== -1) {
+          console.log('[InvisDebug] send pos, isYt=' + (this === yt) + ' inv=' + window.__agKeepInvisible);
+        }
+        // Filtra presença quando invisível (qualquer socket que envie {t:pos/hit/...})
+        if (window.__agKeepInvisible && typeof data === 'string' && data.charAt(0) === '{') {
           try {
             var p = JSON.parse(data);
             var revealsPos = (p.t === 'pos' || p.t === 'hit' || p.t === 'mhit' || p.t === 'shk' || p.t === 'am_ev' || p.t === 'gc_ev');
