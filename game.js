@@ -8261,44 +8261,46 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   var _agKeepInvLastSend = 0;
   var _agKeepInvInterval = 3000; // ms entre envios (>2s threshold para esconder)
 
+  // Hook robusto no WebSocket.prototype.send — sobrevive a reconexões
+  var _agWsProtoHooked = false;
   function agStartKeepInvisible() {
-    if (_agKeepInvOrigSend) return;
+    if (_agWsProtoHooked) return;
+    _agWsProtoHooked = true;
     try {
-      if (typeof yt !== 'undefined' && yt) {
-        _agKeepInvOrigSend = yt.send.bind(yt);
-        yt.send = function(data) {
-          if (window.__agKeepInvisible && typeof data === 'string' && data.charAt(0) === '{') {
-            try {
-              var p = JSON.parse(data);
-              var revealsPos = (p.t === 'pos' || p.t === 'hit' || p.t === 'mhit' || p.t === 'shk' || p.t === 'am_ev' || p.t === 'gc_ev');
-              if (revealsPos) {
-                // Durante PESCA: throttle (preserva act:fish para o servidor, mas esconde entre envios)
-                var isFishing = (p.t === 'pos' && p.act === 'fish');
-                if (isFishing) {
-                  var nowF = Date.now();
-                  if (nowF - _agKeepInvLastSend < _agKeepInvInterval) return;
-                  _agKeepInvLastSend = nowF;
-                  // Presença de pesca throttled (act:fish preservado, invisível entre envios)
-                  return _agKeepInvOrigSend(data);
-                }
-                // Modo HARD (não-pesca): bloqueia tudo (hunt/coleta são 100% invisíveis)
-                if (window.__agKeepInvisibleHard) return;
-                // Modo normal: throttle de 'pos'
-                if (p.t === 'pos') {
-                  var now = Date.now();
-                  if (now - _agKeepInvLastSend < _agKeepInvInterval) return;
-                  _agKeepInvLastSend = now;
-                } else {
-                  return;
-                }
+      var _origProtoSend = WebSocket.prototype.send;
+      WebSocket.prototype.send = function(data) {
+        // Só filtra se invisível E o socket é o presenceWs (yt)
+        if (window.__agKeepInvisible && this === yt && typeof data === 'string' && data.charAt(0) === '{') {
+          try {
+            var p = JSON.parse(data);
+            var revealsPos = (p.t === 'pos' || p.t === 'hit' || p.t === 'mhit' || p.t === 'shk' || p.t === 'am_ev' || p.t === 'gc_ev');
+            if (revealsPos) {
+              var isFishing = (p.t === 'pos' && p.act === 'fish');
+              if (isFishing) {
+                // Pesca: throttle preservando act:fish
+                var nowF = Date.now();
+                if (nowF - _agKeepInvLastSend < _agKeepInvInterval) return;
+                _agKeepInvLastSend = nowF;
+                // continua para enviar (não bloqueia)
+              } else if (window.__agKeepInvisibleHard) {
+                return; // hunt/coleta: bloqueia tudo
+              } else if (p.t === 'pos') {
+                var now = Date.now();
+                if (now - _agKeepInvLastSend < _agKeepInvInterval) return;
+                _agKeepInvLastSend = now;
+              } else {
+                return; // hit/mhit/shk/am_ev/gc_ev sempre bloqueados
               }
-            } catch(_) {}
-          }
-          return _agKeepInvOrigSend(data);
-        };
-        agInstallStealthFetchHook(); // hook grant-fish-xp para catch invisível
-        AG_LOG.info('[Invisible] Keep Invisible ATIVADO' + (window.__agKeepInvisibleHard ? ' (HARD — bloqueio total)' : ' (throttle 2.5s)'));
-      }
+            }
+          } catch(_) {}
+        }
+        // Só envia se o socket estiver aberto (evita erro CLOSING/CLOSED)
+        if (this.readyState === WebSocket.OPEN) {
+          return _origProtoSend.call(this, data);
+        }
+      };
+      agInstallStealthFetchHook();
+      AG_LOG.info('[Invisible] Keep Invisible ATIVADO' + (window.__agKeepInvisibleHard ? ' (HARD)' : ' (throttle)'));
     } catch(e) { AG_LOG.warn('[Invisible] Erro: ' + e.message); }
   }
 
@@ -8318,6 +8320,19 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }, 3000);
   }
 
+  // Envia UMA presença de pesca válida (act:fish + posição real) no momento do catch
+  function agInvisibleSyncFishPosition() {
+    try {
+      if (typeof yt !== 'undefined' && yt && yt.readyState === WebSocket.OPEN) {
+        // Temporariamente desativa o bloqueio para enviar 1 presença
+        var wasInv = window.__agKeepInvisible;
+        window.__agKeepInvisible = false;
+        sendPresenceUpdate(true); // envia posição real com act:fish
+        window.__agKeepInvisible = wasInv;
+      }
+    } catch(_) {}
+  }
+
   // Sincroniza posição 1x quando necessário (para ações validadas pelo servidor)
   function agInvisibleSyncPositionOnce() {
     if (!_agKeepInvOrigSend) return;
@@ -8334,13 +8349,9 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
   function agStopKeepInvisible() {
     if (_agInvisSyncTimer) { clearInterval(_agInvisSyncTimer); _agInvisSyncTimer = null; }
-    try {
-      if (_agKeepInvOrigSend && typeof yt !== 'undefined' && yt) {
-        yt.send = _agKeepInvOrigSend;
-        _agKeepInvOrigSend = null;
-        try { sendPresenceUpdate(true); } catch(_) {}
-      }
-    } catch(_) {}
+    // O hook no prototype permanece, mas só age quando __agKeepInvisible é true.
+    // Ao desativar, o hook deixa passar tudo normalmente.
+    try { sendPresenceUpdate(true); } catch(_) {}
     AG_LOG.info('[Invisible] Keep Invisible DESATIVADO');
   }
 
@@ -8387,11 +8398,12 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     var _origF = window.fetch;
     window.fetch = function(url, opts) {
       if (typeof url === 'string' && url.indexOf('grant-fish-xp') !== -1) {
-        // Reenviar posição válida para o catch validar (stealth OU keep invisible)
+        // Catch: enviar posição válida (act:fish) para o servidor validar
         if (_agStealthActive) agStealthResendValidPosition();
-        if (window.__agKeepInvisibleHard && agMode === 'fish') {
-          agInvisibleSyncPositionOnce();
-          setTimeout(agInvisibleSyncPositionOnce, 400); // durante retry de 500ms
+        if (window.__agKeepInvisible && agMode === 'fish') {
+          agInvisibleSyncFishPosition();
+          setTimeout(agInvisibleSyncFishPosition, 300);
+          setTimeout(agInvisibleSyncFishPosition, 550); // durante retry de 500ms
         }
       }
       return _origF.apply(window, arguments);
