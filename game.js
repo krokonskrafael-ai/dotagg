@@ -8255,9 +8255,11 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   // Entre envios, outros jogadores acumulam misses e escondem o personagem.
   window.__agKeepInvisible = false;
   window.__agKeepInvisibleHard = false;
+  window.__agFishUnderground = true; // tenta Y=-3 na pesca (harmless se ignorado)
+  window.__agFishFarPos = false; // experimental: x/z longe, fc/fr real
   var _agKeepInvOrigSend = null;
   var _agKeepInvLastSend = 0;
-  var _agKeepInvInterval = 2500; // ms entre envios de presença
+  var _agKeepInvInterval = 3000; // ms entre envios (>2s threshold para esconder)
 
   function agStartKeepInvisible() {
     if (_agKeepInvOrigSend) return;
@@ -8268,21 +8270,34 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
           if (window.__agKeepInvisible && typeof data === 'string' && data.charAt(0) === '{') {
             try {
               var p = JSON.parse(data);
-              if (p.t === 'pos') {
-                // Modo HARD: bloqueia tudo (invisível total, servidor mantém última pos)
+              var revealsPos = (p.t === 'pos' || p.t === 'hit' || p.t === 'mhit' || p.t === 'shk' || p.t === 'am_ev' || p.t === 'gc_ev');
+              if (revealsPos) {
+                // Durante PESCA: throttle (preserva act:fish para o servidor, mas esconde entre envios)
+                var isFishing = (p.t === 'pos' && p.act === 'fish');
+                if (isFishing) {
+                  var nowF = Date.now();
+                  if (nowF - _agKeepInvLastSend < _agKeepInvInterval) return;
+                  _agKeepInvLastSend = nowF;
+                  // Presença de pesca throttled (act:fish preservado, invisível entre envios)
+                  return _agKeepInvOrigSend(data);
+                }
+                // Modo HARD (não-pesca): bloqueia tudo (hunt/coleta são 100% invisíveis)
                 if (window.__agKeepInvisibleHard) return;
-                // Modo normal: throttle de 2.5s
-                var now = Date.now();
-                if (now - _agKeepInvLastSend < _agKeepInvInterval) return;
-                _agKeepInvLastSend = now;
+                // Modo normal: throttle de 'pos'
+                if (p.t === 'pos') {
+                  var now = Date.now();
+                  if (now - _agKeepInvLastSend < _agKeepInvInterval) return;
+                  _agKeepInvLastSend = now;
+                } else {
+                  return;
+                }
               }
             } catch(_) {}
           }
           return _agKeepInvOrigSend(data);
         };
+        agInstallStealthFetchHook(); // hook grant-fish-xp para catch invisível
         AG_LOG.info('[Invisible] Keep Invisible ATIVADO' + (window.__agKeepInvisibleHard ? ' (HARD — bloqueio total)' : ' (throttle 2.5s)'));
-        // Loop de sync de posição a cada 3s (mantém servidor atualizado sem revelar continuamente)
-        agStartInvisiblePositionSync();
       }
     } catch(e) { AG_LOG.warn('[Invisible] Erro: ' + e.message); }
   }
@@ -8296,14 +8311,9 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     _agInvisSyncTimer = setInterval(function() {
       if (!window.__agKeepInvisible) { clearInterval(_agInvisSyncTimer); _agInvisSyncTimer = null; return; }
       if (window.__agKeepInvisibleHard) {
-        // APENAS pesca precisa de sync de posição (combate/coleta carregam posição própria).
-        // Hunt: wild_died/wild/die enviam col,row na mensagem → 100% invisível OK.
-        // Coleta: client-side + save-backpack (sem posição) → 100% invisível OK.
-        // Pesca: grant-fish-xp SEM posição → precisa de presença válida.
-        if (agMode === 'fish') {
-          agInvisibleSyncPositionOnce();
-        }
-        // Fora de pesca: NÃO sincroniza → invisibilidade 100% real
+        // Hunt/coleta: 100% invisível (carregam posição própria).
+        // Pesca: sync APENAS no momento do catch (via hook grant-fish-xp), não aqui.
+        // → invisível durante os 20-30s de espera, 1 flash só no catch.
       }
     }, 3000);
   }
@@ -8376,9 +8386,13 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     _agStealthFetchHooked = true;
     var _origF = window.fetch;
     window.fetch = function(url, opts) {
-      if (_agStealthActive && typeof url === 'string' && url.indexOf('grant-fish-xp') !== -1) {
-        // Reenviar posição válida para o catch validar
-        agStealthResendValidPosition();
+      if (typeof url === 'string' && url.indexOf('grant-fish-xp') !== -1) {
+        // Reenviar posição válida para o catch validar (stealth OU keep invisible)
+        if (_agStealthActive) agStealthResendValidPosition();
+        if (window.__agKeepInvisibleHard && agMode === 'fish') {
+          agInvisibleSyncPositionOnce();
+          setTimeout(agInvisibleSyncPositionOnce, 400); // durante retry de 500ms
+        }
       }
       return _origF.apply(window, arguments);
     };
@@ -19607,7 +19621,6 @@ loadMySales();
         }
       });
     }
-
     // ── Skip Tutorial button ──────────────────────────────────────────────────
     if ($('ag-skip-tutorial')) {
       $('ag-skip-tutorial').addEventListener('click', async function() {
