@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.79';
+  const AG_VERSION          = 'v3.80';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6744,7 +6744,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         var _pref = String(targetServer).trim();
         pick = eligible.find(function(el) {
           var txt = (el.textContent || '');
-          return new RegExp('\\bServer\\s*' + _pref + '\\b', 'i').test(txt);
+          // Use (?!\d) lookahead instead of \b since card text is 'Server 19Open' (no space after number)
+          return new RegExp('\\bServer\\s*' + _pref + '(?!\\d)', 'i').test(txt);
         }) || null;
         if (pick) AG_LOG.info('[AutoJoin] Servidor preferido encontrado: ' + targetServer);
         else AG_LOG.warn('[AutoJoin] Servidor ' + _pref + ' não encontrado nos elegíveis — usando auto');
@@ -21500,5 +21501,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.79'
+// FIM AUTO-GATHER v3.80'
 
