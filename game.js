@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.81';
+  const AG_VERSION          = 'v3.82';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6699,10 +6699,26 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
     // Clicar no elemento (card ou botão filho)
     function _clickItem(el) {
-      // Tentar botão filho primeiro
-      var btn = el.querySelector && el.querySelector('button:not(:disabled)');
-      if (btn) { btn.click(); return true; }
-      if (typeof el.click === 'function' && !el.disabled) { el.click(); return true; }
+      // Find the actual clickable button
+      var btn = (el.querySelector && el.querySelector('button:not(:disabled)')) || el;
+      if (!btn || btn.disabled) return false;
+      // Dispatch a real MouseEvent — identical to a user click
+      try {
+        var rect = btn.getBoundingClientRect();
+        var cx = rect.left + rect.width / 2;
+        var cy = rect.top + rect.height / 2;
+        ['pointerdown','mousedown','pointerup','mouseup','click'].forEach(function(type) {
+          btn.dispatchEvent(new MouseEvent(type, {
+            bubbles: true, cancelable: true, view: window,
+            clientX: cx, clientY: cy, screenX: cx, screenY: cy,
+            buttons: 1, button: 0
+          }));
+        });
+        return true;
+      } catch(_) {
+        // Fallback to plain click
+        try { btn.click(); return true; } catch(_) {}
+      }
       return false;
     }
 
@@ -21508,5 +21524,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.81'
+// FIM AUTO-GATHER v3.82'
 
