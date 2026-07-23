@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.77';
+  const AG_VERSION          = 'v3.79';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6727,25 +6727,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       }
     }
 
-    // 1. Servidor configurado por ID — só busca nos elegíveis (já filtrados de club)
-    if (targetServer && targetServer !== 'random' && eligible.length > 0) {
-      var _pref = String(targetServer).trim();
-      var prefEl = eligible.find(function(el) {
-        // Use ONLY the card's own text, no parent traversal
-        var txt = (el.textContent || '');
-        // Match "Server 20" exactly (word boundary)
-        return new RegExp('\\bServer\\s*' + _pref + '\\b', 'i').test(txt) ||
-               new RegExp('^\\s*' + _pref + '\\s*$').test(txt);
-      }) || null;
-      if (prefEl) {
-        AG_LOG.info('[AutoJoin] Servidor preferido: ' + (prefEl.textContent || '').trim().slice(0,40));
-        _clickItem(prefEl); return;
-      } else {
-        AG_LOG.warn('[AutoJoin] Servidor ' + _pref + ' não encontrado nos elegíveis — usando auto');
-      }
-    }
-
-    // 2. Filtrar elegíveis
+    // Filtrar elegíveis (sem club, sem full)
     var eligible = allItems.filter(function(el) {
       if (_isFull(el)) return false;
       if (!_joinClub2 && _isClubServer(el)) return false;
@@ -6757,14 +6739,15 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     if (eligible.length > 0) {
       var pick = null;
 
-      // 1. Prefer configured server
+      // 1. Prefer configured server — only card's own text, word boundary match
       if (targetServer && targetServer !== 'random') {
+        var _pref = String(targetServer).trim();
         pick = eligible.find(function(el) {
-          var txt = (el.textContent || '').toLowerCase();
-          return txt.indexOf('server ' + targetServer) !== -1 ||
-                 new RegExp('server\\s*' + targetServer + '\\b', 'i').test(txt);
+          var txt = (el.textContent || '');
+          return new RegExp('\\bServer\\s*' + _pref + '\\b', 'i').test(txt);
         }) || null;
         if (pick) AG_LOG.info('[AutoJoin] Servidor preferido encontrado: ' + targetServer);
+        else AG_LOG.warn('[AutoJoin] Servidor ' + _pref + ' não encontrado nos elegíveis — usando auto');
       }
 
       // 2. Prefer LOW load, then last in list (highest ID = newest server = less crowded)
@@ -13526,7 +13509,7 @@ loadMySales();
       var _goSafe = function() {
         try {
           var p = vi(v, w, dest.col, dest.row);
-          if (p && p.length) { Ve = p; wi(); }
+          if (p && p.length) { W = p; if (!F) wi(); }
         } catch(_) {}
       };
       _goSafe();
@@ -20726,10 +20709,43 @@ tr.best td { background: rgba(110,231,160,0.06); }
   var _agCancelDonate      = false;
   var _agAutoJoinTimer     = null;
 
+
+  // ── Retry button (modal de erro de conexão) ────────────────────────────────
+  function agFindRetryButton() {
+    var SELECTORS = ['.kintara-presence-fail__btn', '.kintara-server-select-btn'];
+    for (var i = 0; i < SELECTORS.length; i++) {
+      var found = Array.from(document.querySelectorAll(SELECTORS[i])).find(function(b) {
+        return b.textContent.trim().toLowerCase() === 'retry';
+      });
+      if (found) return found;
+    }
+    return Array.from(document.querySelectorAll('button')).find(function(b) {
+      if (b.textContent.trim().toLowerCase() !== 'retry') return false;
+      var r = b.getBoundingClientRect();
+      return r.width > 0 && r.height > 0;
+    }) || null;
+  }
+
+  var _agRetrying = false;
+
   function agStartAutoJoinTimer() {
     if (_agAutoJoinTimer) return;
     _agAutoJoinTimer = setInterval(function() {
       try {
+        // Check for retry/error modal first
+        if (!_agRetrying) {
+          var rb = agFindRetryButton();
+          if (rb) {
+            _agRetrying = true;
+            AG_LOG.info('[AutoJoin] Retry detectado — clicando em 2s…');
+            setTimeout(function() {
+              var rb2 = agFindRetryButton();
+              if (rb2 && !rb2.disabled) rb2.click();
+              _agRetrying = false;
+            }, 2000);
+            return;
+          }
+        }
         if (agServerScreenVisible()) {
           agAutoJoinServer();
         }
@@ -21484,5 +21500,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.77'
+// FIM AUTO-GATHER v3.79'
 
