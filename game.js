@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.85';
+  const AG_VERSION          = 'v3.86';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6780,11 +6780,15 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         // ASIA servers start at 25+, EU at 22+, NA at 1-21
         var _firstServerName = allItems.length > 0 ? (allItems[0].textContent || '') : '';
         var _curZoneOk = (function() {
-          if (!_firstServerName) return true;
-          // Extract server number from first card text
-          var m = _firstServerName.match(/(?:server|club)\s*(\d+)/i);
-          if (!m) return true;
-          var n = Number(m[1]);
+          // Use agCardServerId to get actual server ID from data attribute
+          if (!allItems.length) return true;
+          var sid = agCardServerId(allItems[0]);
+          if (!sid) {
+            // Fallback: check if preferred zone button appears visually selected
+            // (has a bright border/color compared to others)
+            return true; // assume OK if we can't tell
+          }
+          var n = Number(sid);
           if (_prefZone === 'NA')   return n >= 1  && n <= 21;
           if (_prefZone === 'EUR')  return n >= 22 && n <= 24;
           if (_prefZone === 'ASIA') return n >= 25 && n <= 30;
@@ -6796,8 +6800,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       if (_needZoneClick && _prefZoneBtn) {
         AG_LOG.info('[AutoJoin] Clicando zona: ' + _prefZone);
         _prefZoneBtn.click();
-        _agLastServerClick = now - 6000;
-        _agServerWaitStart = 0; // reset wait
+        _agLastServerClick = now; // full cooldown so we don't re-click zone immediately
+        _agServerWaitStart = 0;
         return;
       }
     } else if (!allItems.length) {
@@ -21598,5 +21602,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.85'
+// FIM AUTO-GATHER v3.86'
 
