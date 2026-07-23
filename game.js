@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.82';
+  const AG_VERSION          = 'v3.83';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6699,27 +6699,12 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
     // Clicar no elemento (card ou botão filho)
     function _clickItem(el) {
-      // Find the actual clickable button
       var btn = (el.querySelector && el.querySelector('button:not(:disabled)')) || el;
       if (!btn || btn.disabled) return false;
-      // Dispatch a real MouseEvent — identical to a user click
       try {
-        var rect = btn.getBoundingClientRect();
-        var cx = rect.left + rect.width / 2;
-        var cy = rect.top + rect.height / 2;
-        ['pointerdown','mousedown','pointerup','mouseup','click'].forEach(function(type) {
-          btn.dispatchEvent(new MouseEvent(type, {
-            bubbles: true, cancelable: true, view: window,
-            clientX: cx, clientY: cy, screenX: cx, screenY: cy,
-            buttons: 1, button: 0
-          }));
-        });
+        btn.click();
         return true;
-      } catch(_) {
-        // Fallback to plain click
-        try { btn.click(); return true; } catch(_) {}
-      }
-      return false;
+      } catch(_) { return false; }
     }
 
     allItems = _getAllServerItems();
@@ -6751,6 +6736,13 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     });
 
     AG_LOG.info('[AutoJoin] joinClub=' + _joinClub2 + ' eligible=' + eligible.length + '/' + allItems.length);
+    if (eligible.length > 0 && eligible.length <= 15) {
+      // Log shard IDs of eligible cards to debug mapping
+      var _dbg = eligible.map(function(el) {
+        return 'sid=' + (agCardServerId(el) || '?') + ' txt=' + (el.textContent || '').trim().slice(0,12);
+      }).join(' | ');
+      AG_LOG.info('[AutoJoin] Cards elegíveis: ' + _dbg);
+    }
 
     if (eligible.length > 0) {
       var pick = null;
@@ -21524,5 +21516,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.82'
+// FIM AUTO-GATHER v3.83'
 
