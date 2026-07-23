@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.83';
+  const AG_VERSION          = 'v3.84';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6707,6 +6707,38 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       } catch(_) { return false; }
     }
 
+    // Direct server connection using /api/servers data (bypasses zone routing bug)
+    function _connectServerById(serverId) {
+      fetch('/api/servers', { credentials: 'include', cache: 'no-store' })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data || !Array.isArray(data.servers)) return;
+          var srv = data.servers.find(function(s) { return String(s.id) === String(serverId); });
+          if (!srv) { AG_LOG.warn('[AutoJoin] Servidor ' + serverId + ' não encontrado na API'); return; }
+          // Extract zone from baseUrl: 'https://us2.kintara.com' → 'us2'
+          var zoneKey = (srv.baseUrl || '').replace(/https?:\/\//, '').split('.')[0]; // 'us', 'us2', 'eu', 'as'
+          var shardId = srv.routeShardId || srv.localShardId || 1;
+          var tokenUrl = '/api/lobby/connect-token?shard=' + shardId + '&purpose=queue&zone=' + zoneKey;
+          AG_LOG.info('[AutoJoin] Conectando direto: server=' + srv.name + ' shard=' + shardId + ' zone=' + zoneKey);
+          // Fetch token and connect
+          fetch(tokenUrl, { credentials: 'include' })
+            .then(function(r) { return r.json(); })
+            .then(function(tok) {
+              if (!tok || !tok.token) { AG_LOG.warn('[AutoJoin] Token inválido para ' + srv.name); return; }
+              // Use Z4 to record shard then connect via jY with the WS URL
+              try { Z4(shardId); } catch(_) {}
+              // Store baseUrl for jY to use
+              try { localStorage.setItem('ag_last_server_base', srv.wsBaseUrl || ''); } catch(_) {}
+              try { 
+                if (Y && Y.readyState === WebSocket.OPEN) Y.close(4003, 'ag_server_switch');
+              } catch(_) {}
+              setTimeout(function() { try { jY(); } catch(_) {} }, 150);
+            })
+            .catch(function(e) { AG_LOG.warn('[AutoJoin] Erro ao conectar: ' + e); });
+        })
+        .catch(function(e) { AG_LOG.warn('[AutoJoin] Erro API servers: ' + e); });
+    }
+
     allItems = _getAllServerItems();
 
     // If no server items visible, try clicking zone button first
@@ -6762,8 +6794,13 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
             return new RegExp('\\bServer\\s*' + _pref + '(?!\\d)', 'i').test(txt);
           }) || null;
         }
-        if (pick) AG_LOG.info('[AutoJoin] Servidor preferido encontrado: ' + targetServer + ' (shard=' + agCardServerId(pick) + ')');
-        else AG_LOG.warn('[AutoJoin] Servidor ' + _pref + ' não encontrado nos elegíveis — usando auto');
+        if (pick) {
+          AG_LOG.info('[AutoJoin] Servidor preferido encontrado: ' + targetServer + ' (shard=' + agCardServerId(pick) + ')');
+          _connectServerById(targetServer);
+          return;
+        } else {
+          AG_LOG.warn('[AutoJoin] Servidor ' + _pref + ' não encontrado nos elegíveis — usando auto');
+        }
       }
 
       // 2. Prefer LOW load, then last in list (highest ID = newest server = less crowded)
@@ -21516,5 +21553,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.83'
+// FIM AUTO-GATHER v3.84'
 
