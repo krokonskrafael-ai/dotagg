@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.84';
+  const AG_VERSION          = 'v3.85';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6742,22 +6742,67 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     allItems = _getAllServerItems();
 
     // If no server items visible, try clicking zone button first
-    if (!allItems.length) {
-      var _prefZone = '';
-      try { _prefZone = localStorage.getItem('kintara_ag_preferred_zone') || ''; } catch(_) {}
-      if (!_prefZone) _prefZone = 'NA'; // default to NA
-      var _zoneLabels = { 'NA': ['NA','NORTH AMERICA'], 'EUR': ['EUR','EUROPE'], 'ASIA': ['ASIA','ASIA PACIFIC'] };
-      var _labels = _zoneLabels[_prefZone.toUpperCase()] || [_prefZone.toUpperCase()];
-      var _zBtn = Array.from(document.querySelectorAll('button')).find(function(b) {
+    // Detect preferred zone and click if needed
+    var _prefZone = '';
+    try { _prefZone = localStorage.getItem('kintara_ag_preferred_zone') || ''; } catch(_) {}
+    if (!_prefZone) _prefZone = 'NA';
+    _prefZone = _prefZone.toUpperCase();
+    var _zoneLabels = { 'NA': ['NA','NORTH AMERICA'], 'EUR': ['EUR','EUROPE'], 'ASIA': ['ASIA','ASIA PACIFIC'] };
+    var _labels = _zoneLabels[_prefZone] || [_prefZone];
+
+    // Find zone buttons
+    var _allZoneBtns = Array.from(document.querySelectorAll('button')).filter(function(b) {
+      var txt = (b.textContent || '').trim().toUpperCase();
+      return Object.values(_zoneLabels).some(function(lbls) {
+        return lbls.some(function(l) { return txt === l || txt.startsWith(l); });
+      });
+    });
+
+    if (_allZoneBtns.length > 0) {
+      // Check if correct zone is already active (has 'active' class or aria-selected)
+      var _prefZoneBtn = _allZoneBtns.find(function(b) {
         var txt = (b.textContent || '').trim().toUpperCase();
         return _labels.some(function(l) { return txt === l || txt.startsWith(l); });
       });
-      if (_zBtn) {
+      var _activeZoneBtn = _allZoneBtns.find(function(b) {
+        return b.classList.contains('active') || b.classList.contains('selected') ||
+               b.getAttribute('aria-selected') === 'true' ||
+               b.getAttribute('data-active') === 'true' ||
+               (b.style && (b.style.borderColor || b.style.color || b.style.background || '').indexOf('fbbf') !== -1) ||
+               // Check if this button's servers are currently showing
+               false;
+      });
+
+      // If no servers showing OR wrong zone is active → click preferred zone
+      var _needZoneClick = !allItems.length;
+      if (!_needZoneClick && _prefZoneBtn) {
+        // Check if current servers match the preferred zone by looking at visible server names
+        // ASIA servers start at 25+, EU at 22+, NA at 1-21
+        var _firstServerName = allItems.length > 0 ? (allItems[0].textContent || '') : '';
+        var _curZoneOk = (function() {
+          if (!_firstServerName) return true;
+          // Extract server number from first card text
+          var m = _firstServerName.match(/(?:server|club)\s*(\d+)/i);
+          if (!m) return true;
+          var n = Number(m[1]);
+          if (_prefZone === 'NA')   return n >= 1  && n <= 21;
+          if (_prefZone === 'EUR')  return n >= 22 && n <= 24;
+          if (_prefZone === 'ASIA') return n >= 25 && n <= 30;
+          return true;
+        })();
+        if (!_curZoneOk) _needZoneClick = true;
+      }
+
+      if (_needZoneClick && _prefZoneBtn) {
         AG_LOG.info('[AutoJoin] Clicando zona: ' + _prefZone);
-        _zBtn.click();
-        _agLastServerClick = now - 6000; // retry sooner
+        _prefZoneBtn.click();
+        _agLastServerClick = now - 6000;
+        _agServerWaitStart = 0; // reset wait
         return;
       }
+    } else if (!allItems.length) {
+      // No zone buttons visible yet, wait
+      return;
     }
 
     // Filtrar elegíveis (sem club, sem full)
@@ -21553,5 +21598,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.84'
+// FIM AUTO-GATHER v3.85'
 
