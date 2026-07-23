@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.89';
+  const AG_VERSION          = 'v3.95';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6738,39 +6738,29 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
               try {
                 if (Y && Y.readyState === WebSocket.OPEN) Y.close(4003, 'ag_server_switch');
               } catch(_) {}
-              // Connect queue WS - server-select.mjs listens to this and triggers presence
+              // Now click the correct card to trigger server-select.mjs with fixed zone
+              // The fetch hook above will intercept and fix the zone automatically
               setTimeout(function() {
                 try {
-                  var qWs = new WebSocket(queueWsUrl);
-                  qWs.onopen = function() {
-                    AG_LOG.info('[AutoJoin] Queue WS conectado para ' + srv.name);
-                  };
-                  qWs.onmessage = function(msg) {
-                    try {
-                      var data = JSON.parse(msg.data);
-                      // Queue might send: {t:'ready'} or {t:'queued', pos:N}
-                      AG_LOG.info('[AutoJoin] Queue msg: ' + JSON.stringify(data).slice(0, 60));
-                      if (data && (data.t === 'ready' || data.t === 'done' || data.ok)) {
-                        // Server is ready — call jY to start presence
-                        setTimeout(function() { try { jY(); } catch(_) {} }, 200);
-                      }
-                    } catch(_) {}
-                  };
-                  qWs.onerror = function() {
-                    AG_LOG.warn('[AutoJoin] Queue WS erro — tentando jY direto');
-                    try { jY(); } catch(_) {}
-                  };
-                  qWs.onclose = function(ev) {
-                    if (ev.code !== 4003) {
-                      AG_LOG.info('[AutoJoin] Queue fechou (code=' + ev.code + ') — conectando presence');
-                      setTimeout(function() { try { jY(); } catch(_) {} }, 300);
-                    }
-                  };
+                  // Find the card for this server and click it
+                  var _cards = document.querySelectorAll('.kintara-server-select-list button.kintara-server-card, button.kintara-server-card');
+                  var _targetCard = null;
+                  for (var _ci = 0; _ci < _cards.length; _ci++) {
+                    var _cid = agCardServerId(_cards[_ci]);
+                    if (_cid === String(srv.id)) { _targetCard = _cards[_ci]; break; }
+                  }
+                  if (_targetCard) {
+                    AG_LOG.info('[AutoJoin] Clicando card ' + srv.name + ' com zone fix ativo');
+                    _targetCard.click();
+                  } else {
+                    AG_LOG.warn('[AutoJoin] Card não encontrado, tentando jY direto');
+                    try { Z4(shardId); } catch(_) {}
+                    setTimeout(function() { try { jY(); } catch(_) {} }, 150);
+                  }
                 } catch(e) {
-                  AG_LOG.warn('[AutoJoin] Erro WS queue: ' + e + ' — fallback jY');
-                  try { jY(); } catch(_) {}
+                  AG_LOG.warn('[AutoJoin] Erro ao clicar card: ' + e);
                 }
-              }, 150);
+              }, 200);
             })
             .catch(function(e) { AG_LOG.warn('[AutoJoin] Erro ao conectar: ' + e); });
         })
@@ -6894,8 +6884,14 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       }
 
       if (pick) {
-        AG_LOG.info('[AutoJoin] Clicando: ' + (pick.textContent || '').trim().slice(0,40));
-        _clickItem(pick);
+        var _pickId = agCardServerId(pick);
+        AG_LOG.info('[AutoJoin] Conectando: ' + (pick.textContent || '').trim().slice(0,40) + ' (id=' + _pickId + ')');
+        if (_pickId) {
+          _connectServerById(_pickId);
+        } else {
+          // Fallback: direct click if we can't get server ID
+          _clickItem(pick);
+        }
         return;
       }
     }
@@ -6940,7 +6936,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         agSetStatus('⏸ Saindo da casinha...');
         // Se ja esta na tile v saida, chama eee diretamente
         // Exit tiles do shack: [2,3], [0,4], [3,0], [3,1]
-        if ((v === 2 && v === 3) || (v === 0 && v === 4) || (v === 3 && (v === 0 || v === 1))) {
+        if ((v === 2 && w === 3) || (v === 0 && w === 4) || (v === 3 && (w === 0 || w === 1))) {
           AG_LOG.warn('Shack: na tile v saida — chamando WV()');
           try { WV(); } catch(e) { AG_LOG.warn('eee erro: ' + e.message); }
           agSchedule(1500); return;
@@ -6957,7 +6953,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
             // findPath falhou — dispara key event para mover manualmente
             AG_LOG.warn('Shack: findPath falhou — tentando via KeyS');
             const dc = 2 - v;
-            const dr = 3 - v;
+            const dr = 3 - w;
             // Determina tecla v direção
             let key = null;
             if (Math.abs(dr) >= Math.abs(dc)) key = dr > 0 ? 'ArrowDown' : 'ArrowUp';
@@ -6976,7 +6972,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         (function(){try{W=[],F = !1,K=0}catch(_){}})(); (function(){try{gn()}catch(_){};try{kn()}catch(_){}})();
         agSetStatus('⏸ Saindo do Pet Shop...');
         // Exit tiles do petShop: [3,3], [3,4], [3,2]
-        if ((v === 3 && (v === 3 || v === 4 || v === 2))) {
+        if ((v === 3 && (w === 3 || w === 4 || w === 2))) {
           AG_LOG.warn('PetShop: na tile v saída — chamando oC()');
           try { oC(); } catch(e) { AG_LOG.warn('exitPetShop erro: ' + e.message); }
           agSchedule(1500); return;
@@ -7256,10 +7252,17 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
   function agStart() {
     // Iniciar poller v nome do personagem
     try { agStartPlayerNamePoller(); } catch(_) {}
-    // Pausa a caca se estiver ativa
-    if (agHuntActive) {
+    // Pausa a caca se estiver ativa (mas não em modo radius+farm combo)
+    if (agHuntActive && !agHuntRadiusOnly()) {
       AG_LOG.info('Farm iniciado — pausando caca');
       agHuntStop();
+    }
+    // Auto-inicia hunt em modo radius se não estiver rodando
+    if (agHuntRadiusOnly() && !agHuntActive) {
+      agHuntActive = true;
+      agHuntTarget = null; agHuntCombatAt = null;
+      agHuntSchedule(500);
+      AG_LOG.info('Hunt radius auto-iniciado junto com Farm');
     }
     agActive=true; agLastKey=null; agApproachAt=null; agLastApKey=null;
     agHarvestDone=null; agLastFishPhase='idle'; agWasBusy=false;
@@ -8251,7 +8254,7 @@ loadMySales();
                 var queue = [[v, w, 0]]; // [col, row, steps]
                 visited.add(v + ',' + w);
                 var bestTile = null, bestScore = -1;
-                var maxSearch = 80; // limite v tiles a explorar
+                var maxSearch = 200; // limite v tiles a explorar (ember tem mapa maior)
                 var searched = 0;
                 while (queue.length > 0 && searched < maxSearch) {
                   var item = queue.shift();
@@ -8259,19 +8262,18 @@ loadMySales();
                   searched++;
                   // Distância Chebyshev do mob
                   var distMob = Math.max(Math.abs(qc - mc), Math.abs(qr - _mobRow));
-                  if (distMob >= 3 && steps >= 3) {
+                  if (distMob >= 2 && steps >= 2) {
                     // Score: distância do mob (mais longe = melhor)
                     // + bônus se na direção oposta ao mob
-                    var dotProduct = (qc - v) * dc + (qr - _mobRow) * dr;
+                    var dotProduct = (qc - mc) * dc + (qr - _mobRow) * dr;
                     var score = distMob * 10 + (dotProduct > 0 ? 5 : 0);
                     if (score > bestScore) {
                       bestScore = score;
                       bestTile = [qc, qr];
                     }
-                    // Não explorar além v 6 tiles (suficiente para kite)
-                    if (steps >= 6) continue;
+                    if (steps >= 8) continue;
                   }
-                  if (steps >= 6) continue;
+                  if (steps >= 8) continue;
                   // Expandir vizinhos (4 cardinais + 4 diagonais)
                   var neighbors = [
                     [qc+1,qr],[qc-1,qr],[qc,qr+1],[qc,qr-1],
@@ -8375,7 +8377,7 @@ loadMySales();
 
   function agHuntStart() {
     // Pausa o farm se estiver ativo
-    if (agActive) { AG_LOG.info('Caca iniciada — pausando farm'); agStop(); }
+    if (agActive && !agHuntRadiusOnly()) { AG_LOG.info('Caca iniciada — pausando farm'); agStop(); }
     agHuntActive = true; agHuntTarget = null; agHuntTargetAt = 0;
     agHuntCombatAt = null;
     // Persistir modo Hunt ativo para restaurar após F5
@@ -12994,9 +12996,9 @@ loadMySales();
 
   async function agCSWP_waitForSafespot() {
     agCSWP_goSafespot();
-    var w = 0;
-    while (!_K(v, w) && w < 12000) {
-      await new Promise(r => setTimeout(r, 300)); w += 300;
+    var _elapsed = 0;
+    while (!_K(v, w) && _elapsed < 12000) {
+      await new Promise(r => setTimeout(r, 300)); _elapsed += 300;
       agCSWP_goSafespot(); // retentar se path falhou
     }
   }
@@ -13015,7 +13017,7 @@ loadMySales();
 
     // 2. Correr para safespot o mais rápido possível
     await agCSWP_waitForSafespot();
-    AG_LOG.info('[CSWP] No safespot (col=' + v + ' row=' + v + '). Aguardando players sairem...');
+    AG_LOG.info('[CSWP] No safespot (col=' + v + ' row=' + w + '). Aguardando players sairem...');
 
     // 3. Aguardar no safespot até 0 players — verificar a cada 5s
     var waited = 0;
@@ -13051,12 +13053,12 @@ loadMySales();
           if (fishPath && fishPath.length) break;
         }
         if (fishPath && fishPath.length) {
-          Ve = fishPath; wi();
+          W = fishPath; wi();
           // Aguardar chegar no spot
           var _fw = 0;
           while (_fw < 8000) {
             await new Promise(r => setTimeout(r, 400)); _fw += 400;
-            var _dc = Math.abs(v - 34), _dr = Math.abs(v - 4);
+            var _dc = Math.abs(v - 34), _dr = Math.abs(w - 4);
             if (_dc <= 1 && _dr <= 1) break;
           }
         }
@@ -13322,6 +13324,56 @@ loadMySales();
     var _origFetch = window.fetch;
     window.fetch = function(url, opts) {
       var args = arguments;
+
+      // Intercept /api/servers: cache response for zone fix
+      if (typeof url === 'string' && url.indexOf('/api/servers') !== -1 &&
+          (!opts || !opts.method || opts.method === 'GET')) {
+        return _origFetch.apply(window, args).then(function(resp) {
+          if (resp && resp.ok) {
+            resp.clone().json().then(function(data) {
+              if (data && Array.isArray(data.servers)) {
+                _agServersCache = data.servers;
+                _agServersCacheTs = Date.now();
+              }
+            }).catch(function(){});
+          }
+          return resp;
+        });
+      }
+
+      // Intercept connect-token: fix zone for multi-controller servers (s1/s2 conflict)
+      if (typeof url === 'string' && url.indexOf('/api/lobby/connect-token') !== -1 &&
+          url.indexOf('purpose=queue') !== -1) {
+        try {
+          var _ctUrl = new URL(url, location.origin);
+          var _ctShard = Number(_ctUrl.searchParams.get('shard'));
+          var _ctZone  = _ctUrl.searchParams.get('zone') || '';
+          if (_agServersCache && _ctShard > 0 && _ctZone) {
+            // Find the server this token is for
+            var _ctSrv = _agServersCache.find(function(s) {
+              return s.routeShardId === _ctShard &&
+                     (s.baseUrl || '').toLowerCase().indexOf(_ctZone) !== -1;
+            });
+            // If that server requires membership, find the non-membership one
+            if (_ctSrv && _ctSrv.requiresMembership) {
+              var _altSrv = _agServersCache.find(function(s) {
+                return s.routeShardId === _ctShard &&
+                       !s.requiresMembership &&
+                       (s.baseUrl || '') !== (_ctSrv.baseUrl || '');
+              });
+              if (_altSrv) {
+                var _newZone = (_altSrv.baseUrl || '').replace(/https?:\/\//, '').split('.')[0];
+                _ctUrl.searchParams.set('zone', _newZone);
+                url = _ctUrl.toString();
+                AG_LOG.info('[AutoJoin] connect-token zone fix: ' + _ctZone + ' → ' + _newZone + ' (server ' + _altSrv.name + ')');
+                var newArgs = [url];
+                if (opts) newArgs.push(opts);
+                return _origFetch.apply(window, newArgs);
+              }
+            }
+          }
+        } catch(_) {}
+      }
 
       // Intercept save-hp: when GodMode active, send hp=100/shield=5
       if (typeof url === 'string' && url.indexOf('save-hp') !== -1 &&
@@ -20853,6 +20905,8 @@ tr.best td { background: rgba(110,231,160,0.06); }
   var _agDonating          = false;
   var _agCancelDonate      = false;
   var _agAutoJoinTimer     = null;
+  var _agServersCache      = null;  // cache do /api/servers para fix de zona
+  var _agServersCacheTs    = 0;
 
 
   // ── Retry button (modal de erro de conexão) ────────────────────────────────
@@ -21645,5 +21699,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.89'
+// FIM AUTO-GATHER v3.95'
 
