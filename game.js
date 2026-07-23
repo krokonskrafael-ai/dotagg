@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.80';
+  const AG_VERSION          = 'v3.81';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6739,15 +6739,22 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     if (eligible.length > 0) {
       var pick = null;
 
-      // 1. Prefer configured server — only card's own text, word boundary match
+      // 1. Prefer configured server — search by shard data attribute first, then text
       if (targetServer && targetServer !== 'random') {
         var _pref = String(targetServer).trim();
+        // Try data attribute match first (most reliable — matches real shard ID)
         pick = eligible.find(function(el) {
-          var txt = (el.textContent || '');
-          // Use (?!\d) lookahead instead of \b since card text is 'Server 19Open' (no space after number)
-          return new RegExp('\\bServer\\s*' + _pref + '(?!\\d)', 'i').test(txt);
+          var sid = agCardServerId(el);
+          return sid === _pref;
         }) || null;
-        if (pick) AG_LOG.info('[AutoJoin] Servidor preferido encontrado: ' + targetServer);
+        // Fallback: text match (visual label may differ from shard ID in zone UI)
+        if (!pick) {
+          pick = eligible.find(function(el) {
+            var txt = (el.textContent || '');
+            return new RegExp('\\bServer\\s*' + _pref + '(?!\\d)', 'i').test(txt);
+          }) || null;
+        }
+        if (pick) AG_LOG.info('[AutoJoin] Servidor preferido encontrado: ' + targetServer + ' (shard=' + agCardServerId(pick) + ')');
         else AG_LOG.warn('[AutoJoin] Servidor ' + _pref + ' não encontrado nos elegíveis — usando auto');
       }
 
@@ -21501,5 +21508,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.80'
+// FIM AUTO-GATHER v3.81'
 
