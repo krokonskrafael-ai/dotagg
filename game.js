@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.95';
+  const AG_VERSION          = 'v3.97';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -5371,8 +5371,10 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
 
   function agInstallResourceCounter() {
     if (_agOrigAddResource) return;
-    _agOrigAddResource = Md;
-    Md = function(type, amt, opts) {
+    // Vl = addResourceToInventorySlots(type, amount, opts)
+    if (typeof Vl === 'undefined') return;
+    _agOrigAddResource = Vl;
+    Vl = function(type, amt, opts) {
       if (agActive) {
         const n = Number(amt) || 1;
         const tracked =
@@ -10070,42 +10072,32 @@ loadMySales();
   // Nudge: move char a few tiles toward map center to unstick
   function agNudgeToCenter() {
     try {
-      const cols = Rt;
-      const rows = Ao;
-      const cx = Math.round(cols / 2);
-      const cy = Math.round(rows / 2);
-      const _ndx = cx - v, _ndy = cy - v;
-      const dist = Math.sqrt(_ndx*_ndx + _ndy*_ndy);
-      if (dist < 3) return;
-      // Target: 6-10 tiles toward center (more aggressive than before)
-      const steps = Math.min(10, Math.max(6, Math.round(dist * 0.5)));
-      const _tdx = Math.round(v + (_ndx/dist)*steps);
-      const ty = Math.round(v + (_ndy/dist)*steps);
-      AG_LOG_WD.warn(' NUDGE: char(' + v + ',' + w + ') -> (' + _tdx + ',' + ty + ') dist=' + Math.round(dist));
-      // Cancel all current actions — same as ground click
-      try { (function(){try{W=[],F = !1,K=0}catch(_){}})(); } catch(_) {}
-      try { (function(){try{gn()}catch(_){};try{kn()}catch(_){}})(); } catch(_) {}
-      try { cancelShovelDig(); } catch(_) {}
+      // Cancel all current actions
+      try { W=[]; F = false; K=0; } catch(_) {}
+      try { gn(); } catch(_) {}
+      try { kn(); } catch(_) {}
       try { _o(); } catch(_) {}
       agLastKey = null; agLastApKey = null; agLastApKeyAt = 0; agApproachAt = null;
-      // Walk using same mechanism as ground click
-      W=vi(v, w, _tdx, ty);
-      if (W && W.length) {
-        if (!F) wi();
-        AG_LOG.info('Nudge: andando ' + h.length + ' steps');
-      } else {
-        // No direct path — try a random adjacent free tile
-        const blk = ss();
-        const dirs = [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
-        for (const [dc,dr] of dirs) {
-          const nc = v+dc*3, rn = v+dr*3;
-          if (blk.has(nc+','+rn)) continue;
-          W=vi(v, w, nc, rn);
-          if (W && W.length) { if (!F) wi(); break; }
+
+      // Try to walk 5 tiles in each direction until we find a path
+      const blk = ss();
+      const dirs = [[0,5],[0,-5],[5,0],[-5,0],[4,4],[4,-4],[-4,4],[-4,-4],[0,3],[3,0],[-3,0],[0,-3]];
+      var moved = false;
+      for (var _di = 0; _di < dirs.length; _di++) {
+        var _nc = v + dirs[_di][0];
+        var _nr = w + dirs[_di][1];
+        if (_nc < 0 || _nr < 0) continue;
+        var _path = vi(v, w, _nc, _nr);
+        if (_path && _path.length) {
+          W = _path;
+          if (!F) wi();
+          AG_LOG_WD.warn(' NUDGE: char(' + v + ',' + w + ') -> (' + _nc + ',' + _nr + ') steps=' + _path.length);
+          moved = true;
+          break;
         }
-        AG_LOG.warn('Nudge: sem caminho direto — tentando alternativo');
       }
-    } catch(e) { AG_LOG.warn('Nudge erro:', e); }
+      if (!moved) AG_LOG.warn('Nudge: sem caminho disponível');
+    } catch(e) { AG_LOG.warn('Nudge erro: ' + e); }
   }
 
   function agStartWatchdog() {
@@ -21699,5 +21691,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.95'
+// FIM AUTO-GATHER v3.97'
 
