@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.72';
+  const AG_VERSION          = 'v3.74';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6664,7 +6664,8 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     _agServerWaitStart = 0;
     _agLastServerClick = now;
 
-    var targetServer = agOptCfg.server || '';
+    var targetServer = '';
+    try { targetServer = localStorage.getItem('kintara_ag_preferred_server') || agOptCfg.server || ''; } catch(_) {}
     AG_LOG.info('[AutoJoin] Tentando servidor: ' + (targetServer || 'qualquer'));
 
     // Verificar se joinClub está habilitado
@@ -6750,17 +6751,35 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     AG_LOG.info('[AutoJoin] joinClub=' + _joinClub2 + ' eligible=' + eligible.length + '/' + allItems.length);
 
     if (eligible.length > 0) {
-      // Preferir LOW sobre MEDIUM, e pegar último da lista (ID mais alto)
-      var lowItems = eligible.filter(function(el) {
-        var p = el; var t = '';
-        for (var d = 0; d < 4 && p; d++) { t += ' ' + (p.textContent || ''); p = p.parentElement; }
-        return /LOW/i.test(t);
-      });
-      var pick = (lowItems.length > 0 ? lowItems : eligible);
-      pick = pick[pick.length - 1]; // último = ID mais alto
-      AG_LOG.info('[AutoJoin] Clicando: ' + (pick.textContent || '').trim().slice(0,40));
-      _clickItem(pick);
-      return;
+      var pick = null;
+
+      // 1. Prefer configured server
+      if (targetServer && targetServer !== 'random') {
+        pick = eligible.find(function(el) {
+          var txt = (el.textContent || '').toLowerCase();
+          return txt.indexOf('server ' + targetServer) !== -1 ||
+                 new RegExp('server\\s*' + targetServer + '\\b', 'i').test(txt);
+        }) || null;
+        if (pick) AG_LOG.info('[AutoJoin] Servidor preferido encontrado: ' + targetServer);
+      }
+
+      // 2. Prefer LOW, then last in list (highest ID)
+      if (!pick) {
+        var lowItems = eligible.filter(function(el) {
+          var p = el; var t = '';
+          for (var d = 0; d < 4 && p; d++) { t += ' ' + (p.textContent || ''); p = p.parentElement; }
+          return /LOW/i.test(t);
+        });
+        pick = (lowItems.length > 0 ? lowItems : eligible)[0];
+        pick = (lowItems.length > 0 ? lowItems : eligible);
+        pick = pick[pick.length - 1]; // último = ID mais alto
+      }
+
+      if (pick) {
+        AG_LOG.info('[AutoJoin] Clicando: ' + (pick.textContent || '').trim().slice(0,40));
+        _clickItem(pick);
+        return;
+      }
     }
 
     // 3. Fallback: qualquer botão com "SERVER" no texto
@@ -8317,6 +8336,36 @@ loadMySales();
       var cfg = JSON.parse(localStorage.getItem('kintara_ag_hunt_cfg') || '{}');
       return !!cfg.kite;
     } catch(_) { return false; }
+  }
+
+
+  function agSaveHuntCfg() {
+    try {
+      var sh = (function() {
+        var h = document.getElementById('ag-panel-host'); return h && h.shadowRoot; })();
+      var $ = function(id) { return sh ? sh.getElementById(id) : null; };
+      var cfg = {
+        radius:      $('ag-hunt-radius-check')   ? $('ag-hunt-radius-check').checked   : false,
+        kite:        $('ag-hunt-kite-check')      ? $('ag-hunt-kite-check').checked      : false,
+        safespot:    $('ag-hunt-safespot-check')  ? $('ag-hunt-safespot-check').checked  : false,
+        godmode:     $('ag-godmode-check')         ? $('ag-godmode-check').checked        : false,
+        zombiesOnly: $('ag-zombies-only-check')   ? $('ag-zombies-only-check').checked   : false,
+        wolvesOnly:  $('ag-wolves-only-check')    ? $('ag-wolves-only-check').checked    : false,
+        health:      $('ag-potion-health-check')  ? $('ag-potion-health-check').checked  : false,
+        shield:      $('ag-potion-shield-check')  ? $('ag-potion-shield-check').checked  : false,
+        strength:    $('ag-potion-strength-check')? $('ag-potion-strength-check').checked: false,
+        hpThresh:    $('ag-hunt-hp-thresh')       ? Number($('ag-hunt-hp-thresh').value) || 3 : 3,
+        shieldThresh:$('ag-hunt-shield-thresh')   ? Number($('ag-hunt-shield-thresh').value) || 2 : 2,
+      };
+      localStorage.setItem('kintara_ag_hunt_cfg', JSON.stringify(cfg));
+      // Apply live
+      agHuntSafespotEnabled = cfg.safespot;
+      if (cfg.godmode !== window.__agGodMode) {
+        window.__agGodMode = cfg.godmode;
+        try { localStorage.setItem('ag_godmode_global', cfg.godmode ? '1' : '0'); } catch(_) {}
+        try { var gb = document.getElementById('ag-godmode-global'); if (gb) gb.checked = cfg.godmode; } catch(_) {}
+      }
+    } catch(_) {}
   }
 
   function agHuntToggle() { agHuntActive ? agHuntStop() : agHuntStart(); }
@@ -18350,6 +18399,39 @@ loadMySales();
         }
       });
     }
+
+    // ── Restore + wire Hunt checkboxes ────────────────────────────────────────
+    (function() {
+      try {
+        var cfg = JSON.parse(localStorage.getItem('kintara_ag_hunt_cfg') || '{}');
+        var checks = {
+          'ag-hunt-radius-check':    !!cfg.radius,
+          'ag-hunt-kite-check':      !!cfg.kite,
+          'ag-hunt-safespot-check':  !!cfg.safespot,
+          'ag-godmode-check':        !!cfg.godmode || !!window.__agGodMode,
+          'ag-zombies-only-check':   !!cfg.zombiesOnly,
+          'ag-wolves-only-check':    !!cfg.wolvesOnly,
+          'ag-potion-health-check':  !!cfg.health,
+          'ag-potion-shield-check':  !!cfg.shield,
+          'ag-potion-strength-check':!!cfg.strength,
+        };
+        Object.keys(checks).forEach(function(id) {
+          var el = $(id);
+          if (el) {
+            el.checked = checks[id];
+            el.addEventListener('change', agSaveHuntCfg);
+          }
+        });
+        // Threshold inputs
+        var hpEl = $('ag-hunt-hp-thresh');
+        if (hpEl) { hpEl.value = cfg.hpThresh || 3; hpEl.addEventListener('input', agSaveHuntCfg); }
+        var shEl = $('ag-hunt-shield-thresh');
+        if (shEl) { shEl.value = cfg.shieldThresh || 2; shEl.addEventListener('input', agSaveHuntCfg); }
+        // Apply safespot immediately
+        agHuntSafespotEnabled = !!cfg.safespot;
+      } catch(_) {}
+    })();
+
     agHuntBtnEl    = $('ag-hunt-btn');
     agHuntStatusEl = $('ag-hunt-status');
     $('ag-hunt-btn').addEventListener('click', function() { agHuntToggle(); });
@@ -21400,5 +21482,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.72'
+// FIM AUTO-GATHER v3.74'
 
