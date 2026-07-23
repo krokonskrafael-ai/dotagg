@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.87';
+  const AG_VERSION          = 'v3.89';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6720,19 +6720,57 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
           var shardId = srv.routeShardId || srv.localShardId || 1;
           var tokenUrl = '/api/lobby/connect-token?shard=' + shardId + '&purpose=queue&zone=' + zoneKey;
           AG_LOG.info('[AutoJoin] Conectando direto: server=' + srv.name + ' shard=' + shardId + ' zone=' + zoneKey);
-          // Fetch token and connect
+          // Fetch token and connect via queue WS (then presence connects automatically)
           fetch(tokenUrl, { credentials: 'include' })
             .then(function(r) { return r.json(); })
             .then(function(tok) {
               if (!tok || !tok.token) { AG_LOG.warn('[AutoJoin] Token inválido para ' + srv.name); return; }
-              // Use Z4 to record shard then connect via jY with the WS URL
+              // Build queue WS URL directly from token + wsBaseUrl
+              // Pattern: wss://us2.kintara.com/ws/queue/s{routeShardId}?kt={token}
+              var wsBase = (srv.wsBaseUrl || '').replace(/\/+$/, '');
+              var queueWsUrl = wsBase + '/ws/queue/s' + shardId + '?kt=' + tok.token;
+              AG_LOG.info('[AutoJoin] WS queue: ' + queueWsUrl.slice(0, 80) + '...');
+              // Record shard and let jY handle presence after queue
               try { Z4(shardId); } catch(_) {}
-              // Store baseUrl for jY to use
-              try { localStorage.setItem('ag_last_server_base', srv.wsBaseUrl || ''); } catch(_) {}
-              try { 
+              // Close current WS and reconnect to trigger the full join flow
+              // We set the presence URL hint so jY picks the right base
+              try { localStorage.setItem('ag_server_ws_base', wsBase); } catch(_) {}
+              try {
                 if (Y && Y.readyState === WebSocket.OPEN) Y.close(4003, 'ag_server_switch');
               } catch(_) {}
-              setTimeout(function() { try { jY(); } catch(_) {} }, 150);
+              // Connect queue WS - server-select.mjs listens to this and triggers presence
+              setTimeout(function() {
+                try {
+                  var qWs = new WebSocket(queueWsUrl);
+                  qWs.onopen = function() {
+                    AG_LOG.info('[AutoJoin] Queue WS conectado para ' + srv.name);
+                  };
+                  qWs.onmessage = function(msg) {
+                    try {
+                      var data = JSON.parse(msg.data);
+                      // Queue might send: {t:'ready'} or {t:'queued', pos:N}
+                      AG_LOG.info('[AutoJoin] Queue msg: ' + JSON.stringify(data).slice(0, 60));
+                      if (data && (data.t === 'ready' || data.t === 'done' || data.ok)) {
+                        // Server is ready — call jY to start presence
+                        setTimeout(function() { try { jY(); } catch(_) {} }, 200);
+                      }
+                    } catch(_) {}
+                  };
+                  qWs.onerror = function() {
+                    AG_LOG.warn('[AutoJoin] Queue WS erro — tentando jY direto');
+                    try { jY(); } catch(_) {}
+                  };
+                  qWs.onclose = function(ev) {
+                    if (ev.code !== 4003) {
+                      AG_LOG.info('[AutoJoin] Queue fechou (code=' + ev.code + ') — conectando presence');
+                      setTimeout(function() { try { jY(); } catch(_) {} }, 300);
+                    }
+                  };
+                } catch(e) {
+                  AG_LOG.warn('[AutoJoin] Erro WS queue: ' + e + ' — fallback jY');
+                  try { jY(); } catch(_) {}
+                }
+              }, 150);
             })
             .catch(function(e) { AG_LOG.warn('[AutoJoin] Erro ao conectar: ' + e); });
         })
@@ -20782,6 +20820,18 @@ tr.best td { background: rgba(110,231,160,0.06); }
 
 
 
+  // ── Atalhos de teclado globais ────────────────────────────────────────────
+  window.addEventListener('keydown', function(e) {
+    // Ignorar se foco está em input/textarea (não queremos capturar typing)
+    var tag = (document.activeElement || {}).tagName || '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (e.key === 'F2')  { e.preventDefault(); agToggleOptMenu(); }
+    if (e.key === 'F7')  { e.preventDefault(); agHuntToggle(); }
+    if (e.key === 'F8')  { e.preventDefault(); agToggle(); }
+    if (e.key === 'F9')  { e.preventDefault(); agOpenMarketTab(); }
+    if (e.key === 'F10') { e.preventDefault(); agScoutHudToggle(); }
+  }, { capture: true });
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => { agBuildPanel(); agInstallReopenButton(); agStartRestoreMonitor(); });
   } else {
@@ -21595,5 +21645,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.87'
+// FIM AUTO-GATHER v3.89'
 
