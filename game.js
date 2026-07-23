@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.74';
+  const AG_VERSION          = 'v3.77';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6727,17 +6727,21 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
       }
     }
 
-    // 1. Servidor configurado por nome
-    if (targetServer) {
-      for (var i = 0; i < allItems.length; i++) {
-        var el = allItems[i];
-        var txt = '';
-        var p = el;
-        for (var d = 0; d < 4 && p; d++) { txt += ' ' + (p.textContent || ''); p = p.parentElement; }
-        if (txt.toLowerCase().includes(targetServer.toLowerCase()) && !_isFull(el)) {
-          AG_LOG.info('[AutoJoin] Servidor configurado: ' + txt.trim().slice(0,40));
-          _clickItem(el); return;
-        }
+    // 1. Servidor configurado por ID — só busca nos elegíveis (já filtrados de club)
+    if (targetServer && targetServer !== 'random' && eligible.length > 0) {
+      var _pref = String(targetServer).trim();
+      var prefEl = eligible.find(function(el) {
+        // Use ONLY the card's own text, no parent traversal
+        var txt = (el.textContent || '');
+        // Match "Server 20" exactly (word boundary)
+        return new RegExp('\\bServer\\s*' + _pref + '\\b', 'i').test(txt) ||
+               new RegExp('^\\s*' + _pref + '\\s*$').test(txt);
+      }) || null;
+      if (prefEl) {
+        AG_LOG.info('[AutoJoin] Servidor preferido: ' + (prefEl.textContent || '').trim().slice(0,40));
+        _clickItem(prefEl); return;
+      } else {
+        AG_LOG.warn('[AutoJoin] Servidor ' + _pref + ' não encontrado nos elegíveis — usando auto');
       }
     }
 
@@ -6763,16 +6767,14 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
         if (pick) AG_LOG.info('[AutoJoin] Servidor preferido encontrado: ' + targetServer);
       }
 
-      // 2. Prefer LOW, then last in list (highest ID)
+      // 2. Prefer LOW load, then last in list (highest ID = newest server = less crowded)
       if (!pick) {
         var lowItems = eligible.filter(function(el) {
-          var p = el; var t = '';
-          for (var d = 0; d < 4 && p; d++) { t += ' ' + (p.textContent || ''); p = p.parentElement; }
-          return /LOW/i.test(t);
+          var txt = (el.textContent || '').toUpperCase();
+          return txt.indexOf('LOW') !== -1 && txt.indexOf('MEDIUM') === -1 && txt.indexOf('HIGH') === -1;
         });
-        pick = (lowItems.length > 0 ? lowItems : eligible)[0];
-        pick = (lowItems.length > 0 ? lowItems : eligible);
-        pick = pick[pick.length - 1]; // último = ID mais alto
+        var pool = lowItems.length > 0 ? lowItems : eligible;
+        pick = pool[pool.length - 1]; // último = ID mais alto
       }
 
       if (pick) {
@@ -8119,10 +8121,10 @@ loadMySales();
           try {
             const foot2 = agHuntGetFoot(kind, agHuntTarget.idx);
             if (foot2) {
-              const mc = Math.round(foot2.x - rt());
-              const Tn = Math.round(foot2.z - ot());
+              const mc    = Math.round(foot2.x - rt());
+              const _mobRow = Math.round(foot2.z - ot());
               const dc = v - mc;
-              const dr = v - Tn;
+              const dr = w - _mobRow;
               const len = Math.max(1, Math.abs(dc) + Math.abs(dr));
               const blk2 = ss();
               let kPath = null;
@@ -8131,7 +8133,7 @@ loadMySales();
               (function() {
                 var visited = new Set();
                 var queue = [[v, w, 0]]; // [col, row, steps]
-                visited.add(v + ',' + v);
+                visited.add(v + ',' + w);
                 var bestTile = null, bestScore = -1;
                 var maxSearch = 80; // limite v tiles a explorar
                 var searched = 0;
@@ -8140,11 +8142,11 @@ loadMySales();
                   var qc = item[0], qr = item[1], steps = item[2];
                   searched++;
                   // Distância Chebyshev do mob
-                  var distMob = Math.max(Math.abs(qc - mc), Math.abs(qr - Tn));
+                  var distMob = Math.max(Math.abs(qc - mc), Math.abs(qr - _mobRow));
                   if (distMob >= 3 && steps >= 3) {
                     // Score: distância do mob (mais longe = melhor)
                     // + bônus se na direção oposta ao mob
-                    var dotProduct = (qc - v) * dc + (qr - Tn) * dr;
+                    var dotProduct = (qc - v) * dc + (qr - _mobRow) * dr;
                     var score = distMob * 10 + (dotProduct > 0 ? 5 : 0);
                     if (score > bestScore) {
                       bestScore = score;
@@ -15692,12 +15694,12 @@ loadMySales();
         try { var _ss = JSON.parse(localStorage.getItem('kintara_ag_startup') || '{}'); _jcStartup = _ss.joinClub === true; } catch(_) {}
 
         function _isClub(el) {
-          var txt = (el.textContent || '').toLowerCase(); return txt.indexOf('members only') !== -1 ||
-               txt.indexOf('kintara club') !== -1 ||
-               txt.indexOf('tap to subscribe') !== -1 ||
-               txt.indexOf('subscribe') !== -1 ||
-               txt.indexOf('club only') !== -1 ||
-               txt.indexOf('members-only') !== -1;
+          var txt = (el.textContent || '').toLowerCase();
+          return txt.indexOf('members only') !== -1 ||
+                 txt.indexOf('kintara club') !== -1 ||
+                 txt.indexOf('tap to subscribe') !== -1 ||
+                 txt.indexOf('club only') !== -1 ||
+                 txt.indexOf('members-only') !== -1;
         }
         function _isFull(el) {
           var el2 = el;
@@ -21482,5 +21484,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.74'
+// FIM AUTO-GATHER v3.77'
 
