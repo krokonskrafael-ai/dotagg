@@ -4718,7 +4718,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     }
   } catch(_e) {}
 
-  const AG_VERSION          = 'v3.86';
+  const AG_VERSION          = 'v3.87';
   const AG_TICK_MS          = 250; // reduzido para detectar fim v coleta mais rápido
   const AG_TICK_MS_HIDDEN   = 2000; // reduz frequência quando aba em background
 
@@ -6742,7 +6742,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     allItems = _getAllServerItems();
 
     // If no server items visible, try clicking zone button first
-    // Detect preferred zone and click if needed
+    // ── Zone selection ────────────────────────────────────────────────────────
     var _prefZone = '';
     try { _prefZone = localStorage.getItem('kintara_ag_preferred_zone') || ''; } catch(_) {}
     if (!_prefZone) _prefZone = 'NA';
@@ -6750,7 +6750,7 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     var _zoneLabels = { 'NA': ['NA','NORTH AMERICA'], 'EUR': ['EUR','EUROPE'], 'ASIA': ['ASIA','ASIA PACIFIC'] };
     var _labels = _zoneLabels[_prefZone] || [_prefZone];
 
-    // Find zone buttons
+    // Find the preferred zone button
     var _allZoneBtns = Array.from(document.querySelectorAll('button')).filter(function(b) {
       var txt = (b.textContent || '').trim().toUpperCase();
       return Object.values(_zoneLabels).some(function(lbls) {
@@ -6759,54 +6759,47 @@ body.kintara-mobile .kintara-mobile-bottom-dock .kintara-daily-quests__bubbleBtn
     });
 
     if (_allZoneBtns.length > 0) {
-      // Check if correct zone is already active (has 'active' class or aria-selected)
       var _prefZoneBtn = _allZoneBtns.find(function(b) {
         var txt = (b.textContent || '').trim().toUpperCase();
         return _labels.some(function(l) { return txt === l || txt.startsWith(l); });
       });
-      var _activeZoneBtn = _allZoneBtns.find(function(b) {
-        return b.classList.contains('active') || b.classList.contains('selected') ||
-               b.getAttribute('aria-selected') === 'true' ||
-               b.getAttribute('data-active') === 'true' ||
-               (b.style && (b.style.borderColor || b.style.color || b.style.background || '').indexOf('fbbf') !== -1) ||
-               // Check if this button's servers are currently showing
-               false;
-      });
 
-      // If no servers showing OR wrong zone is active → click preferred zone
-      var _needZoneClick = !allItems.length;
-      if (!_needZoneClick && _prefZoneBtn) {
-        // Check if current servers match the preferred zone by looking at visible server names
-        // ASIA servers start at 25+, EU at 22+, NA at 1-21
-        var _firstServerName = allItems.length > 0 ? (allItems[0].textContent || '') : '';
-        var _curZoneOk = (function() {
-          // Use agCardServerId to get actual server ID from data attribute
-          if (!allItems.length) return true;
-          var sid = agCardServerId(allItems[0]);
-          if (!sid) {
-            // Fallback: check if preferred zone button appears visually selected
-            // (has a bright border/color compared to others)
-            return true; // assume OK if we can't tell
+      // Check if preferred zone is active using multiple heuristics
+      var _zoneIsActive = (function() {
+        if (!_prefZoneBtn) return false;
+        var cls = _prefZoneBtn.className || '';
+        // Common active/selected class patterns
+        if (/active|selected|current|--active|--selected/i.test(cls)) return true;
+        if (_prefZoneBtn.getAttribute('aria-selected') === 'true') return true;
+        if (_prefZoneBtn.getAttribute('aria-pressed') === 'true') return true;
+        // Check computed border color - active zone has yellow/gold border
+        try {
+          var st = window.getComputedStyle(_prefZoneBtn);
+          var bc = st.borderColor || st.borderTopColor || '';
+          if (bc && bc !== 'rgba(0, 0, 0, 0)' && bc !== 'transparent') {
+            // Non-transparent border = likely active
+            // Compare with other zone buttons
+            var _otherHasSameBorder = _allZoneBtns.some(function(b) {
+              if (b === _prefZoneBtn) return false;
+              var bst = window.getComputedStyle(b);
+              return (bst.borderColor || bst.borderTopColor) === bc;
+            });
+            if (!_otherHasSameBorder) return true; // unique border = active
           }
-          var n = Number(sid);
-          if (_prefZone === 'NA')   return n >= 1  && n <= 21;
-          if (_prefZone === 'EUR')  return n >= 22 && n <= 24;
-          if (_prefZone === 'ASIA') return n >= 25 && n <= 30;
-          return true;
-        })();
-        if (!_curZoneOk) _needZoneClick = true;
-      }
+        } catch(_) {}
+        // If allItems > 0 and we recently clicked this zone, assume it's active
+        return allItems.length > 0 && _agServerWaitStart > 0;
+      })();
 
-      if (_needZoneClick && _prefZoneBtn) {
+      if (!_zoneIsActive && _prefZoneBtn) {
         AG_LOG.info('[AutoJoin] Clicando zona: ' + _prefZone);
         _prefZoneBtn.click();
-        _agLastServerClick = now; // full cooldown so we don't re-click zone immediately
+        _agLastServerClick = now;
         _agServerWaitStart = 0;
         return;
       }
     } else if (!allItems.length) {
-      // No zone buttons visible yet, wait
-      return;
+      return; // No zone buttons yet, wait
     }
 
     // Filtrar elegíveis (sem club, sem full)
@@ -21602,5 +21595,5 @@ tr.best td { background: rgba(110,231,160,0.06); }
   } // fecha o else do guard v instância única
 }
 // ═══════════════════════════════════════════════════════════════════════════════
-// FIM AUTO-GATHER v3.86'
+// FIM AUTO-GATHER v3.87'
 
